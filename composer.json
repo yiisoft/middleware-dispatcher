@@ -26,7 +26,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Yiisoft\\Middleware\\Dispatcher": "src"
+            "Yiisoft\\Middleware\\Dispatcher\\": "src"
         }
     },
     "autoload-dev": {
@@ -36,7 +36,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "3.0.x-dev"
+            "dev-master": "1.0.x-dev"
         }
     },
     "config": {
