@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -9,7 +11,7 @@ use Yiisoft\Middleware\Dispatcher\Tests\Support\Container;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
 
-class MiddlewareFactoryTest extends TestCase
+final class MiddlewareFactoryTest extends TestCase
 {
     public function testCreateFromString(): void
     {

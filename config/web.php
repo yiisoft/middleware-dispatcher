@@ -6,6 +6,6 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 
 return [
-    MiddlewareStackInterface::class => Middlewarestack::class,
+    MiddlewareStackInterface::class => MiddlewareStack::class,
     MiddlewareFactoryInterface::class => MiddlewareFactory::class,
 ];

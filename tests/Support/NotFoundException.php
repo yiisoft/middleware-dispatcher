@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Middleware\Dispatcher\Tests\Support;
 
 use Psr\Container\NotFoundExceptionInterface;
 
-class NotFoundException extends \RuntimeException implements NotFoundExceptionInterface
+final class NotFoundException extends \RuntimeException implements NotFoundExceptionInterface
 {
 }

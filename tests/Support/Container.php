@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Middleware\Dispatcher\Tests\Support;
 
 use Psr\Container\ContainerInterface;
 
-class Container implements ContainerInterface
+final class Container implements ContainerInterface
 {
     private array $instances;
 
