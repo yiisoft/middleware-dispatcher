@@ -3,7 +3,8 @@
     "type": "library",
     "description": "Middleware dispatcher",
     "keywords": [
-        "middleware", "dispatcher"
+        "middleware",
+        "dispatcher"
     ],
     "homepage": "https://www.yiiframework.com/",
     "license": "BSD-3-Clause",
@@ -49,5 +50,10 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "scripts": {
+        "test": [
+            "phpunit --colors --no-interaction"
+        ]
     }
 }
