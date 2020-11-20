@@ -12,6 +12,7 @@ final class MiddlewareDispatcher
 {
     /**
      * Contains a stack of middleware handler.
+     *
      * @var MiddlewareStackInterface stack of middleware
      */
     private MiddlewareStackInterface $stack;
@@ -19,7 +20,7 @@ final class MiddlewareDispatcher
     private MiddlewareFactoryInterface $middlewareFactory;
 
     /**
-     * @var callable[]|string[]|array[]
+     * @var array[]|callable[]|string[]
      */
     private array $middlewareDefinitions = [];
 
@@ -38,7 +39,7 @@ final class MiddlewareDispatcher
         return $this->stack->handle($request);
     }
 
-    public function withMiddlewares(array $middlewareDefinitions): MiddlewareDispatcher
+    public function withMiddlewares(array $middlewareDefinitions): self
     {
         $clone = clone $this;
         $clone->middlewareDefinitions = $middlewareDefinitions;

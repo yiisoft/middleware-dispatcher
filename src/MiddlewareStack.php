@@ -14,6 +14,7 @@ final class MiddlewareStack implements MiddlewareStackInterface
     /**
      * Contains a stack of middleware wrapped in handlers.
      * Each handler points to the handler of middleware that will be processed next.
+     *
      * @var RequestHandlerInterface|null stack of middleware
      */
     private ?RequestHandlerInterface $stack = null;

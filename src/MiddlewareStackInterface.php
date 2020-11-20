@@ -8,7 +8,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 interface MiddlewareStackInterface extends RequestHandlerInterface
 {
-    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): MiddlewareStackInterface;
+    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): self;
 
     public function reset(): void;
 
