@@ -39,6 +39,19 @@ final class MiddlewareDispatcher
         return $this->stack->handle($request);
     }
 
+    /**
+     * Returns new instance with middleware handlers replaced.
+     * Last specified handler will be executed first.
+     *
+     * @param array $middlewareDefinitions Each array element is a name of PSR-15 middleware, a callable with
+     * `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface` signature or
+     * a handler action (an array of [handlerClass, handlerMethod]). For handler action and callable typed parameters
+     * are automatically injected using dependency injection container passed to the route.
+     * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
+     * and {@see RequestHandlerInterface}.
+     *
+     * @return self
+     */
     public function withMiddlewares(array $middlewareDefinitions): self
     {
         $clone = clone $this;
