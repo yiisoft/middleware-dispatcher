@@ -15,6 +15,7 @@ interface MiddlewareFactoryInterface
      * are automatically injected using dependency injection container passed to the route.
      * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
      * and {@see RequestHandlerInterface}.
+     *
      * @return MiddlewareInterface
      */
     public function create($middlewareDefinition): MiddlewareInterface;
