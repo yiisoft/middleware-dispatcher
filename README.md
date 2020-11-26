@@ -15,7 +15,7 @@
 [![static analysis](https://github.com/yiisoft/middleware-dispatcher/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/middleware-dispatcher/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/middleware-dispatcher/coverage.svg)](https://shepherd.dev/github/yiisoft/middleware-dispatcher)
 
-The package ...
+The package is a [PSR-15](https://www.php-fig.org/psr/psr-15/) middleware dispatcher.
 
 ## Installation
 
