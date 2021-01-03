@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
+namespace Yiisoft\Middleware\Dispatcher\Tests;
+
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use stdClass;
+use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\Container;
@@ -29,39 +33,39 @@ final class MiddlewareFactoryTest extends TestCase
 
     public function testInvalidMiddleware(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->getMiddlewareFactory()->create(new \stdClass());
+        $this->expectException(InvalidMiddlewareDefinitionException::class);
+        $this->getMiddlewareFactory()->create(new stdClass());
     }
 
     public function testInvalidMiddlewareAddWrongString(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->getMiddlewareFactory()->create('test');
     }
 
     public function testInvalidMiddlewareAddWrongStringClass(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->expectExceptionMessage('Parameter should be either PSR middleware class name or a callable.');
         $this->getMiddlewareFactory()->create(TestController::class);
     }
 
     public function testInvalidMiddlewareAddWrongArraySize(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->getMiddlewareFactory()->create(['test']);
     }
 
     public function testInvalidMiddlewareAddWrongArrayClass(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->getMiddlewareFactory()->create(['class', 'test']);
     }
 
     public function testInvalidMiddlewareAddWrongArrayType(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->getMiddlewareFactory()->create(['class' => \Yiisoft\Router\Tests\Support\TestController::class, 'index']);
+        $this->expectException(InvalidMiddlewareDefinitionException::class);
+        $this->getMiddlewareFactory()->create(['class' => TestController::class, 'index']);
     }
 
     private function getMiddlewareFactory(ContainerInterface $container = null): MiddlewareFactoryInterface
