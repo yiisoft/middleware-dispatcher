@@ -19,7 +19,7 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             ],
             [
                 new TestController(),
-                'Instance of class "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController"',
+                'an instance of "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController"',
             ],
             [
                 [TestController::class, 'notExistsAction'],
@@ -41,6 +41,6 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
     public function testBase($definition, string $expected): void
     {
         $exception = new InvalidMiddlewareDefinitionException($definition);
-        $this->assertStringEndsWith('. Got it: ' . $expected . '.', $exception->getMessage());
+        $this->assertStringEndsWith('. Got ' . $expected . '.', $exception->getMessage());
     }
 }

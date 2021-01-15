@@ -15,9 +15,9 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
     {
         $message = 'Parameter should be either PSR middleware class name or a callable.';
 
-        $definition = $this->convertDefinitionToString($middlewareDefinition);
-        if ($definition !== null) {
-            $message .= ' Got it: ' . $definition . '.';
+        $definitionString = $this->convertDefinitionToString($middlewareDefinition);
+        if ($definitionString !== null) {
+            $message .= ' Got ' . $definitionString . '.';
         }
 
         parent::__construct($message);
@@ -26,7 +26,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
     private function convertDefinitionToString($middlewareDefinition): ?string
     {
         if (is_object($middlewareDefinition)) {
-            return 'Instance of class "' . get_class($middlewareDefinition) . '"';
+            return 'an instance of "' . get_class($middlewareDefinition) . '"';
         }
 
         if (is_string($middlewareDefinition)) {
