@@ -5,7 +5,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
-use Yiisoft\Middleware\Dispatcher\ActionParametersInjector\ActionParametersInjector;
+use Yiisoft\Middleware\Dispatcher\ActionParametersCollector\ActionParametersCollector;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\Container;
@@ -69,7 +69,7 @@ final class MiddlewareFactoryTest extends TestCase
     {
         return new MiddlewareFactory(
             $container ?? $this->createContainer(),
-            $this->createActionParametersInjector()
+            $this->createActionParametersCollector()
         );
     }
 
@@ -78,8 +78,8 @@ final class MiddlewareFactoryTest extends TestCase
         return new Container($instances);
     }
 
-    private function createActionParametersInjector(array $parameters = []): ActionParametersInjector
+    private function createActionParametersCollector(array $parameters = []): ActionParametersCollector
     {
-        return new ActionParametersInjector($parameters);
+        return new ActionParametersCollector($parameters);
     }
 }

@@ -11,17 +11,17 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Injector\Injector;
-use Yiisoft\Middleware\Dispatcher\ActionParametersInjector\ActionParametersInjectorInterface;
+use Yiisoft\Middleware\Dispatcher\ActionParametersCollector\ActionParametersCollectorInterface;
 
 final class MiddlewareFactory implements MiddlewareFactoryInterface
 {
     private ContainerInterface $container;
-    private ActionParametersInjectorInterface $actionParametersInjector;
+    private ActionParametersCollectorInterface $actionParametersCollector;
 
-    public function __construct(ContainerInterface $container, ActionParametersInjectorInterface $actionParametersInjector)
+    public function __construct(ContainerInterface $container, ActionParametersCollectorInterface $actionParametersCollector)
     {
         $this->container = $container;
-        $this->actionParametersInjector = $actionParametersInjector;
+        $this->actionParametersCollector = $actionParametersCollector;
     }
 
     public function create($middlewareDefinition): MiddlewareInterface
@@ -54,44 +54,44 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
     {
         if (is_array($callback) && !is_object($callback[0])) {
             [$controller, $action] = $callback;
-            return new class($controller, $action, $this->container, $this->actionParametersInjector) implements MiddlewareInterface {
+            return new class($controller, $action, $this->container, $this->actionParametersCollector) implements MiddlewareInterface {
                 private string $class;
                 private string $method;
                 private ContainerInterface $container;
-                private ActionParametersInjectorInterface $actionParametersInjector;
+                private ActionParametersCollectorInterface $actionParametersCollector;
 
-                public function __construct(string $class, string $method, ContainerInterface $container, ActionParametersInjectorInterface $actionParametersInjector)
+                public function __construct(string $class, string $method, ContainerInterface $container, ActionParametersCollectorInterface $actionParametersCollector)
                 {
                     $this->class = $class;
                     $this->method = $method;
                     $this->container = $container;
-                    $this->actionParametersInjector = $actionParametersInjector;
+                    $this->actionParametersCollector = $actionParametersCollector;
                 }
 
                 public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
                 {
                     $controller = $this->container->get($this->class);
-                    $actionParameters = array_merge([$request, $handler], $this->actionParametersInjector->getParameters());
+                    $actionParameters = array_merge([$request, $handler], $this->actionParametersCollector->getParameters());
                     return (new Injector($this->container))->invoke([$controller, $this->method], $actionParameters);
                 }
             };
         }
 
-        return new class($callback, $this->container, $this->actionParametersInjector) implements MiddlewareInterface {
+        return new class($callback, $this->container, $this->actionParametersCollector) implements MiddlewareInterface {
             private ContainerInterface $container;
             private $callback;
-            private ActionParametersInjectorInterface $actionParametersInjector;
+            private ActionParametersCollectorInterface $actionParametersCollector;
 
-            public function __construct(callable $callback, ContainerInterface $container, ActionParametersInjectorInterface $actionParametersInjector)
+            public function __construct(callable $callback, ContainerInterface $container, ActionParametersCollectorInterface $actionParametersCollector)
             {
                 $this->callback = $callback;
                 $this->container = $container;
-                $this->actionParametersInjector = $actionParametersInjector;
+                $this->actionParametersCollector = $actionParametersCollector;
             }
 
             public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
             {
-                $actionParameters = array_merge([$request, $handler], $this->actionParametersInjector->getParameters());
+                $actionParameters = array_merge([$request, $handler], $this->actionParametersCollector->getParameters());
                 $response = (new Injector($this->container))->invoke($this->callback, $actionParameters);
                 return $response instanceof MiddlewareInterface ? $response->process($request, $handler) : $response;
             }

@@ -12,7 +12,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Yiisoft\Middleware\Dispatcher\ActionParametersInjector\ActionParametersInjector;
+use Yiisoft\Middleware\Dispatcher\ActionParametersCollector\ActionParametersCollector;
+use Yiisoft\Middleware\Dispatcher\ActionParametersCollector\ActionParametersCollectorInterface;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
@@ -20,6 +21,7 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\Container;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\MockEventDispatcher;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\ResponseCodeMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 
 final class MiddlewareDispatcherTest extends TestCase
@@ -138,6 +140,27 @@ final class MiddlewareDispatcherTest extends TestCase
         );
     }
 
+    public function testInjectActionParameters(): void
+    {
+        $statusCode = 100500;
+        $actionParametersCollector = new ActionParametersCollector();
+        $container = new Container([
+            ResponseCodeMiddleware::class => new ResponseCodeMiddleware($statusCode, $actionParametersCollector),
+        ]);
+        $request = new ServerRequest('GET', '/');
+
+        $dispatcher = $this->getDispatcher($container, null, $actionParametersCollector)
+            ->withMiddlewares([
+                function (int $statusCode) {
+                    return new Response($statusCode);
+                },
+                ResponseCodeMiddleware::class,
+            ]);
+
+        $response = $dispatcher->dispatch($request, $this->getRequestHandler());
+        $this->assertSame($statusCode, $response->getStatusCode());
+    }
+
     private function getRequestHandler(): RequestHandlerInterface
     {
         return new class() implements RequestHandlerInterface {
@@ -148,14 +171,17 @@ final class MiddlewareDispatcherTest extends TestCase
         };
     }
 
-    private function getDispatcher(ContainerInterface $container = null, ?EventDispatcherInterface $eventDispatcher = null): MiddlewareDispatcher
+    private function getDispatcher(ContainerInterface $container = null, ?EventDispatcherInterface $eventDispatcher = null, ActionParametersCollectorInterface $actionParametersCollector = null): MiddlewareDispatcher
     {
         if ($eventDispatcher === null) {
             $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         }
 
         return new MiddlewareDispatcher(
-            new MiddlewareFactory($container ?? $this->createContainer(), $this->createActionParametersInjector()),
+            new MiddlewareFactory(
+                $container ?? $this->createContainer(),
+                $actionParametersCollector ?? $this->createActionParametersCollector()
+            ),
             new MiddlewareStack($eventDispatcher)
         );
     }
@@ -165,8 +191,8 @@ final class MiddlewareDispatcherTest extends TestCase
         return new Container($instances);
     }
 
-    private function createActionParametersInjector(): ActionParametersInjector
+    private function createActionParametersCollector(): ActionParametersCollector
     {
-        return new ActionParametersInjector();
+        return new ActionParametersCollector();
     }
 }

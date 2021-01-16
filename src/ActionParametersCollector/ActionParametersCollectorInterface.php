@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Yiisoft\Middleware\Dispatcher\ActionParametersInjector;
+namespace Yiisoft\Middleware\Dispatcher\ActionParametersCollector;
 
-interface ActionParametersInjectorInterface
+interface ActionParametersCollectorInterface
 {
-    public function addParameter($parameter): void;
+    public function addParameter(array $parameter): void;
 
     public function hasParameter($parameter): bool;
 

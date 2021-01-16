@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Yiisoft\Middleware\Dispatcher\ActionParametersInjector;
+namespace Yiisoft\Middleware\Dispatcher\ActionParametersCollector;
 
-class ActionParametersInjector implements ActionParametersInjectorInterface
+class ActionParametersCollector implements ActionParametersCollectorInterface
 {
     private array $params;
 
@@ -12,9 +12,15 @@ class ActionParametersInjector implements ActionParametersInjectorInterface
         $this->params = $params;
     }
 
-    public function addParameter($parameter): void
+    public function addParameter(array $parameter): void
     {
-        $this->params[] = $parameter;
+        foreach ($parameter as $key => $value) {
+            if (is_int($key)) {
+                $this->params[] = $parameter;
+            } elseif (is_string($key)) {
+                $this->params[$key] = $value;
+            }
+        }
     }
 
     public function hasParameter($parameter): bool
