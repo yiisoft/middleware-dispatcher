@@ -11,14 +11,17 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Injector\Injector;
+use Yiisoft\Middleware\Dispatcher\ActionParametersInjector\ActionParametersInjectorInterface;
 
 final class MiddlewareFactory implements MiddlewareFactoryInterface
 {
     private ContainerInterface $container;
+    private ActionParametersInjectorInterface $actionParametersInjector;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, ActionParametersInjectorInterface $actionParametersInjector)
     {
         $this->container = $container;
+        $this->actionParametersInjector = $actionParametersInjector;
     }
 
     public function create($middlewareDefinition): MiddlewareInterface
@@ -51,39 +54,45 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
     {
         if (is_array($callback) && !is_object($callback[0])) {
             [$controller, $action] = $callback;
-            return new class($controller, $action, $this->container) implements MiddlewareInterface {
+            return new class($controller, $action, $this->container, $this->actionParametersInjector) implements MiddlewareInterface {
                 private string $class;
                 private string $method;
                 private ContainerInterface $container;
+                private ActionParametersInjectorInterface $actionParametersInjector;
 
-                public function __construct(string $class, string $method, ContainerInterface $container)
+                public function __construct(string $class, string $method, ContainerInterface $container, ActionParametersInjectorInterface $actionParametersInjector)
                 {
                     $this->class = $class;
                     $this->method = $method;
                     $this->container = $container;
+                    $this->actionParametersInjector = $actionParametersInjector;
                 }
 
                 public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
                 {
                     $controller = $this->container->get($this->class);
-                    return (new Injector($this->container))->invoke([$controller, $this->method], [$request, $handler]);
+                    $actionParameters = array_merge([$request, $handler], $this->actionParametersInjector->getParameters());
+                    return (new Injector($this->container))->invoke([$controller, $this->method], $actionParameters);
                 }
             };
         }
 
-        return new class($callback, $this->container) implements MiddlewareInterface {
+        return new class($callback, $this->container, $this->actionParametersInjector) implements MiddlewareInterface {
             private ContainerInterface $container;
             private $callback;
+            private ActionParametersInjectorInterface $actionParametersInjector;
 
-            public function __construct(callable $callback, ContainerInterface $container)
+            public function __construct(callable $callback, ContainerInterface $container, ActionParametersInjectorInterface $actionParametersInjector)
             {
                 $this->callback = $callback;
                 $this->container = $container;
+                $this->actionParametersInjector = $actionParametersInjector;
             }
 
             public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
             {
-                $response = (new Injector($this->container))->invoke($this->callback, [$request, $handler]);
+                $actionParameters = array_merge([$request, $handler], $this->actionParametersInjector->getParameters());
+                $response = (new Injector($this->container))->invoke($this->callback, $actionParameters);
                 return $response instanceof MiddlewareInterface ? $response->process($request, $handler) : $response;
             }
         };

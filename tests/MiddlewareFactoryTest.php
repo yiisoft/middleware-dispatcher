@@ -5,6 +5,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use Yiisoft\Middleware\Dispatcher\ActionParametersInjector\ActionParametersInjector;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\Container;
@@ -15,14 +16,14 @@ final class MiddlewareFactoryTest extends TestCase
 {
     public function testCreateFromString(): void
     {
-        $container = $this->getContainer([TestMiddleware::class => new TestMiddleware()]);
+        $container = $this->createContainer([TestMiddleware::class => new TestMiddleware()]);
         $middleware = $this->getMiddlewareFactory($container)->create(TestMiddleware::class);
         $this->assertInstanceOf(MiddlewareInterface::class, $middleware);
     }
 
     public function testCreateFromArray(): void
     {
-        $container = $this->getContainer([TestController::class => new TestController()]);
+        $container = $this->createContainer([TestController::class => new TestController()]);
         $middleware = $this->getMiddlewareFactory($container)->create([TestController::class, 'index']);
         $this->assertInstanceOf(MiddlewareInterface::class, $middleware);
     }
@@ -66,15 +67,19 @@ final class MiddlewareFactoryTest extends TestCase
 
     private function getMiddlewareFactory(ContainerInterface $container = null): MiddlewareFactoryInterface
     {
-        if ($container !== null) {
-            return new MiddlewareFactory($container);
-        }
-
-        return new MiddlewareFactory($this->getContainer());
+        return new MiddlewareFactory(
+            $container ?? $this->createContainer(),
+            $this->createActionParametersInjector()
+        );
     }
 
-    private function getContainer(array $instances = []): ContainerInterface
+    private function createContainer(array $instances = []): ContainerInterface
     {
         return new Container($instances);
+    }
+
+    private function createActionParametersInjector(array $parameters = []): ActionParametersInjector
+    {
+        return new ActionParametersInjector($parameters);
     }
 }

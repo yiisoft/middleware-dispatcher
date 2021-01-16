@@ -12,6 +12,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Yiisoft\Middleware\Dispatcher\ActionParametersInjector\ActionParametersInjector;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
@@ -55,7 +56,7 @@ final class MiddlewareDispatcherTest extends TestCase
     public function testAddCallableArrayMiddleware(): void
     {
         $request = new ServerRequest('GET', '/');
-        $container = $this->getContainer([TestController::class => new TestController()]);
+        $container = $this->createContainer([TestController::class => new TestController()]);
         $dispatcher = $this->getDispatcher($container)->withMiddlewares([[TestController::class, 'index']]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
@@ -101,7 +102,7 @@ final class MiddlewareDispatcherTest extends TestCase
     public function testArrayMiddlewareSuccessfulCall(): void
     {
         $request = new ServerRequest('GET', '/');
-        $container = $this->getContainer([
+        $container = $this->createContainer([
             TestController::class => new TestController(),
         ]);
         $dispatcher = $this->getDispatcher($container)->withMiddlewares([[TestController::class, 'index']]);
@@ -153,21 +154,19 @@ final class MiddlewareDispatcherTest extends TestCase
             $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         }
 
-        if ($container === null) {
-            return new MiddlewareDispatcher(
-                new MiddlewareFactory($this->getContainer()),
-                new MiddlewareStack($eventDispatcher)
-            );
-        }
-
         return new MiddlewareDispatcher(
-            new MiddlewareFactory($container),
+            new MiddlewareFactory($container ?? $this->createContainer(), $this->createActionParametersInjector()),
             new MiddlewareStack($eventDispatcher)
         );
     }
 
-    private function getContainer(array $instances = []): ContainerInterface
+    private function createContainer(array $instances = []): ContainerInterface
     {
         return new Container($instances);
+    }
+
+    private function createActionParametersInjector(): ActionParametersInjector
+    {
+        return new ActionParametersInjector();
     }
 }
