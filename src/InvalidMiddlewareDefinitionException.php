@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\Middleware\Dispatcher;
 
 use InvalidArgumentException;
+use function get_class;
+use function is_array;
+use function is_object;
+use function is_string;
 
 final class InvalidMiddlewareDefinitionException extends InvalidArgumentException
 {
@@ -40,7 +44,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
                     return null;
                 }
             }
-            array_walk($items, function (&$item, $key) {
+            array_walk($items, static function (&$item, $key) {
                 $item = '"' . $item . '"';
                 if (is_string($key)) {
                     $item = '"' . $key . '" => ' . $item;
