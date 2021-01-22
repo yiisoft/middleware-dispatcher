@@ -16,7 +16,7 @@ use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
-use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
+use Yiisoft\Middleware\Dispatcher\MiddlewareQueue;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\Container;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\MockEventDispatcher;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
@@ -62,7 +62,7 @@ final class MiddlewareDispatcherTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
     }
 
-    public function testMiddlewareFullStackCalled(): void
+    public function testMiddlewareFullQueueCalled(): void
     {
         $request = new ServerRequest('GET', '/');
 
@@ -74,14 +74,14 @@ final class MiddlewareDispatcherTest extends TestCase
             return new Response(200, [], null, '1.1', implode($request->getAttributes()));
         };
 
-        $dispatcher = $this->getDispatcher()->withMiddlewares([$middleware2, $middleware1]);
+        $dispatcher = $this->getDispatcher()->withMiddlewares([$middleware1, $middleware2]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('middleware1', $response->getReasonPhrase());
     }
 
-    public function testMiddlewareStackInterrupted(): void
+    public function testMiddlewareQueueInterrupted(): void
     {
         $request = new ServerRequest('GET', '/');
 
@@ -92,7 +92,7 @@ final class MiddlewareDispatcherTest extends TestCase
             return new Response(200);
         };
 
-        $dispatcher = $this->getDispatcher()->withMiddlewares([$middleware2, $middleware1]);
+        $dispatcher = $this->getDispatcher()->withMiddlewares([$middleware1, $middleware2]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
         $this->assertSame(403, $response->getStatusCode());
@@ -123,7 +123,7 @@ final class MiddlewareDispatcherTest extends TestCase
             return new Response();
         };
 
-        $dispatcher = $this->getDispatcher(null, $eventDispatcher)->withMiddlewares([$middleware2, $middleware1]);
+        $dispatcher = $this->getDispatcher(null, $eventDispatcher)->withMiddlewares([$middleware1, $middleware2]);
         $dispatcher->dispatch($request, $this->getRequestHandler());
 
         $this->assertEquals(
@@ -156,13 +156,13 @@ final class MiddlewareDispatcherTest extends TestCase
         if ($container === null) {
             return new MiddlewareDispatcher(
                 new MiddlewareFactory($this->getContainer()),
-                new MiddlewareStack($eventDispatcher)
+                new MiddlewareQueue($eventDispatcher)
             );
         }
 
         return new MiddlewareDispatcher(
             new MiddlewareFactory($container),
-            new MiddlewareStack($eventDispatcher)
+            new MiddlewareQueue($eventDispatcher)
         );
     }
 

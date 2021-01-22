@@ -11,11 +11,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class MiddlewareDispatcher
 {
     /**
-     * Contains a stack of middleware handler.
+     * Contains a queue of middleware handler.
      *
-     * @var MiddlewareStackInterface stack of middleware
+     * @var MiddlewareQueueInterface queue of middleware
      */
-    private MiddlewareStackInterface $stack;
+    private MiddlewareQueueInterface $queue;
 
     private MiddlewareFactoryInterface $middlewareFactory;
 
@@ -24,19 +24,19 @@ final class MiddlewareDispatcher
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewareStackInterface $stack)
+    public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewareQueueInterface $queue)
     {
         $this->middlewareFactory = $middlewareFactory;
-        $this->stack = $stack;
+        $this->queue = $queue;
     }
 
     public function dispatch(ServerRequestInterface $request, RequestHandlerInterface $fallbackHandler): ResponseInterface
     {
-        if ($this->stack->isEmpty()) {
-            $this->stack = $this->stack->build($this->buildMiddlewares(), $fallbackHandler);
+        if ($this->queue->isEmpty()) {
+            $this->queue = $this->queue->build($this->buildMiddlewares(), $fallbackHandler);
         }
 
-        return $this->stack->handle($request);
+        return $this->queue->handle($request);
     }
 
     /**
@@ -56,7 +56,7 @@ final class MiddlewareDispatcher
     {
         $clone = clone $this;
         $clone->middlewareDefinitions = $middlewareDefinitions;
-        $clone->stack->reset();
+        $clone->queue->reset();
 
         return $clone;
     }

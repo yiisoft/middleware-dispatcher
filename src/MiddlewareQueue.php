@@ -12,15 +12,15 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 
-final class MiddlewareStack implements MiddlewareStackInterface
+final class MiddlewareQueue implements MiddlewareQueueInterface
 {
     /**
-     * Contains a stack of middleware wrapped in handlers.
+     * Contains a queue of middleware wrapped in handlers.
      * Each handler points to the handler of middleware that will be processed next.
      *
-     * @var RequestHandlerInterface|null stack of middleware
+     * @var RequestHandlerInterface|null queue of middleware
      */
-    private ?RequestHandlerInterface $stack = null;
+    private ?RequestHandlerInterface $queue = null;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -29,15 +29,17 @@ final class MiddlewareStack implements MiddlewareStackInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): MiddlewareStackInterface
+    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): MiddlewareQueueInterface
     {
         $handler = $fallbackHandler;
+        $middlewares = array_reverse($middlewares);
+        $firstMiddleware = array_pop($middlewares);
         foreach ($middlewares as $middleware) {
             $handler = $this->wrap($middleware, $handler);
         }
 
         $new = clone $this;
-        $new->stack = $handler;
+        $new->queue = $this->wrap($firstMiddleware, $handler);
 
         return $new;
     }
@@ -45,20 +47,20 @@ final class MiddlewareStack implements MiddlewareStackInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->isEmpty()) {
-            throw new \RuntimeException('Stack is empty.');
+            throw new \RuntimeException('Queue is empty.');
         }
 
-        return $this->stack->handle($request);
+        return $this->queue->handle($request);
     }
 
     public function reset(): void
     {
-        $this->stack = null;
+        $this->queue = null;
     }
 
     public function isEmpty(): bool
     {
-        return $this->stack === null;
+        return $this->queue === null;
     }
 
     /**
