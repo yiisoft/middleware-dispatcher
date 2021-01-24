@@ -16,6 +16,7 @@ interface MiddlewareStackInterface extends RequestHandlerInterface
      *
      * @param MiddlewareInterface[] $middlewares Middlewares being composed to stack. Can be empty.
      * @param RequestHandlerInterface $fallbackHandler Main request handler.
+     *
      * @return self
      */
     public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): self;
