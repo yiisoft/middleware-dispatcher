@@ -7,12 +7,15 @@ namespace Yiisoft\Middleware\Dispatcher;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * A stack of PSR-15 middlewares to be used with {@see MiddlewareDispatcher}.
+ * @see https://www.php-fig.org/psr/psr-15/
+ */
 interface MiddlewareStackInterface extends RequestHandlerInterface
 {
     /**
-     * Builds middleware stack from array of middleware instances and the fallback request handler.
-     * It's possible not to pass any middlewares i. e. set `$middlewares` to `[]`,
-     * than only the fallback handler will be used.
+     * Builds a middleware stack from an array of middleware instances and a fallback request handler.
+     * If the middlewares array is empty, only the fallback handler will be used.
      *
      * @param MiddlewareInterface[] $middlewares Middlewares being composed to stack. Can be empty.
      * @param RequestHandlerInterface $fallbackHandler Fallback request handler.
@@ -22,14 +25,12 @@ interface MiddlewareStackInterface extends RequestHandlerInterface
     public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): self;
 
     /**
-     * Clears the middleware stack including fallback request handler.
+     * Clears the middleware stack and fallback request handler.
      */
     public function reset(): void;
 
     /**
-     * Checks if there are any middlewares or fallback request handler bound.
-     *
-     * @return bool
+     * @return bool Whether there are any middlewares or fallback request handler bound.
      */
     public function isEmpty(): bool;
 }
