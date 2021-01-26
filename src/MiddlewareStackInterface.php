@@ -9,6 +9,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * A stack of PSR-15 middlewares to be used with {@see MiddlewareDispatcher}.
+ *
  * @see https://www.php-fig.org/psr/psr-15/
  */
 interface MiddlewareStackInterface extends RequestHandlerInterface
