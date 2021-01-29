@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
-use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -96,6 +95,8 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
      * are automatically injected using dependency injection container passed to the route.
      * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
      * and {@see RequestHandlerInterface}.
+     *
+     * @throws InvalidMiddlewareDefinitionException
      */
     private function validateMiddleware($middlewareDefinition): void
     {
@@ -107,7 +108,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
             return;
         }
 
-        throw new InvalidArgumentException('Parameter should be either PSR middleware class name or a callable.');
+        throw new InvalidMiddlewareDefinitionException($middlewareDefinition);
     }
 
     private function isCallable($definition): bool

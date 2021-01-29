@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Router\Tests;
+namespace Yiisoft\Middleware\Dispatcher\Tests;
 
 use Nyholm\Psr7\Response;
 use Nyholm\Psr7\ServerRequest;
