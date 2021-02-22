@@ -27,6 +27,9 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         parent::__construct($message);
     }
 
+    /**
+     * @param mixed $middlewareDefinition
+     */
     private function convertDefinitionToString($middlewareDefinition): ?string
     {
         if (is_object($middlewareDefinition)) {
@@ -44,12 +47,20 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
                     return null;
                 }
             }
-            array_walk($items, static function (&$item, $key) {
-                $item = '"' . $item . '"';
-                if (is_string($key)) {
-                    $item = '"' . $key . '" => ' . $item;
+            array_walk(
+                $items,
+                /**
+                 * @param mixed $item
+                 * @psalm-param array-key $key
+                 */
+                static function (&$item, $key) {
+                    $item = (string)$item;
+                    $item = '"' . $item . '"';
+                    if (is_string($key)) {
+                        $item = '"' . $key . '" => ' . $item;
+                    }
                 }
-            });
+            );
             return '[' . implode(', ', $items) . ']';
         }
 
