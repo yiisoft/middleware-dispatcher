@@ -1,7 +1,7 @@
 {
     "name": "yiisoft/middleware-dispatcher",
     "type": "library",
-    "description": "Middleware dispatcher",
+    "description": "PSR-15 middleware dispatcher",
     "keywords": [
         "middleware",
         "dispatcher"
