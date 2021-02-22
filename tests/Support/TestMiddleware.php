@@ -14,6 +14,6 @@ final class TestMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        return new Response();
+        return new Response(200, ['test' => '42']);
     }
 }

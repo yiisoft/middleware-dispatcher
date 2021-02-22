@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 
@@ -45,9 +46,10 @@ final class MiddlewareStack implements MiddlewareStackInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->isEmpty()) {
-            throw new \RuntimeException('Stack is empty.');
+            throw new RuntimeException('Stack is empty.');
         }
 
+        /** @psalm-suppress PossiblyNullReference */
         return $this->stack->handle($request);
     }
 

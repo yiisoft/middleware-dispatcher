@@ -11,6 +11,6 @@ final class TestController
 {
     public function index(): ResponseInterface
     {
-        return new Response();
+        return new Response(200, ['test' => 'yii']);
     }
 }
