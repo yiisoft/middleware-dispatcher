@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
 use Yiisoft\Injector\Injector;
 
 use function in_array;
 use function is_array;
-use function is_callable;
-use function is_object;
 use function is_string;
 
 final class MiddlewareFactory implements MiddlewareFactoryInterface
@@ -131,7 +129,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
             return;
         }
 
-        if ($this->isCallable($middlewareDefinition) && (!is_array($middlewareDefinition) || !is_object($middlewareDefinition[0]))) {
+        if ($this->isCallable($middlewareDefinition)) {
             return;
         }
 
@@ -143,10 +141,8 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
      */
     private function isCallable($definition): bool
     {
-        if (is_callable($definition)) {
-            return is_object($definition)
-                ? !$definition instanceof MiddlewareInterface
-                : true;
+        if ($definition instanceof Closure) {
+            return true;
         }
 
         return is_array($definition)

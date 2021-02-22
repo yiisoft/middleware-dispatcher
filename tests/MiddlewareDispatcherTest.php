@@ -20,6 +20,7 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\Container;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\MockEventDispatcher;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
 
 final class MiddlewareDispatcherTest extends TestCase
 {
@@ -55,7 +56,7 @@ final class MiddlewareDispatcherTest extends TestCase
     public function testAddCallableArrayMiddleware(): void
     {
         $request = new ServerRequest('GET', '/');
-        $container = $this->getContainer([TestController::class => new TestController()]);
+        $container = $this->createContainer([TestController::class => new TestController()]);
         $dispatcher = $this->createDispatcher($container)->withMiddlewares([[TestController::class, 'index']]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
@@ -101,7 +102,7 @@ final class MiddlewareDispatcherTest extends TestCase
     public function testArrayMiddlewareSuccessfulCall(): void
     {
         $request = new ServerRequest('GET', '/');
-        $container = $this->getContainer([
+        $container = $this->createContainer([
             TestController::class => new TestController(),
         ]);
         $dispatcher = $this->createDispatcher($container)->withMiddlewares([[TestController::class, 'index']]);
@@ -156,6 +157,32 @@ final class MiddlewareDispatcherTest extends TestCase
         );
     }
 
+    public function testImmutability(): void
+    {
+        $dispatcher = $this->createDispatcher();
+        self::assertNotSame($dispatcher, $dispatcher->withMiddlewares([]));
+    }
+
+    public function testResetStackOnWithMiddlewares(): void
+    {
+        $request = new ServerRequest('GET', '/');
+        $container = $this->createContainer([
+            TestController::class => new TestController(),
+            TestMiddleware::class => new TestMiddleware(),
+        ]);
+
+        $dispatcher = $this
+            ->createDispatcher($container)
+            ->withMiddlewares([[TestController::class, 'index']]);
+        $dispatcher->dispatch($request, $this->getRequestHandler());
+
+        $dispatcher = $dispatcher->withMiddlewares([TestMiddleware::class]);
+
+        $response = $dispatcher->dispatch($request, $this->getRequestHandler());
+
+        self::assertSame('42', $response->getHeaderLine('test'));
+    }
+
     private function getRequestHandler(): RequestHandlerInterface
     {
         return new class() implements RequestHandlerInterface {
@@ -174,7 +201,7 @@ final class MiddlewareDispatcherTest extends TestCase
 
         if ($container === null) {
             return new MiddlewareDispatcher(
-                new MiddlewareFactory($this->getContainer()),
+                new MiddlewareFactory($this->createContainer()),
                 new MiddlewareStack($eventDispatcher)
             );
         }
@@ -185,7 +212,7 @@ final class MiddlewareDispatcherTest extends TestCase
         );
     }
 
-    private function getContainer(array $instances = []): ContainerInterface
+    private function createContainer(array $instances = []): ContainerInterface
     {
         return new Container($instances);
     }
