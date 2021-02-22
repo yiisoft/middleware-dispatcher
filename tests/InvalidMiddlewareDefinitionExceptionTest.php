@@ -65,5 +65,4 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             $exception->getMessage()
         );
     }
-
 }

@@ -142,7 +142,7 @@ final class MiddlewareDispatcherTest extends TestCase
     {
         return [
             [[], false],
-            [[[TestController::class, 'index']], true]
+            [[[TestController::class, 'index']], true],
         ];
     }
 
