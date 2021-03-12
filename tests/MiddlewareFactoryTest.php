@@ -16,12 +16,12 @@ use stdClass;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
-use Yiisoft\Middleware\Dispatcher\Tests\Support\Container;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
+use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class MiddlewareFactoryTest extends TestCase
 {
@@ -42,18 +42,6 @@ final class MiddlewareFactoryTest extends TestCase
                 $this->createMock(ServerRequestInterface::class),
                 $this->createMock(RequestHandlerInterface::class)
             )->getHeaderLine('test')
-        );
-    }
-
-    public function testCreateInvalidFromArray(): void
-    {
-        $container = $this->getContainer([InvalidController::class => new InvalidController()]);
-        $middleware = $this->getMiddlewareFactory($container)->create([InvalidController::class, 'index']);
-
-        $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $middleware->process(
-            $this->createMock(ServerRequestInterface::class),
-            $this->createMock(RequestHandlerInterface::class)
         );
     }
 
@@ -119,7 +107,7 @@ final class MiddlewareFactoryTest extends TestCase
         );
     }
 
-    public function testCreateWithInvalidCallback(): void
+    public function testInvalidMiddlewareWithWrongCallable(): void
     {
         $container = $this->getContainer([TestController::class => new TestController()]);
         $middleware = $this->getMiddlewareFactory($container)->create(
@@ -135,44 +123,62 @@ final class MiddlewareFactoryTest extends TestCase
         );
     }
 
-    public function testInvalidMiddleware(): void
+    public function testInvalidMiddlewareWithWrongInstance(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->getMiddlewareFactory()->create(new stdClass());
     }
 
-    public function testInvalidMiddlewareAddWrongString(): void
+    public function testInvalidMiddlewareWithWrongString(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->getMiddlewareFactory()->create('test');
     }
 
-    public function testInvalidMiddlewareAddWrongStringClass(): void
+    public function testInvalidMiddlewareWithWrongClass(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->expectExceptionMessage('Parameter should be either PSR middleware class name or a callable.');
         $this->getMiddlewareFactory()->create(TestController::class);
     }
 
-    public function testInvalidMiddlewareAddWrongArraySize(): void
+    public function testInvalidMiddlewareWithWrongController(): void
+    {
+        $container = $this->getContainer([InvalidController::class => new InvalidController()]);
+        $middleware = $this->getMiddlewareFactory($container)->create([InvalidController::class, 'index']);
+
+        $this->expectException(InvalidMiddlewareDefinitionException::class);
+        $middleware->process(
+            $this->createMock(ServerRequestInterface::class),
+            $this->createMock(RequestHandlerInterface::class)
+        );
+    }
+
+    public function testInvalidMiddlewareWithWrongArraySize(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->getMiddlewareFactory()->create(['test']);
     }
 
-    public function testInvalidMiddlewareAddWrongArrayClass(): void
+    public function testInvalidMiddlewareWithWrongArrayClass(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->getMiddlewareFactory()->create(['class', 'test']);
     }
 
-    public function testInvalidMiddlewareAddWrongArrayType(): void
+    public function testInvalidMiddlewareWithWrongArrayType(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->getMiddlewareFactory()->create(['class' => TestController::class, 'index']);
     }
 
-    public function testInvalidMiddlewareAddWrongArrayWithIntItems(): void
+    public function testInvalidMiddlewareWithWrongArrayWithInstance(): void
+    {
+        $this->expectException(InvalidMiddlewareDefinitionException::class);
+        $this->getMiddlewareFactory()->create([new TestController(), 'index']);
+    }
+
+    public function testInvalidMiddlewareWithWrongArrayWithIntItems(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->getMiddlewareFactory()->create([7, 42]);
@@ -189,7 +195,7 @@ final class MiddlewareFactoryTest extends TestCase
 
     private function getContainer(array $instances = []): ContainerInterface
     {
-        return new Container($instances);
+        return new SimpleContainer($instances);
     }
 
     private function getRequestHandler(): RequestHandlerInterface

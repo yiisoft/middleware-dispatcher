@@ -51,21 +51,15 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
     private function wrapCallable($callback): MiddlewareInterface
     {
         if (is_array($callback)) {
-            /**
-             * @var string $controller
-             * @var string $action
-             */
-            [$controller, $action] = $callback;
-            return new class($controller, $action, $this->container, $callback) implements MiddlewareInterface {
+            return new class($this->container, $callback) implements MiddlewareInterface {
                 private string $class;
                 private string $method;
                 private ContainerInterface $container;
                 private array $callback;
 
-                public function __construct(string $class, string $method, ContainerInterface $container, array $callback)
+                public function __construct(ContainerInterface $container, array $callback)
                 {
-                    $this->class = $class;
-                    $this->method = $method;
+                    [$this->class , $this->method] = $callback;
                     $this->container = $container;
                     $this->callback = $callback;
                 }

@@ -17,20 +17,19 @@ use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
-use Yiisoft\Middleware\Dispatcher\Tests\Support\Container;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\MockEventDispatcher;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
+use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class MiddlewareDispatcherTest extends TestCase
 {
-    public function testAddMiddleware(): void
+    public function testCallableMiddlewareCalled(): void
     {
-        $container = $this->createMock(ContainerInterface::class);
         $request = new ServerRequest('GET', '/');
 
-        $dispatcher = $this->createDispatcher($container)->withMiddlewares([
-            function () {
+        $dispatcher = $this->createDispatcher()->withMiddlewares([
+            static function (): ResponseInterface {
                 return new Response(418);
             },
         ]);
@@ -39,24 +38,12 @@ final class MiddlewareDispatcherTest extends TestCase
         $this->assertSame(418, $response->getStatusCode());
     }
 
-    public function testAddCallableMiddleware(): void
+    public function testArrayMiddlewareCall(): void
     {
         $request = new ServerRequest('GET', '/');
-
-        $dispatcher = $this->createDispatcher()->withMiddlewares([
-            static function (): ResponseInterface {
-                return (new Response())->withStatus(418);
-            },
+        $container = $this->createContainer([
+            TestController::class => new TestController(),
         ]);
-
-        $response = $dispatcher->dispatch($request, $this->getRequestHandler());
-        $this->assertSame(418, $response->getStatusCode());
-    }
-
-    public function testAddCallableArrayMiddleware(): void
-    {
-        $request = new ServerRequest('GET', '/');
-        $container = $this->createContainer([TestController::class => new TestController()]);
         $dispatcher = $this->createDispatcher($container)->withMiddlewares([[TestController::class, 'index']]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
@@ -97,18 +84,6 @@ final class MiddlewareDispatcherTest extends TestCase
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
         $this->assertSame(403, $response->getStatusCode());
-    }
-
-    public function testArrayMiddlewareSuccessfulCall(): void
-    {
-        $request = new ServerRequest('GET', '/');
-        $container = $this->createContainer([
-            TestController::class => new TestController(),
-        ]);
-        $dispatcher = $this->createDispatcher($container)->withMiddlewares([[TestController::class, 'index']]);
-
-        $response = $dispatcher->dispatch($request, $this->getRequestHandler());
-        $this->assertSame(200, $response->getStatusCode());
     }
 
     public function testEventsAreDispatched(): void
@@ -214,6 +189,6 @@ final class MiddlewareDispatcherTest extends TestCase
 
     private function createContainer(array $instances = []): ContainerInterface
     {
-        return new Container($instances);
+        return new SimpleContainer($instances);
     }
 }
