@@ -7,11 +7,8 @@ namespace Yiisoft\Middleware\Dispatcher\Tests;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
-use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Middleware\Dispatcher\Tests\Support\FailMiddleware;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
 class MiddlewareStackTest extends TestCase
@@ -29,26 +26,5 @@ class MiddlewareStackTest extends TestCase
     {
         $stack = new MiddlewareStack(new SimpleEventDispatcher());
         self::assertNotSame($stack, $stack->build([], $this->createMock(RequestHandlerInterface::class)));
-    }
-
-    public function testMiddlewareFailWithException(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Middleware failed.');
-
-        $eventDispatcher = new SimpleEventDispatcher();
-        $stack = new MiddlewareStack($eventDispatcher);
-        $stack = $stack->build([new FailMiddleware()], $this->createMock(RequestHandlerInterface::class));
-        try {
-            $stack->handle($this->createMock(ServerRequestInterface::class));
-        } finally {
-            $this->assertEquals(
-                [
-                    BeforeMiddleware::class,
-                    AfterMiddleware::class,
-                ],
-                $eventDispatcher->getEventClasses()
-            );
-        }
     }
 }

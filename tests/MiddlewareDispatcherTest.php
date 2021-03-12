@@ -17,10 +17,12 @@ use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\FailMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\MockEventDispatcher;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
 use Yiisoft\Test\Support\Container\SimpleContainer;
+use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
 final class MiddlewareDispatcherTest extends TestCase
 {
@@ -88,7 +90,7 @@ final class MiddlewareDispatcherTest extends TestCase
 
     public function testEventsAreDispatched(): void
     {
-        $eventDispatcher = new MockEventDispatcher();
+        $eventDispatcher = new SimpleEventDispatcher();
 
         $request = new ServerRequest('GET', '/');
 
@@ -109,8 +111,31 @@ final class MiddlewareDispatcherTest extends TestCase
                 AfterMiddleware::class,
                 AfterMiddleware::class,
             ],
-            $eventDispatcher->getClassesEvents()
+            $eventDispatcher->getEventClasses()
         );
+    }
+
+    public function testEventsAreDispatchedWhenMiddlewareFailedWithException(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Middleware failed.');
+
+        $request = new ServerRequest('GET', '/');
+        $eventDispatcher = new SimpleEventDispatcher();
+        $middleware = fn () => new FailMiddleware();
+        $dispatcher = $this->createDispatcher(null, $eventDispatcher)->withMiddlewares([$middleware]);
+
+        try {
+            $dispatcher->dispatch($request, $this->getRequestHandler());
+        } finally {
+            $this->assertEquals(
+                [
+                    BeforeMiddleware::class,
+                    AfterMiddleware::class,
+                ],
+                $eventDispatcher->getEventClasses()
+            );
+        }
     }
 
     public function dataHasMiddlewares(): array
