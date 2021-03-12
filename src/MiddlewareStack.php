@@ -84,11 +84,10 @@ final class MiddlewareStack implements MiddlewareStackInterface
             {
                 $this->eventDispatcher->dispatch(new BeforeMiddleware($this->middleware, $request));
 
-                $response = null;
                 try {
                     return $response = $this->middleware->process($request, $this->handler);
                 } finally {
-                    $this->eventDispatcher->dispatch(new AfterMiddleware($this->middleware, $response));
+                    $this->eventDispatcher->dispatch(new AfterMiddleware($this->middleware, $response ?? null));
                 }
             }
         };
