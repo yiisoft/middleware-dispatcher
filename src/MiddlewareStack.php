@@ -13,7 +13,7 @@ use RuntimeException;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 
-final class MiddlewareStack implements MiddlewareStackInterface
+final class MiddlewareStack implements MiddlewarePipelineInterface
 {
     /**
      * Contains a stack of middleware wrapped in handlers.
@@ -30,7 +30,7 @@ final class MiddlewareStack implements MiddlewareStackInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): MiddlewareStackInterface
+    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): MiddlewarePipelineInterface
     {
         $handler = $fallbackHandler;
         foreach ($middlewares as $middleware) {

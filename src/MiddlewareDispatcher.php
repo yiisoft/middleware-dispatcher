@@ -12,32 +12,32 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class MiddlewareDispatcher
 {
     /**
-     * Contains a stack of middleware handler.
+     * Contains a pipeline of middleware handler.
      *
-     * @var MiddlewareStackInterface stack of middleware
+     * @var MiddlewarePipelineInterface The pipeline of middleware.
      */
-    private MiddlewareStackInterface $stack;
+    private MiddlewarePipelineInterface $pipeline;
 
-    private MiddlewareFactoryInterface $middlewareFactory;
+    private MiddlewareFactoryInterface $factory;
 
     /**
      * @var array[]|callable[]|string[]
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewareStackInterface $stack)
+    public function __construct(MiddlewareFactoryInterface $factory, MiddlewarePipelineInterface $pipeline)
     {
-        $this->middlewareFactory = $middlewareFactory;
-        $this->stack = $stack;
+        $this->factory = $factory;
+        $this->pipeline = $pipeline;
     }
 
     public function dispatch(ServerRequestInterface $request, RequestHandlerInterface $fallbackHandler): ResponseInterface
     {
-        if ($this->stack->isEmpty()) {
-            $this->stack = $this->stack->build($this->buildMiddlewares(), $fallbackHandler);
+        if ($this->pipeline->isEmpty()) {
+            $this->pipeline = $this->pipeline->build($this->buildMiddlewares(), $fallbackHandler);
         }
 
-        return $this->stack->handle($request);
+        return $this->pipeline->handle($request);
     }
 
     /**
@@ -57,7 +57,7 @@ final class MiddlewareDispatcher
     {
         $clone = clone $this;
         $clone->middlewareDefinitions = $middlewareDefinitions;
-        $clone->stack->reset();
+        $clone->pipeline->reset();
 
         return $clone;
     }
@@ -74,7 +74,7 @@ final class MiddlewareDispatcher
     {
         $middlewares = [];
         foreach ($this->middlewareDefinitions as $middlewareDefinition) {
-            $middlewares[] = $this->middlewareFactory->create($middlewareDefinition);
+            $middlewares[] = $this->factory->create($middlewareDefinition);
         }
 
         return $middlewares;

@@ -8,17 +8,17 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * A stack of PSR-15 middlewares to be used with {@see MiddlewareDispatcher}.
+ * A pipeline of PSR-15 middlewares to be used with {@see MiddlewareDispatcher}.
  *
  * @see https://www.php-fig.org/psr/psr-15/
  */
-interface MiddlewareStackInterface extends RequestHandlerInterface
+interface MiddlewarePipelineInterface extends RequestHandlerInterface
 {
     /**
-     * Builds a middleware stack from an array of middleware instances and a fallback request handler.
+     * Builds a middleware pipeline from an array of middleware instances and a fallback request handler.
      * If the middlewares array is empty, only the fallback handler will be used.
      *
-     * @param MiddlewareInterface[] $middlewares Middlewares being composed to stack. Can be empty.
+     * @param MiddlewareInterface[] $middlewares Middlewares being composed to pipeline. Can be empty.
      * @param RequestHandlerInterface $fallbackHandler Fallback request handler.
      *
      * @return self
@@ -26,7 +26,7 @@ interface MiddlewareStackInterface extends RequestHandlerInterface
     public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): self;
 
     /**
-     * Clears the middleware stack and fallback request handler.
+     * Clears the middleware pipeline and fallback request handler.
      */
     public function reset(): void;
 
