@@ -12,22 +12,22 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class MiddlewareDispatcher
 {
     /**
-     * Contains a pipeline of middleware handler.
+     * Contains a middleware pipeline handler.
      *
-     * @var MiddlewarePipelineInterface The pipeline of middleware.
+     * @var MiddlewarePipelineInterface The middleware pipeline.
      */
     private MiddlewarePipelineInterface $pipeline;
 
-    private MiddlewareFactoryInterface $factory;
+    private MiddlewareFactoryInterface $middlewareFactory;
 
     /**
      * @var array[]|callable[]|string[]
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(MiddlewareFactoryInterface $factory, MiddlewarePipelineInterface $pipeline)
+    public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewarePipelineInterface $pipeline)
     {
-        $this->factory = $factory;
+        $this->middlewareFactory = $middlewareFactory;
         $this->pipeline = $pipeline;
     }
 
@@ -74,7 +74,7 @@ final class MiddlewareDispatcher
     {
         $middlewares = [];
         foreach ($this->middlewareDefinitions as $middlewareDefinition) {
-            $middlewares[] = $this->factory->create($middlewareDefinition);
+            $middlewares[] = $this->middlewareFactory->create($middlewareDefinition);
         }
 
         return $middlewares;
