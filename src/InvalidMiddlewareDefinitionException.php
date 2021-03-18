@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Middleware\Dispatcher;
 
 use InvalidArgumentException;
+
 use function get_class;
 use function is_array;
 use function is_object;
