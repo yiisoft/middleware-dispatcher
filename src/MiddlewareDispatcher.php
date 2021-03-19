@@ -36,6 +36,7 @@ final class MiddlewareDispatcher
      *
      * @param ServerRequestInterface $request
      * @param RequestHandlerInterface $fallbackHandler
+     *
      * @return ResponseInterface
      */
     public function dispatch(ServerRequestInterface $request, RequestHandlerInterface $fallbackHandler): ResponseInterface
