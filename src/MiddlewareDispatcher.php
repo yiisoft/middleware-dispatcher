@@ -31,20 +31,20 @@ final class MiddlewareDispatcher
         $this->pipeline = $pipeline;
     }
 
+    /**
+     * Builds and handles a new middleware pipeline. All added middleware definitions are cleared.
+     *
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $fallbackHandler
+     * @return ResponseInterface
+     */
     public function dispatch(ServerRequestInterface $request, RequestHandlerInterface $fallbackHandler): ResponseInterface
     {
-        if ($this->pipeline->isEmpty()) {
-            $this->pipeline = $this->pipeline->build($this->buildMiddlewares(), $fallbackHandler);
-        }
-
-        return $this->pipeline->handle($request);
+        return $this->pipeline->build($this->buildMiddlewares(), $fallbackHandler)->handle($request);
     }
 
     /**
-     * Returns new instance with middleware handlers replaced.
-     * Last specified handler will be executed first.
-     *
-     * @param array[]|callable[]|string[] $middlewareDefinitions Each array element is a name of PSR-15 middleware,
+     * @param array|callable|string $middlewareDefinition Name of PSR-15 middleware,
      * a callable with `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      * signature or a handler action (an array of [handlerClass, handlerMethod]). For handler action and callable
      * typed parameters are automatically injected using dependency injection container passed to the route.
@@ -53,30 +53,26 @@ final class MiddlewareDispatcher
      *
      * @return self
      */
-    public function withMiddlewares(array $middlewareDefinitions): self
+    public function add($middlewareDefinition): self
     {
-        $clone = clone $this;
-        $clone->middlewareDefinitions = $middlewareDefinitions;
-        $clone->pipeline->reset();
-
-        return $clone;
-    }
-
-    public function hasMiddlewares(): bool
-    {
-        return $this->middlewareDefinitions !== [];
+        $this->middlewareDefinitions[] = $middlewareDefinition;
+        return $this;
     }
 
     /**
+     * Creates middleware instances and clears middleware definitions.
+     *
      * @return MiddlewareInterface[]
      */
     private function buildMiddlewares(): array
     {
         $middlewares = [];
+
         foreach ($this->middlewareDefinitions as $middlewareDefinition) {
             $middlewares[] = $this->middlewareFactory->create($middlewareDefinition);
         }
 
+        $this->middlewareDefinitions = [];
         return $middlewares;
     }
 }

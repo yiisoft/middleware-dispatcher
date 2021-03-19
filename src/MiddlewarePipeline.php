@@ -13,15 +13,15 @@ use RuntimeException;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 
-final class MiddlewareStack implements MiddlewarePipelineInterface
+final class MiddlewarePipeline implements MiddlewarePipelineInterface
 {
     /**
-     * Contains a stack of middleware wrapped in handlers.
+     * Contains a middleware pipeline wrapped in handlers.
      * Each handler points to the handler of middleware that will be processed next.
      *
-     * @var RequestHandlerInterface|null stack of middleware
+     * @var RequestHandlerInterface|null The middleware pipeline.
      */
-    private ?RequestHandlerInterface $stack = null;
+    private ?RequestHandlerInterface $pipeline = null;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -30,41 +30,31 @@ final class MiddlewareStack implements MiddlewarePipelineInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): MiddlewarePipelineInterface
+    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): self
     {
         $handler = $fallbackHandler;
-        foreach ($middlewares as $middleware) {
+
+        foreach (array_reverse($middlewares) as $middleware) {
             $handler = $this->wrap($middleware, $handler);
         }
 
         $new = clone $this;
-        $new->stack = $handler;
+        $new->pipeline = $handler;
 
         return $new;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        if ($this->isEmpty()) {
-            throw new RuntimeException('Stack is empty.');
+        if ($this->pipeline === null) {
+            throw new RuntimeException('Pipeline is empty.');
         }
 
-        /** @psalm-suppress PossiblyNullReference */
-        return $this->stack->handle($request);
-    }
-
-    public function reset(): void
-    {
-        $this->stack = null;
-    }
-
-    public function isEmpty(): bool
-    {
-        return $this->stack === null;
+        return $this->pipeline->handle($request);
     }
 
     /**
-     * Wraps handler by middlewares
+     * Wraps handler by middlewares.
      */
     private function wrap(MiddlewareInterface $middleware, RequestHandlerInterface $handler): RequestHandlerInterface
     {
