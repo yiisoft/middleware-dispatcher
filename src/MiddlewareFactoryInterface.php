@@ -6,16 +6,17 @@ namespace Yiisoft\Middleware\Dispatcher;
 
 use Psr\Http\Server\MiddlewareInterface;
 
+/**
+ * Creates a PSR-15 middleware based on the definition provided.
+ * You may implement this interface if you want to introduce custom definitions or pass additional data to
+ * the middleware created.
+ */
 interface MiddlewareFactoryInterface
 {
     /**
-     * @param array|callable|string $middlewareDefinition A name of PSR-15 middleware, a callable with
-     * `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface` signature or
-     * a handler action (an array of [handlerClass, handlerMethod]). For handler action and callable typed parameters
-     * are automatically injected using dependency injection container passed to the route.
-     * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
-     * and {@see RequestHandlerInterface}.
+     * Create a PSR-15 middleware based on definition provided.
      *
+     * @param array|callable|string $middlewareDefinition Middleware definition to use.
      * @return MiddlewareInterface
      */
     public function create($middlewareDefinition): MiddlewareInterface;

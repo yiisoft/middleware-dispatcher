@@ -62,7 +62,7 @@ In the above we have used a callback. Overall the following options are availabl
 
 - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will be created and
   `index()` method will be executed.
-- A name of PSR-15 middleware class. The middleware instance will be created and executed.
+- A name of PSR-15 middleware class. The middleware instance will be obtained from container executed.
 - A function returning a middleware such as
   ```php
   static function (): MiddlewareInterface {
@@ -72,19 +72,29 @@ In the above we have used a callback. Overall the following options are availabl
   The middleware returned will be executed.
 - A callback `function(ServerRequestInterface $request, RequestHandlerInterface $next): ResponseInterface`.
 
-For handler action and callable typed parameters are automatically injected using dependency injection container
-passed to the route. Current request and handler could be obtained by type-hinting for `ServerRequestInterface`
-and `RequestHandlerInterface`.
+For handler action and callable typed parameters are automatically injected using dependency injection container.
+Current request and handler could be obtained by type-hinting for `ServerRequestInterface` and `RequestHandlerInterface`.
 
-After middleware set if defined, you can do the dispatching: 
+After middleware set is defined, you can do the dispatching: 
 
 ```php
 $request = new ServerRequest('GET', '/teapot');
 $response = $dispatcher->dispatch($request, $this->getRequestHandler());
 ```
 
-Given a request dispatcher executes middleware in the set and produces response. For each middleware `BeforeMiddleware`
-and `AfterMiddleware` events are triggered.
+Given a request dispatcher executes middleware in the set and produces response. Last specified middleware will be
+executed first. For each middleware
+`\Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware` and `\Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware`
+events are triggered.
+
+### Customizing dispatcher
+
+There are two possibilities customizing middleare dispatcher:
+
+1. Providing custom implementation of `MiddlewareFactoryInterface`. There you can introduce custom syntax for defining
+   middleware or feed middleware created with additional data.
+2. Providing custom implementation of `MiddlewarePiplineInterface`. There you can customize in which order and
+   how exactly middleware are executed.
 
 ## Testing
 

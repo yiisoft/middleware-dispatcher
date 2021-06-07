@@ -16,20 +16,33 @@ use function in_array;
 use function is_array;
 use function is_string;
 
+/**
+ * Creates a PSR-15 middleware based on the definition provided.
+ */
 final class MiddlewareFactory implements MiddlewareFactoryInterface
 {
     private ContainerInterface $container;
 
+    /**
+     * @param ContainerInterface $container Container to use for resolving definitions.
+     */
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }
 
     /**
-     * @param array|callable|string $middlewareDefinition A name of PSR-15 middleware, a callable with
-     * `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface` signature or
-     * a handler action (an array of [handlerClass, handlerMethod]). For handler action and callable typed parameters
-     * are automatically injected using dependency injection container passed to the route.
+     * @param array|callable|string $middlewareDefinition Middleware definition in one of the following formats:
+     *
+     * - A name of PSR-15 middleware class. The middleware instance will be obtained from container and executed.
+     * - A callable with `function(ServerRequestInterface $request, RequestHandlerInterface $next): ResponseInterface`
+     *   signature.
+     * - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will
+     *   be created and `index()` method will be executed.
+     * - A function returning a middleware. The middleware returned will be executed.
+     *
+     * For handler action and callable
+     * typed parameters are automatically injected using dependency injection container.
      * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
      * and {@see RequestHandlerInterface}.
      */

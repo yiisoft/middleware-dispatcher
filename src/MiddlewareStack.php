@@ -25,6 +25,10 @@ final class MiddlewareStack implements MiddlewarePipelineInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @param EventDispatcherInterface $eventDispatcher Event dispatcher to use for triggering before/after middleware
+     * events.
+     */
     public function __construct(EventDispatcherInterface $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
@@ -53,18 +57,24 @@ final class MiddlewareStack implements MiddlewarePipelineInterface
         return $this->stack->handle($request);
     }
 
+    /**
+     * Reset the stack.
+     */
     public function reset(): void
     {
         $this->stack = null;
     }
 
+    /**
+     * @return bool Whether stack is empty.
+     */
     public function isEmpty(): bool
     {
         return $this->stack === null;
     }
 
     /**
-     * Wraps handler by middlewares
+     * Wrap handler by middlewares.
      */
     private function wrap(MiddlewareInterface $middleware, RequestHandlerInterface $handler): RequestHandlerInterface
     {
