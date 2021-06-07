@@ -12,7 +12,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 final class TestMiddleware implements MiddlewareInterface
 {
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $next): ResponseInterface
     {
         return new Response(200, ['test' => '42']);
     }

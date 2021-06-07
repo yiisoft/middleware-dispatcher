@@ -64,13 +64,13 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                     $this->callback = $callback;
                 }
 
-                public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+                public function process(ServerRequestInterface $request, RequestHandlerInterface $next): ResponseInterface
                 {
                     /** @var mixed $controller */
                     $controller = $this->container->get($this->class);
 
                     /** @var mixed $response */
-                    $response = (new Injector($this->container))->invoke([$controller, $this->method], [$request, $handler]);
+                    $response = (new Injector($this->container))->invoke([$controller, $this->method], [$request, $next]);
                     if ($response instanceof ResponseInterface) {
                         return $response;
                     }
@@ -92,15 +92,15 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 $this->container = $container;
             }
 
-            public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $next): ResponseInterface
             {
                 /** @var mixed $response */
-                $response = (new Injector($this->container))->invoke($this->callback, [$request, $handler]);
+                $response = (new Injector($this->container))->invoke($this->callback, [$request, $next]);
                 if ($response instanceof ResponseInterface) {
                     return $response;
                 }
                 if ($response instanceof MiddlewareInterface) {
-                    return $response->process($request, $handler);
+                    return $response->process($request, $next);
                 }
                 throw new InvalidMiddlewareDefinitionException($this->callback);
             }
