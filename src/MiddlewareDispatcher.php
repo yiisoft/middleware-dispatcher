@@ -25,10 +25,10 @@ final class MiddlewareDispatcher
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewareStack $pipeline)
+    public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewareStack $stack)
     {
         $this->middlewareFactory = $middlewareFactory;
-        $this->stack = $pipeline;
+        $this->stack = $stack;
     }
 
     /**
