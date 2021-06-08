@@ -35,7 +35,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
      * @param array|callable|string $middlewareDefinition Middleware definition in one of the following formats:
      *
      * - A name of PSR-15 middleware class. The middleware instance will be obtained from container and executed.
-     * - A callable with `function(ServerRequestInterface $request, RequestHandlerInterface $next): ResponseInterface`
+     * - A callable with `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      *   signature.
      * - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will
      *   be created and `index()` method will be executed.
@@ -77,13 +77,13 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                     $this->callback = $callback;
                 }
 
-                public function process(ServerRequestInterface $request, RequestHandlerInterface $next): ResponseInterface
+                public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
                 {
                     /** @var mixed $controller */
                     $controller = $this->container->get($this->class);
 
                     /** @var mixed $response */
-                    $response = (new Injector($this->container))->invoke([$controller, $this->method], [$request, $next]);
+                    $response = (new Injector($this->container))->invoke([$controller, $this->method], [$request, $handler]);
                     if ($response instanceof ResponseInterface) {
                         return $response;
                     }
@@ -105,15 +105,15 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 $this->container = $container;
             }
 
-            public function process(ServerRequestInterface $request, RequestHandlerInterface $next): ResponseInterface
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
             {
                 /** @var mixed $response */
-                $response = (new Injector($this->container))->invoke($this->callback, [$request, $next]);
+                $response = (new Injector($this->container))->invoke($this->callback, [$request, $handler]);
                 if ($response instanceof ResponseInterface) {
                     return $response;
                 }
                 if ($response instanceof MiddlewareInterface) {
-                    return $response->process($request, $next);
+                    return $response->process($request, $handler);
                 }
                 throw new InvalidMiddlewareDefinitionException($this->callback);
             }
