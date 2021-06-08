@@ -9,14 +9,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-final class MiddlewareDispatcher
+final class MiddlewareDispatcher implements MiddlewareDispatcherInterface
 {
     /**
      * Contains a middleware pipeline handler.
      *
-     * @var MiddlewarePipelineInterface The middleware pipeline.
+     * @var MiddlewareStack The middleware pipeline.
      */
-    private MiddlewarePipelineInterface $pipeline;
+    private MiddlewareStack $pipeline;
 
     private MiddlewareFactoryInterface $middlewareFactory;
 
@@ -25,7 +25,7 @@ final class MiddlewareDispatcher
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewarePipelineInterface $pipeline)
+    public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewareStack $pipeline)
     {
         $this->middlewareFactory = $middlewareFactory;
         $this->pipeline = $pipeline;
