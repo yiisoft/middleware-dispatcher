@@ -8,8 +8,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-interface MiddlewareDispatcherInterface {
-
+interface MiddlewareDispatcherInterface
+{
     public function dispatch(
         ServerRequestInterface $request,
         RequestHandlerInterface $fallbackHandler
