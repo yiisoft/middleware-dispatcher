@@ -15,7 +15,8 @@
 [![static analysis](https://github.com/yiisoft/middleware-dispatcher/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/middleware-dispatcher/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/middleware-dispatcher/coverage.svg)](https://shepherd.dev/github/yiisoft/middleware-dispatcher)
 
-The package is a [PSR-15](https://www.php-fig.org/psr/psr-15/) middleware dispatcher.
+The package is a [PSR-15](https://www.php-fig.org/psr/psr-15/) middleware dispatcher. Given a set of middleware and a
+request instance, dispatcher executes it producing a response instance.
 
 ## Requirements
 
@@ -30,6 +31,70 @@ composer require yiisoft/middleware-dispatcher --prefer-dist
 ```
 
 ## General usage
+
+To use a dispatcher, you need to create it first:
+
+```php
+use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
+use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
+use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
+
+$dispatcher = new MiddlewareDispatcher(
+    new MiddlewareFactory($diContainer),
+    new MiddlewareStack($eventDispatcher)
+);
+```
+
+In the above `$diContainer` is an instance of [PSR-11](https://www.php-fig.org/psr/psr-11/) `\Psr\Container\ContainerInterface`
+and `$eventDispatcher` is an instance of [PSR-14](https://www.php-fig.org/psr/psr-14/) `Psr\EventDispatcher\EventDispatcherInterface`.
+
+After dispatcher instance obtained, it should be fed with some middleware: 
+
+```php
+$dispatcher = $dispatcher->withMiddlewares([
+    static function (): ResponseInterface {
+        return new Response(418);
+    },
+]);
+```
+
+In the above we have used a callback. Overall the following options are available:
+
+- A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will be created and
+  `index()` method will be executed.
+- A name of PSR-15 middleware class. The middleware instance will be obtained from container executed.
+- A function returning a middleware such as
+  ```php
+  static function (): MiddlewareInterface {
+      return new TestMiddleware();
+  }
+  ```
+  The middleware returned will be executed.
+- A callback `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`.
+
+For handler action and callable typed parameters are automatically injected using dependency injection container.
+Current request and handler could be obtained by type-hinting for `ServerRequestInterface` and `RequestHandlerInterface`.
+
+After middleware set is defined, you can do the dispatching: 
+
+```php
+$request = new ServerRequest('GET', '/teapot');
+$response = $dispatcher->dispatch($request, $this->getRequestHandler());
+```
+
+Given a request dispatcher executes middleware in the set and produces response. Last specified middleware will be
+executed first. For each middleware
+`\Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware` and `\Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware`
+events are triggered.
+
+### Customizing dispatcher
+
+There are two possibilities customizing middleare dispatcher:
+
+1. Providing custom implementation of `MiddlewareFactoryInterface`. There you can introduce custom syntax for defining
+   middleware or feed middleware created with additional data.
+2. Providing custom implementation of `MiddlewarePiplineInterface`. There you can customize in which order and
+   how exactly middleware are executed.
 
 ## Testing
 

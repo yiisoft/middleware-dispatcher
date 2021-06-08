@@ -43,7 +43,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
 
         if (is_array($middlewareDefinition)) {
             $items = $middlewareDefinition;
-            foreach ($middlewareDefinition as $key => $item) {
+            foreach ($middlewareDefinition as $item) {
                 if (!is_string($item)) {
                     return null;
                 }
