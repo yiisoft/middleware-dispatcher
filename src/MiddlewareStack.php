@@ -22,55 +22,43 @@ final class MiddlewareStack implements RequestHandlerInterface
      * @var RequestHandlerInterface|null stack of middleware
      */
     private ?RequestHandlerInterface $stack = null;
-
     private EventDispatcherInterface $eventDispatcher;
+    private RequestHandlerInterface $fallbackHandler;
+    private array $middlewares;
 
     /**
      * @param EventDispatcherInterface $eventDispatcher Event dispatcher to use for triggering before/after middleware
      * events.
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(array $middlewares, RequestHandlerInterface $fallbackHandler, EventDispatcherInterface $eventDispatcher)
     {
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
-    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): self
-    {
-        $handler = $fallbackHandler;
-        foreach ($middlewares as $middleware) {
-            $handler = $this->wrap($middleware, $handler);
+        if ($middlewares === []) {
+            throw new RuntimeException('Stack is empty.');
         }
 
-        $new = clone $this;
-        $new->stack = $handler;
-
-        return $new;
+        $this->middlewares = $middlewares;
+        $this->fallbackHandler = $fallbackHandler;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        if ($this->isEmpty()) {
-            throw new RuntimeException('Stack is empty.');
+        if ($this->stack === null) {
+            $this->build();
         }
 
         /** @psalm-suppress PossiblyNullReference */
         return $this->stack->handle($request);
     }
 
-    /**
-     * Reset the stack.
-     */
-    public function reset(): void
+    private function build(): void
     {
-        $this->stack = null;
-    }
+        $handler = $this->fallbackHandler;
+        foreach ($this->middlewares as $middleware) {
+            $handler = $this->wrap($middleware, $handler);
+        }
 
-    /**
-     * @return bool Whether stack is empty.
-     */
-    public function isEmpty(): bool
-    {
-        return $this->stack === null;
+        $this->stack = $handler;
     }
 
     /**
