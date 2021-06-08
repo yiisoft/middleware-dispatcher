@@ -83,8 +83,11 @@ final class MiddlewareStack implements MiddlewarePipelineInterface
             private RequestHandlerInterface $handler;
             private EventDispatcherInterface $eventDispatcher;
 
-            public function __construct(MiddlewareInterface $middleware, RequestHandlerInterface $handler, EventDispatcherInterface $eventDispatcher)
-            {
+            public function __construct(
+                MiddlewareInterface $middleware,
+                RequestHandlerInterface $handler,
+                EventDispatcherInterface $eventDispatcher
+            ) {
                 $this->middleware = $middleware;
                 $this->handler = $handler;
                 $this->eventDispatcher = $eventDispatcher;

@@ -72,18 +72,21 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
 
                 public function __construct(ContainerInterface $container, array $callback)
                 {
-                    [$this->class , $this->method] = $callback;
+                    [$this->class, $this->method] = $callback;
                     $this->container = $container;
                     $this->callback = $callback;
                 }
 
-                public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
-                {
+                public function process(
+                    ServerRequestInterface $request,
+                    RequestHandlerInterface $handler
+                ): ResponseInterface {
                     /** @var mixed $controller */
                     $controller = $this->container->get($this->class);
 
                     /** @var mixed $response */
-                    $response = (new Injector($this->container))->invoke([$controller, $this->method], [$request, $handler]);
+                    $response = (new Injector($this->container))
+                        ->invoke([$controller, $this->method], [$request, $handler]);
                     if ($response instanceof ResponseInterface) {
                         return $response;
                     }
@@ -105,8 +108,10 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 $this->container = $container;
             }
 
-            public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
-            {
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler
+            ): ResponseInterface {
                 /** @var mixed $response */
                 $response = (new Injector($this->container))->invoke($this->callback, [$request, $handler]);
                 if ($response instanceof ResponseInterface) {

@@ -37,8 +37,10 @@ final class MiddlewareDispatcher
      * @param ServerRequestInterface $request Request to pass to middleware.
      * @param RequestHandlerInterface $fallbackHandler Handler to use in case no middleware produced response.
      */
-    public function dispatch(ServerRequestInterface $request, RequestHandlerInterface $fallbackHandler): ResponseInterface
-    {
+    public function dispatch(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $fallbackHandler
+    ): ResponseInterface {
         if ($this->pipeline->isEmpty()) {
             $this->pipeline = $this->pipeline->build($this->buildMiddlewares(), $fallbackHandler);
         }
