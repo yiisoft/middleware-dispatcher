@@ -20,8 +20,6 @@ interface MiddlewarePipelineInterface extends RequestHandlerInterface
      *
      * @param MiddlewareInterface[] $middlewares Middlewares being composed to pipeline. Can be empty.
      * @param RequestHandlerInterface $fallbackHandler Fallback request handler.
-     *
-     * @return self
      */
     public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): self;
 
