@@ -9,7 +9,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-final class MiddlewareDispatcher implements MiddlewareDispatcherInterface
+final class MiddlewareDispatcher
 {
     /**
      * Contains a middleware pipeline handler.
