@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
+use InvalidArgumentException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 
@@ -25,19 +25,28 @@ final class MiddlewareStack implements MiddlewarePipelineInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private array $middlewares;
+    private RequestHandlerInterface $fallbackHandler;
+
     /**
      * @param EventDispatcherInterface $eventDispatcher Event dispatcher to use for triggering before/after middleware
      * events.
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(array $middlewares, RequestHandlerInterface $fallbackHandler, EventDispatcherInterface $eventDispatcher)
     {
+        if ($middlewares === []) {
+            throw new InvalidArgumentException('No middleware defined.');
+        }
+
         $this->eventDispatcher = $eventDispatcher;
+        $this->middlewares = $middlewares;
+        $this->fallbackHandler = $fallbackHandler;
     }
 
-    public function build(array $middlewares, RequestHandlerInterface $fallbackHandler): MiddlewarePipelineInterface
+    private function build(): MiddlewarePipelineInterface
     {
-        $handler = $fallbackHandler;
-        foreach ($middlewares as $middleware) {
+        $handler = $this->fallbackHandler;
+        foreach ($this->middlewares as $middleware) {
             $handler = $this->wrap($middleware, $handler);
         }
 
@@ -49,8 +58,8 @@ final class MiddlewareStack implements MiddlewarePipelineInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        if ($this->isEmpty()) {
-            throw new RuntimeException('Stack is empty.');
+        if ($this->stack === null) {
+            $this->build();
         }
 
         /** @psalm-suppress PossiblyNullReference */
@@ -66,14 +75,6 @@ final class MiddlewareStack implements MiddlewarePipelineInterface
     }
 
     /**
-     * @return bool Whether stack is empty.
-     */
-    public function isEmpty(): bool
-    {
-        return $this->stack === null;
-    }
-
-    /**
      * Wrap handler by middlewares.
      */
     private function wrap(MiddlewareInterface $middleware, RequestHandlerInterface $handler): RequestHandlerInterface
@@ -83,11 +84,8 @@ final class MiddlewareStack implements MiddlewarePipelineInterface
             private RequestHandlerInterface $handler;
             private EventDispatcherInterface $eventDispatcher;
 
-            public function __construct(
-                MiddlewareInterface $middleware,
-                RequestHandlerInterface $handler,
-                EventDispatcherInterface $eventDispatcher
-            ) {
+            public function __construct(MiddlewareInterface $middleware, RequestHandlerInterface $handler, EventDispatcherInterface $eventDispatcher)
+            {
                 $this->middleware = $middleware;
                 $this->handler = $handler;
                 $this->eventDispatcher = $eventDispatcher;
