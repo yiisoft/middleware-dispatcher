@@ -27,6 +27,8 @@ final class MiddlewareStack implements RequestHandlerInterface
     private array $middlewares;
 
     /**
+     * @param MiddlewareInterface[] $middlewares Middlewares.
+     * @param RequestHandlerInterface $fallbackHandler Fallback handler
      * @param EventDispatcherInterface $eventDispatcher Event dispatcher to use for triggering before/after middleware
      * events.
      */
@@ -54,6 +56,8 @@ final class MiddlewareStack implements RequestHandlerInterface
     private function build(): void
     {
         $handler = $this->fallbackHandler;
+
+        /** @var  MiddlewareInterface $middleware */
         foreach ($this->middlewares as $middleware) {
             $handler = $this->wrap($middleware, $handler);
         }
