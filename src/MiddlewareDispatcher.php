@@ -14,9 +14,9 @@ final class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     /**
      * Contains a middleware pipeline handler.
      *
-     * @var MiddlewareStack The middleware pipeline.
+     * @var MiddlewareStack The middleware stack.
      */
-    private MiddlewareStack $pipeline;
+    private MiddlewareStack $stack;
 
     private MiddlewareFactoryInterface $middlewareFactory;
 
@@ -28,7 +28,7 @@ final class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewareStack $pipeline)
     {
         $this->middlewareFactory = $middlewareFactory;
-        $this->pipeline = $pipeline;
+        $this->stack = $pipeline;
     }
 
     /**
@@ -41,11 +41,11 @@ final class MiddlewareDispatcher implements MiddlewareDispatcherInterface
         ServerRequestInterface $request,
         RequestHandlerInterface $fallbackHandler
     ): ResponseInterface {
-        if ($this->pipeline->isEmpty()) {
-            $this->pipeline = $this->pipeline->build($this->buildMiddlewares(), $fallbackHandler);
+        if ($this->stack->isEmpty()) {
+            $this->stack = $this->stack->build($this->buildMiddlewares(), $fallbackHandler);
         }
 
-        return $this->pipeline->handle($request);
+        return $this->stack->handle($request);
     }
 
     /**
@@ -72,7 +72,7 @@ final class MiddlewareDispatcher implements MiddlewareDispatcherInterface
     {
         $clone = clone $this;
         $clone->middlewareDefinitions = $middlewareDefinitions;
-        $clone->pipeline->reset();
+        $clone->stack->reset();
 
         return $clone;
     }
