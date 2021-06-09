@@ -37,11 +37,10 @@ To use a dispatcher, you need to create it first:
 ```php
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
-use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
 
 $dispatcher = new MiddlewareDispatcher(
     new MiddlewareFactory($diContainer),
-    new MiddlewareStack($eventDispatcher)
+    $eventDispatcher
 );
 ```
 
@@ -87,14 +86,43 @@ executed first. For each middleware
 `\Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware` and `\Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware`
 events are triggered.
 
-### Customizing dispatcher
+### Customizing definition syntax
 
-There are two possibilities customizing middleare dispatcher:
+Middleware definition syntax could be customized by providing your own `MiddlewareFactoryInterface` implementation:
 
-1. Providing custom implementation of `MiddlewareFactoryInterface`. There you can introduce custom syntax for defining
-   middleware or feed middleware created with additional data.
-2. Providing custom implementation of `MiddlewarePiplineInterface`. There you can customize in which order and
-   how exactly middleware are executed.
+```php
+use \Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
+
+class CoolMiddlewareFactory implements MiddlewareFactoryInterface
+{
+    private MiddlewareFactoryInterface $middlewareFactory;
+    
+    public function __construct(MiddlewareFactoryInterface $middlewareFactory) {
+        $this->middlewareFactory = $middlewareFactory;
+    }    
+
+    public function create($middlewareDefinition): MiddlewareInterface
+    {
+        if (is_string($middlewareDefinition) && strpos($middlewareDefinition, '@') === 0) {
+            return createMiddleware($middlewareDefinition);
+        }
+        
+        $this->middlewareFactory->create($middlewareDefinition);
+    }
+}
+```
+
+Then it could be used like the following:
+
+```php
+use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
+use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
+
+$dispatcher = new MiddlewareDispatcher(
+    new CoolMiddlewareFactory(new MiddlewareFactory($diContainer)),
+    $eventDispatcher
+);
+```
 
 ## Testing
 
