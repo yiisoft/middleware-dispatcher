@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Middleware\Dispatcher;
 
 use Psr\Http\Message\ResponseInterface;
