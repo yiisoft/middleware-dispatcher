@@ -10,7 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-final class MiddlewareDispatcher
+final class MiddlewareDispatcher implements MiddlewareDispatcherInterface
 {
     /**
      * Contains a middleware pipeline handler.
@@ -32,12 +32,6 @@ final class MiddlewareDispatcher
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * Dispatch request through middleware to get response.
-     *
-     * @param ServerRequestInterface $request Request to pass to middleware.
-     * @param RequestHandlerInterface $fallbackHandler Handler to use in case no middleware produced response.
-     */
     public function dispatch(
         ServerRequestInterface $request,
         RequestHandlerInterface $fallbackHandler
@@ -78,9 +72,6 @@ final class MiddlewareDispatcher
         return $new;
     }
 
-    /**
-     * @return bool Whether there are middleware defined in the dispatcher.
-     */
     public function hasMiddlewares(): bool
     {
         return $this->middlewareDefinitions !== [];
