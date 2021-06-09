@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Middleware\Dispatcher;
+namespace Yiisoft\Middleware\Dispatcher\Exception;
 
 use InvalidArgumentException;
 

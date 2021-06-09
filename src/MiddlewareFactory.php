@@ -11,6 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Injector\Injector;
+use Yiisoft\Middleware\Dispatcher\Exception\InvalidMiddlewareDefinitionException;
 
 use function in_array;
 use function is_array;
