@@ -6,7 +6,7 @@ namespace Yiisoft\Middleware\Dispatcher\Tests;
 
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
+use Yiisoft\Middleware\Dispatcher\Exception\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 
 final class InvalidMiddlewareDefinitionExceptionTest extends TestCase

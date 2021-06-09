@@ -33,6 +33,7 @@ final class PipelineBuilderBuilder implements PipelineBuilderInterface
     private function createHandler(Generator $iterator): RequestHandlerInterface
     {
         return new class($iterator, $this->dispatcher) implements RequestHandlerInterface {
+            /** @var Generator<int, MiddlewareInterface, mixed, RequestHandlerInterface>|null  */
             private ?Generator $iterator;
             private ?MiddlewareInterface $middleware = null;
             private ?RequestHandlerInterface $nextHandler = null;
@@ -62,11 +63,10 @@ final class PipelineBuilderBuilder implements PipelineBuilderInterface
                 }
                 $this->dispatcher->dispatch(new BeforeMiddleware($this->middleware, $request));
                 try {
-                    $response = $this->middleware->process($request, $this->nextHandler);
+                    return $response = $this->middleware->process($request, $this->nextHandler);
                 } finally {
-                    $this->dispatcher->dispatch(new AfterMiddleware($this->middleware, $response));
+                    $this->dispatcher->dispatch(new AfterMiddleware($this->middleware, $response ?? null));
                 }
-                return $response;
             }
         };
     }
