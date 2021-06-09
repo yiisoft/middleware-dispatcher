@@ -61,7 +61,7 @@ In the above we have used a callback. Overall the following options are availabl
 
 - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will be created and
   `index()` method will be executed.
-- A name of PSR-15 middleware class. The middleware instance will be obtained from container executed.
+- A name of PSR-15 middleware class. The middleware instance will be obtained from container.
 - A function returning a middleware such as
   ```php
   static function (): MiddlewareInterface {
