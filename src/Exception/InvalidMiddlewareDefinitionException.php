@@ -14,7 +14,7 @@ use function is_string;
 final class InvalidMiddlewareDefinitionException extends InvalidArgumentException
 {
     /**
-     * @param array|callable|string $middlewareDefinition
+     * @param mixed $middlewareDefinition
      */
     public function __construct($middlewareDefinition)
     {

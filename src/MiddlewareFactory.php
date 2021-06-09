@@ -33,7 +33,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
     }
 
     /**
-     * @param array|callable|string $middlewareDefinition Middleware definition in one of the following formats:
+     * @param mixed $middlewareDefinition Middleware definition in one of the following formats:
      *
      * - A name of PSR-15 middleware class. The middleware instance will be obtained from container and executed.
      * - A callable with `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
@@ -51,6 +51,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
     {
         $this->validateMiddleware($middlewareDefinition);
 
+        /** @psalm-var array|callable|string $middlewareDefinition */
         if (is_string($middlewareDefinition)) {
             /** @var MiddlewareInterface */
             return $this->container->get($middlewareDefinition);
@@ -127,7 +128,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
     }
 
     /**
-     * @param array|callable|string $middlewareDefinition A name of PSR-15 middleware, a callable with
+     * @param mixed $middlewareDefinition A name of PSR-15 middleware, a callable with
      * `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface` signature or
      * a handler action (an array of [handlerClass, handlerMethod]). For handler action and callable typed parameters
      * are automatically injected using dependency injection container passed to the route.

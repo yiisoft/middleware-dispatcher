@@ -16,7 +16,7 @@ interface MiddlewareFactoryInterface
     /**
      * Create a PSR-15 middleware based on definition provided.
      *
-     * @param array|callable|string $middlewareDefinition Middleware definition to use.
+     * @param mixed $middlewareDefinition Middleware definition to use.
      */
     public function create($middlewareDefinition): MiddlewareInterface;
 }

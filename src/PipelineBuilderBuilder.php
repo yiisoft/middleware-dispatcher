@@ -30,6 +30,9 @@ final class PipelineBuilderBuilder implements PipelineBuilderInterface
         return $this->createHandler($iterator);
     }
 
+    /**
+     * @psalm-param Generator<int, MiddlewareInterface, mixed, RequestHandlerInterface> $iterator
+     */
     private function createHandler(Generator $iterator): RequestHandlerInterface
     {
         return new class($iterator, $this->dispatcher) implements RequestHandlerInterface {
@@ -39,12 +42,19 @@ final class PipelineBuilderBuilder implements PipelineBuilderInterface
             private ?RequestHandlerInterface $nextHandler = null;
             private EventDispatcherInterface $dispatcher;
 
+            /**
+             * @psalm-param Generator<int, MiddlewareInterface, mixed, RequestHandlerInterface> $iterator
+             */
             public function __construct(Generator $iterator, EventDispatcherInterface $dispatcher)
             {
                 $this->iterator = $iterator;
                 $this->dispatcher = $dispatcher;
             }
 
+            /**
+             * @psalm-suppress PossiblyNullReference
+             * @psalm-suppress PossiblyNullArgument
+             */
             final public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 if ($this->middleware === null) {
@@ -71,8 +81,13 @@ final class PipelineBuilderBuilder implements PipelineBuilderInterface
         };
     }
 
+    /**
+     * @psalm-param iterable<mixed, mixed> $middlewares
+     * @psalm-return Generator<int, MiddlewareInterface, mixed, RequestHandlerInterface>
+     */
     private function iterateMiddlewares(iterable $middlewares, RequestHandlerInterface $handler): Generator
     {
+        /** @var mixed $pipeDefinition */
         foreach ($middlewares as $pipeDefinition) {
             yield $this->factory->create($pipeDefinition);
         }
