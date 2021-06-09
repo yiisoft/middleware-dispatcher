@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -14,21 +15,21 @@ final class MiddlewareDispatcher
     /**
      * Contains a middleware pipeline handler.
      *
-     * @var MiddlewarePipelineInterface The middleware pipeline.
+     * @var MiddlewareStack The middleware stack.
      */
-    private MiddlewarePipelineInterface $pipeline;
-
+    private ?MiddlewareStack $stack = null;
     private MiddlewareFactoryInterface $middlewareFactory;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var array[]|callable[]|string[]
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(MiddlewareFactoryInterface $middlewareFactory, MiddlewarePipelineInterface $pipeline)
+    public function __construct(MiddlewareFactoryInterface $middlewareFactory, EventDispatcherInterface $eventDispatcher)
     {
         $this->middlewareFactory = $middlewareFactory;
-        $this->pipeline = $pipeline;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -41,11 +42,11 @@ final class MiddlewareDispatcher
         ServerRequestInterface $request,
         RequestHandlerInterface $fallbackHandler
     ): ResponseInterface {
-        if ($this->pipeline->isEmpty()) {
-            $this->pipeline = $this->pipeline->build($this->buildMiddlewares(), $fallbackHandler);
+        if ($this->stack === null) {
+            $this->stack = new MiddlewareStack($this->buildMiddlewares(), $fallbackHandler, $this->eventDispatcher);
         }
 
-        return $this->pipeline->handle($request);
+        return $this->stack->handle($request);
     }
 
     /**
@@ -70,11 +71,11 @@ final class MiddlewareDispatcher
      */
     public function withMiddlewares(array $middlewareDefinitions): self
     {
-        $clone = clone $this;
-        $clone->middlewareDefinitions = $middlewareDefinitions;
-        $clone->pipeline->reset();
+        $new = clone $this;
+        $new->middlewareDefinitions = $middlewareDefinitions;
+        $new->stack = null;
 
-        return $clone;
+        return $new;
     }
 
     /**

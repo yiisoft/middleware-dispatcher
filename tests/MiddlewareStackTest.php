@@ -15,16 +15,10 @@ class MiddlewareStackTest extends TestCase
 {
     public function testHandleEmpty(): void
     {
-        $stack = new MiddlewareStack(new SimpleEventDispatcher());
-
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Stack is empty.');
-        $stack->handle($this->createMock(ServerRequestInterface::class));
-    }
 
-    public function testImmutability(): void
-    {
-        $stack = new MiddlewareStack(new SimpleEventDispatcher());
-        self::assertNotSame($stack, $stack->build([], $this->createMock(RequestHandlerInterface::class)));
+        $stack = new MiddlewareStack([], $this->createMock(RequestHandlerInterface::class), new SimpleEventDispatcher());
+        $stack->handle($this->createMock(ServerRequestInterface::class));
     }
 }

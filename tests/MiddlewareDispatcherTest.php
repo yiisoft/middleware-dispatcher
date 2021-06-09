@@ -16,7 +16,6 @@ use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
-use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\FailMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
@@ -201,13 +200,13 @@ final class MiddlewareDispatcherTest extends TestCase
         if ($container === null) {
             return new MiddlewareDispatcher(
                 new MiddlewareFactory($this->createContainer()),
-                new MiddlewareStack($eventDispatcher)
+                $eventDispatcher
             );
         }
 
         return new MiddlewareDispatcher(
             new MiddlewareFactory($container),
-            new MiddlewareStack($eventDispatcher)
+            $eventDispatcher
         );
     }
 
