@@ -87,13 +87,13 @@ final class MiddlewareDispatcher
     }
 
     /**
-     * @return MiddlewareInterface[]
+     * @return \Closure[]
      */
     private function buildMiddlewares(): array
     {
         $middlewares = [];
         foreach ($this->middlewareDefinitions as $middlewareDefinition) {
-            $middlewares[] = $this->middlewareFactory->create($middlewareDefinition);
+            $middlewares[] = fn (): MiddlewareInterface => $this->middlewareFactory->create($middlewareDefinition);
         }
 
         return $middlewares;

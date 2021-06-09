@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
+use Closure;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -27,7 +28,7 @@ final class MiddlewareStack implements RequestHandlerInterface
     private array $middlewares;
 
     /**
-     * @param MiddlewareInterface[] $middlewares Middlewares.
+     * @param Closure[] $middlewares Middlewares.
      * @param RequestHandlerInterface $fallbackHandler Fallback handler
      * @param EventDispatcherInterface $eventDispatcher Event dispatcher to use for triggering before/after middleware
      * events.
@@ -57,7 +58,7 @@ final class MiddlewareStack implements RequestHandlerInterface
     {
         $handler = $this->fallbackHandler;
 
-        /** @var  MiddlewareInterface $middleware */
+        /** @var  Closure $middleware */
         foreach ($this->middlewares as $middleware) {
             $handler = $this->wrap($middleware, $handler);
         }
@@ -68,15 +69,15 @@ final class MiddlewareStack implements RequestHandlerInterface
     /**
      * Wrap handler by middlewares.
      */
-    private function wrap(MiddlewareInterface $middleware, RequestHandlerInterface $handler): RequestHandlerInterface
+    private function wrap(Closure $middleware, RequestHandlerInterface $handler): RequestHandlerInterface
     {
         return new class($middleware, $handler, $this->eventDispatcher) implements RequestHandlerInterface {
-            private MiddlewareInterface $middleware;
+            private Closure $middleware;
             private RequestHandlerInterface $handler;
             private EventDispatcherInterface $eventDispatcher;
 
             public function __construct(
-                MiddlewareInterface $middleware,
+                Closure $middleware,
                 RequestHandlerInterface $handler,
                 EventDispatcherInterface $eventDispatcher
             ) {
@@ -87,12 +88,14 @@ final class MiddlewareStack implements RequestHandlerInterface
 
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
-                $this->eventDispatcher->dispatch(new BeforeMiddleware($this->middleware, $request));
+                /** @var  MiddlewareInterface $middleware */
+                $middleware = ($this->middleware)();
+                $this->eventDispatcher->dispatch(new BeforeMiddleware($middleware, $request));
 
                 try {
-                    return $response = $this->middleware->process($request, $this->handler);
+                    return $response = $middleware->process($request, $this->handler);
                 } finally {
-                    $this->eventDispatcher->dispatch(new AfterMiddleware($this->middleware, $response ?? null));
+                    $this->eventDispatcher->dispatch(new AfterMiddleware($middleware, $response ?? null));
                 }
             }
         };
