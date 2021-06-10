@@ -13,13 +13,13 @@ use function is_string;
 
 final class InvalidMiddlewareDefinitionException extends InvalidArgumentException
 {
+    private const DEFAULT_MESSAGE = 'Parameter should be either PSR middleware class name or a callable.';
+
     /**
      * @param mixed $middlewareDefinition
      */
-    public function __construct($middlewareDefinition)
+    public function __construct($middlewareDefinition, string $message = self::DEFAULT_MESSAGE)
     {
-        $message = 'Parameter should be either PSR middleware class name or a callable.';
-
         $definitionString = $this->convertDefinitionToString($middlewareDefinition);
         if ($definitionString !== null) {
             $message .= ' Got ' . $definitionString . '.';

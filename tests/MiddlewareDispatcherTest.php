@@ -11,12 +11,12 @@ use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
-use Yiisoft\Middleware\Dispatcher\PipelineBuilderBuilder;
-use Yiisoft\Middleware\Dispatcher\PipelineBuilderInterface;
+use Yiisoft\Middleware\Dispatcher\SquashedMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\FailMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
@@ -26,32 +26,38 @@ use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 final class MiddlewareDispatcherTest extends TestCase
 {
     private ContainerInterface $container;
-    private eventDispatcherInterface $eventDispatcher;
+    private ?eventDispatcherInterface $eventDispatcher;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->createContainer();
+        $this->eventDispatcher = null;
+    }
 
     public function testCallableMiddlewareCalled(): void
     {
         $request = new ServerRequest('GET', '/');
 
-        $pipeline = $this->createDispatcher()->buildPipeline([
+        $pipeline = $this->groupMiddlewares([
             static function (): ResponseInterface {
                 return new Response(418);
             },
-        ], $this->getRequestHandler());
+        ]);
 
-        $response = $pipeline->handle($request);
+        $response = $pipeline->process($request, $this->getRequestHandler());
         $this->assertSame(418, $response->getStatusCode());
     }
 
     public function testArrayMiddlewareCall(): void
     {
         $request = new ServerRequest('GET', '/');
-        $container = $this->createContainer([
+        $this->createContainer([
             TestController::class => new TestController(),
         ]);
-        $dispatcher = $this->createDispatcher($container)
-            ->buildPipeline([[TestController::class, 'index']], $this->getRequestHandler());
+        $groupMiddleware = $this->groupMiddlewares([[TestController::class, 'index']]);
 
-        $response = $dispatcher->handle($request);
+        $response = $groupMiddleware->process($request, $this->getRequestHandler());
         $this->assertSame(200, $response->getStatusCode());
     }
 
@@ -67,10 +73,9 @@ final class MiddlewareDispatcherTest extends TestCase
             return new Response(200, [], null, '1.1', implode($request->getAttributes()));
         };
 
-        $dispatcher = $this->createDispatcher()
-            ->buildPipeline([$middleware1, $middleware2], $this->getRequestHandler());
+        $groupMiddleware = $this->groupMiddlewares([$middleware1, $middleware2]);
 
-        $response = $dispatcher->handle($request);
+        $response = $groupMiddleware->process($request, $this->getRequestHandler());
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('middleware1', $response->getReasonPhrase());
     }
@@ -86,15 +91,15 @@ final class MiddlewareDispatcherTest extends TestCase
             return new Response(200);
         };
 
-        $dispatcher = $this->createDispatcher()
-            ->buildPipeline([$middleware1, $middleware2], $this->getRequestHandler());
+        $groupMiddleware = $this->groupMiddlewares([$middleware1, $middleware2]);
 
-        $response = $dispatcher->handle($request);
+        $response = $groupMiddleware->process($request, $this->getRequestHandler());
         $this->assertSame(403, $response->getStatusCode());
     }
 
     public function testEventsAreDispatched(): void
     {
+        $this->initDispatcher();
         $request = new ServerRequest('GET', '/');
 
         $middleware1 = static function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
@@ -104,9 +109,8 @@ final class MiddlewareDispatcherTest extends TestCase
             return new Response();
         };
 
-        $dispatcher = $this->createDispatcher()
-            ->buildPipeline([$middleware1, $middleware2], $this->getRequestHandler());
-        $dispatcher->handle($request);
+        $groupMiddleware = $this->groupMiddlewares([$middleware1, $middleware2]);
+        $groupMiddleware->process($request, $this->getRequestHandler());
 
         $this->assertEquals(
             [
@@ -124,13 +128,13 @@ final class MiddlewareDispatcherTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Middleware failed.');
 
+        $this->initDispatcher();
         $request = new ServerRequest('GET', '/');
         $middleware = fn () => new FailMiddleware();
-        $dispatcher = $this->createDispatcher()
-            ->buildPipeline([$middleware], $this->getRequestHandler());
+        $groupMiddleware = $this->groupMiddlewares([$middleware]);
 
         try {
-            $dispatcher->handle($request);
+            $groupMiddleware->process($request, $this->getRequestHandler());
         } finally {
             $this->assertEquals(
                 [
@@ -142,29 +146,22 @@ final class MiddlewareDispatcherTest extends TestCase
         }
     }
 
-    public function testImmutability(): void
-    {
-        $dispatcher = $this->createDispatcher();
-        self::assertNotSame($dispatcher, $dispatcher->buildPipeline([], $this->getRequestHandler()));
-    }
-
     public function testResetStackOnWithMiddlewares(): void
     {
         $request = new ServerRequest('GET', '/');
-        $container = $this->createContainer([
+        $this->createContainer([
             TestController::class => new TestController(),
             TestMiddleware::class => new TestMiddleware(),
         ]);
 
-        $pipeline = $this
-            ->createDispatcher($container)
-            ->buildPipeline([[TestController::class, 'index']], $this->getRequestHandler());
-        $pipeline->handle($request);
+        $pipeline = $this->groupMiddlewares([[TestController::class, 'index']]);
+        $pipeline->process($request, $this->getRequestHandler());
+        $handler = $this->getRequestHandler();
 
-        $response1 = $pipeline->handle($request);
+        $response1 = $pipeline->process($request, $handler);
+        $response2 = $pipeline->process($request, $handler);
 
-        $response2 = $pipeline->handle($request);
-
+        self::assertEquals($response1, $response2);
         self::assertNotSame($response1, $response2);
     }
 
@@ -178,18 +175,22 @@ final class MiddlewareDispatcherTest extends TestCase
         };
     }
 
-    private function createDispatcher(
-        ContainerInterface $container = null,
-        EventDispatcherInterface $eventDispatcher = null
-    ): PipelineBuilderInterface {
-        $this->eventDispatcher = $eventDispatcher ?? new SimpleEventDispatcher();
-        $this->container = $container ?? $this->createContainer();
-
-        return new PipelineBuilderBuilder(new MiddlewareFactory($this->container), $this->eventDispatcher);
+    private function groupMiddlewares(iterable $middlewares): MiddlewareInterface
+    {
+        return SquashedMiddleware::create(
+            $middlewares,
+            new MiddlewareFactory($this->container),
+            $this->eventDispatcher
+        );
     }
 
     private function createContainer(array $instances = []): SimpleContainer
     {
         return $this->container = new SimpleContainer($instances);
+    }
+
+    private function initDispatcher(\Closure ...$listeners): SimpleEventDispatcher
+    {
+        return $this->eventDispatcher = new SimpleEventDispatcher(...$listeners);
     }
 }
