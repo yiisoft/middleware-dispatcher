@@ -30,8 +30,8 @@ final class SquashedMiddleware implements MiddlewareInterface
     /**
      * @param iterable $middlewares Middlewares to squash. It can be definitions for the MiddlewareFactoryInterface in
      * case when the $factory parameter specified.
-     * @param null|MiddlewareFactoryInterface $factory Specify this parameter for middleware definitions resolving.
-     * @param null|EventDispatcherInterface $dispatcher Specify this parameter if you need to listen related events:
+     * @param MiddlewareFactoryInterface|null $factory Specify this parameter for middleware definitions resolving.
+     * @param EventDispatcherInterface|null $dispatcher Specify this parameter if you need to listen related events:
      * - {@see \Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware}
      * - {@see \Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware}
      *
