@@ -69,33 +69,37 @@ final class MiddlewareStack implements RequestHandlerInterface
     /**
      * Wrap handler by middlewares.
      */
-    private function wrap(Closure $middleware, RequestHandlerInterface $handler): RequestHandlerInterface
+    private function wrap(Closure $middlewareFactory, RequestHandlerInterface $handler): RequestHandlerInterface
     {
-        return new class($middleware, $handler, $this->eventDispatcher) implements RequestHandlerInterface {
-            private Closure $middleware;
+        return new class($middlewareFactory, $handler, $this->eventDispatcher) implements RequestHandlerInterface {
+            private Closure $middlewareFactory;
+            private ?MiddlewareInterface $middleware = null;
             private RequestHandlerInterface $handler;
             private EventDispatcherInterface $eventDispatcher;
 
             public function __construct(
-                Closure $middleware,
+                Closure $middlewareFactory,
                 RequestHandlerInterface $handler,
                 EventDispatcherInterface $eventDispatcher
             ) {
-                $this->middleware = $middleware;
+                $this->middlewareFactory = $middlewareFactory;
                 $this->handler = $handler;
                 $this->eventDispatcher = $eventDispatcher;
             }
 
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
-                /** @var  MiddlewareInterface $middleware */
-                $middleware = ($this->middleware)();
-                $this->eventDispatcher->dispatch(new BeforeMiddleware($middleware, $request));
+                if ($this->middleware === null) {
+                    /** @var  MiddlewareInterface */
+                    $this->middleware = ($this->middlewareFactory)();
+                }
+
+                $this->eventDispatcher->dispatch(new BeforeMiddleware($this->middleware, $request));
 
                 try {
-                    return $response = $middleware->process($request, $this->handler);
+                    return $response = $this->middleware->process($request, $this->handler);
                 } finally {
-                    $this->eventDispatcher->dispatch(new AfterMiddleware($middleware, $response ?? null));
+                    $this->eventDispatcher->dispatch(new AfterMiddleware($this->middleware, $response ?? null));
                 }
             }
         };
