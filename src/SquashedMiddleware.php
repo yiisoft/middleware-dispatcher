@@ -49,6 +49,7 @@ final class SquashedMiddleware implements MiddlewareInterface
     {
         /**
          * @psalm-suppress UndefinedInterfaceMethod
+         *
          * @var RequestHandlerInterface $newHandler
          */
         $newHandler = $this->handler->withRequestHandler($handler);
