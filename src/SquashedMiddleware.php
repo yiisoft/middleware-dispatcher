@@ -17,7 +17,7 @@ use Yiisoft\Middleware\Dispatcher\Exception\InvalidMiddlewareDefinitionException
 
 final class SquashedMiddleware implements MiddlewareInterface
 {
-    private ?RequestHandlerInterface $handler;
+    private RequestHandlerInterface $handler;
 
     private function __construct(
         iterable $middlewares,
@@ -47,7 +47,12 @@ final class SquashedMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        return $this->handler->withRequestHandler($handler)->handle($request);
+        /**
+         * @psalm-suppress UndefinedInterfaceMethod
+         * @var RequestHandlerInterface $newHandler
+         */
+        $newHandler = $this->handler->withRequestHandler($handler);
+        return $newHandler->handle($request);
     }
 
     /**
@@ -63,6 +68,7 @@ final class SquashedMiddleware implements MiddlewareInterface
             private ?Iterator $iterator;
             private ?MiddlewareInterface $middleware = null;
             private ?EventDispatcherInterface $dispatcher;
+            /** @psalm-suppress PropertyNotSetInConstructor */
             private RequestHandlerInterface $fallbackHandler;
 
             public function __clone()
@@ -141,7 +147,7 @@ final class SquashedMiddleware implements MiddlewareInterface
 
     /**
      * @psalm-param iterable<mixed, mixed> $middlewares
-     * @psalm-return Generator<int, MiddlewareInterface, mixed, RequestHandlerInterface>
+     * @psalm-return Generator<int, MiddlewareInterface>
      */
     private function iterateMiddlewares(iterable $middlewares, ?MiddlewareFactoryInterface $factory): Generator
     {
@@ -163,7 +169,7 @@ final class SquashedMiddleware implements MiddlewareInterface
 
     public function __destruct()
     {
+        /** @psalm-suppress UndefinedInterfaceMethod */
         $this->handler->__destruct();
-        $this->handler = null;
     }
 }
