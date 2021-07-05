@@ -26,7 +26,7 @@ use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 final class MiddlewareDispatcherTest extends TestCase
 {
     private ContainerInterface $container;
-    private eventDispatcherInterface $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function testCallableMiddlewareCalled(): void
     {
