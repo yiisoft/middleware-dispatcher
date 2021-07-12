@@ -39,7 +39,7 @@ final class MiddlewareFactoryTest extends TestCase
         self::assertSame(
             'yii',
             $middleware->process(
-                $this->createMock(ServerRequestInterface::class),
+                new ServerRequest('GET', '/'),
                 $this->createMock(RequestHandlerInterface::class)
             )->getHeaderLine('test')
         );
@@ -56,7 +56,7 @@ final class MiddlewareFactoryTest extends TestCase
         self::assertSame(
             418,
             $middleware->process(
-                $this->createMock(ServerRequestInterface::class),
+                new ServerRequest('GET', '/'),
                 $this->createMock(RequestHandlerInterface::class)
             )->getStatusCode()
         );
@@ -73,7 +73,7 @@ final class MiddlewareFactoryTest extends TestCase
         self::assertSame(
             '42',
             $middleware->process(
-                $this->createMock(ServerRequestInterface::class),
+                new ServerRequest('GET', '/'),
                 $this->createMock(RequestHandlerInterface::class)
             )->getHeaderLine('test')
         );
@@ -118,7 +118,7 @@ final class MiddlewareFactoryTest extends TestCase
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $middleware->process(
-            $this->createMock(ServerRequestInterface::class),
+            new ServerRequest('GET', '/'),
             $this->createMock(RequestHandlerInterface::class)
         );
     }
@@ -149,7 +149,7 @@ final class MiddlewareFactoryTest extends TestCase
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $middleware->process(
-            $this->createMock(ServerRequestInterface::class),
+            new ServerRequest('GET', '/'),
             $this->createMock(RequestHandlerInterface::class)
         );
     }
