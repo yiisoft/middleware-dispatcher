@@ -86,7 +86,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
 
                     /** @var mixed $response */
                     $response = (new Injector($this->container))
-                        ->invoke([$controller, $this->method], array_merge($request->getAttributes(), [$request, $handler]));
+                        ->invoke([$controller, $this->method], array_merge($request->getAttributes() ?? [], [$request, $handler]));
                     if ($response instanceof ResponseInterface) {
                         return $response;
                     }
@@ -113,7 +113,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 RequestHandlerInterface $handler
             ): ResponseInterface {
                 /** @var mixed $response */
-                $response = (new Injector($this->container))->invoke($this->callback, array_merge($request->getAttributes(), [$request, $handler]));
+                $response = (new Injector($this->container))->invoke($this->callback, array_merge($request->getAttributes() ?? [], [$request, $handler]));
                 if ($response instanceof ResponseInterface) {
                     return $response;
                 }
