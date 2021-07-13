@@ -86,12 +86,34 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
 
                     /** @var mixed $response */
                     $response = (new Injector($this->container))
-                        ->invoke([$controller, $this->method], array_merge($request->getAttributes(), [$request, $handler]));
+                        ->invoke([$controller, $this->method], $this->resolveHandlerArguments($request, $handler));
                     if ($response instanceof ResponseInterface) {
                         return $response;
                     }
 
                     throw new InvalidMiddlewareDefinitionException($this->callback);
+                }
+
+                private function resolveHandlerArguments(
+                    ServerRequestInterface $request,
+                    RequestHandlerInterface $handler
+                ): array {
+                    $parameters = (new \ReflectionClass($this->class))->getMethod($this->method)->getParameters();
+                    $arguments = [];
+
+                    foreach ($parameters as $parameter) {
+                        if ($parameter->getType()->getName() === ServerRequestInterface::class) {
+                            $arguments[$parameter->getName()] = $request;
+                        } else if ($parameter->getType()->getName() === RequestHandlerInterface::class) {
+                            $arguments[$parameter->getName()] = $handler;
+                        } else if (
+                            (!$parameter->hasType() || $parameter->getType()->isBuiltin())
+                            && array_key_exists($parameter->getName(), $request->getAttributes())
+                        ) {
+                            $arguments[$parameter->getName()] = $request->getAttribute($parameter->getName());
+                        }
+                    }
+                    return $arguments;
                 }
             };
         }
@@ -113,7 +135,10 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 RequestHandlerInterface $handler
             ): ResponseInterface {
                 /** @var mixed $response */
-                $response = (new Injector($this->container))->invoke($this->callback, array_merge($request->getAttributes(), [$request, $handler]));
+                $response = (new Injector($this->container))->invoke(
+                    $this->callback,
+                    $this->resolveHandlerArguments($request, $handler)
+                );
                 if ($response instanceof ResponseInterface) {
                     return $response;
                 }
@@ -121,6 +146,28 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                     return $response->process($request, $handler);
                 }
                 throw new InvalidMiddlewareDefinitionException($this->callback);
+            }
+
+            private function resolveHandlerArguments(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler
+            ): array {
+                $parameters = (new \ReflectionFunction($this->callback))->getParameters();
+                $arguments = [];
+
+                foreach ($parameters as $parameter) {
+                    if ($parameter->hasType() && $parameter->getType()->getName() === ServerRequestInterface::class) {
+                        $arguments[$parameter->getName()] = $request;
+                    } else if ($parameter->hasType() && $parameter->getType()->getName() === RequestHandlerInterface::class) {
+                        $arguments[$parameter->getName()] = $handler;
+                    } else if (
+                        (!$parameter->hasType() || $parameter->getType()->isBuiltin())
+                        && array_key_exists($parameter->getName(), $request->getAttributes())
+                    ) {
+                        $arguments[$parameter->getName()] = $request->getAttribute($parameter->getName());
+                    }
+                }
+                return $arguments;
             }
         };
     }
