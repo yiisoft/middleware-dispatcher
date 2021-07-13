@@ -102,9 +102,9 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                     $arguments = [];
 
                     foreach ($parameters as $parameter) {
-                        if ($parameter->getType()->getName() === ServerRequestInterface::class) {
+                        if ($parameter->hasType() && $parameter->getType()->getName() === ServerRequestInterface::class) {
                             $arguments[$parameter->getName()] = $request;
-                        } elseif ($parameter->getType()->getName() === RequestHandlerInterface::class) {
+                        } elseif ($parameter->hasType() && $parameter->getType()->getName() === RequestHandlerInterface::class) {
                             $arguments[$parameter->getName()] = $handler;
                         } elseif (
                             (!$parameter->hasType() || $parameter->getType()->isBuiltin())
