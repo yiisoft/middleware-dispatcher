@@ -16,6 +16,7 @@ use stdClass;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\BindRequestAttributesController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
@@ -104,6 +105,39 @@ final class MiddlewareFactoryTest extends TestCase
                 new ServerRequest('GET', '/'),
                 $this->getRequestHandler()
             )->getHeaderLine('method')
+        );
+    }
+
+    public function testCreateWithBindRequestAttributesController(): void
+    {
+        $container = $this->getContainer([BindRequestAttributesController::class => new BindRequestAttributesController()]);
+        $middleware = $this->getMiddlewareFactory($container)->create([BindRequestAttributesController::class, 'index']);
+
+        self::assertSame(
+            'handler-string',
+            $middleware->process(
+                (new ServerRequest('GET', '/'))->withAttribute('handler', 'handler-string'),
+                $this->getRequestHandler()
+            )->getHeaderLine('handler')
+        );
+    }
+
+    public function testCreateWithBindRequestAttributesCallable(): void
+    {
+        $container = $this->getContainer([BindRequestAttributesController::class => new BindRequestAttributesController()]);
+        $middleware = $this->getMiddlewareFactory($container)->create(
+            static function (ServerRequestInterface $serverRequest, RequestHandlerInterface $requestHandler, $handler) {
+                $response = $requestHandler->handle($serverRequest);
+                return $response->withStatus(200)->withHeader('handler', $handler);
+            }
+        );
+
+        self::assertSame(
+            'handler-string',
+            $middleware->process(
+                (new ServerRequest('GET', '/'))->withAttribute('handler', 'handler-string'),
+                $this->getRequestHandler()
+            )->getHeaderLine('handler')
         );
     }
 
