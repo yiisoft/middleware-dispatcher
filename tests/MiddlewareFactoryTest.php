@@ -16,6 +16,7 @@ use stdClass;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\BindRequestAttributesController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
@@ -39,7 +40,7 @@ final class MiddlewareFactoryTest extends TestCase
         self::assertSame(
             'yii',
             $middleware->process(
-                $this->createMock(ServerRequestInterface::class),
+                new ServerRequest('GET', '/'),
                 $this->createMock(RequestHandlerInterface::class)
             )->getHeaderLine('test')
         );
@@ -56,7 +57,7 @@ final class MiddlewareFactoryTest extends TestCase
         self::assertSame(
             418,
             $middleware->process(
-                $this->createMock(ServerRequestInterface::class),
+                new ServerRequest('GET', '/'),
                 $this->createMock(RequestHandlerInterface::class)
             )->getStatusCode()
         );
@@ -73,7 +74,7 @@ final class MiddlewareFactoryTest extends TestCase
         self::assertSame(
             '42',
             $middleware->process(
-                $this->createMock(ServerRequestInterface::class),
+                new ServerRequest('GET', '/'),
                 $this->createMock(RequestHandlerInterface::class)
             )->getHeaderLine('test')
         );
@@ -107,6 +108,39 @@ final class MiddlewareFactoryTest extends TestCase
         );
     }
 
+    public function testCreateWithBindRequestAttributesController(): void
+    {
+        $container = $this->getContainer([BindRequestAttributesController::class => new BindRequestAttributesController()]);
+        $middleware = $this->getMiddlewareFactory($container)->create([BindRequestAttributesController::class, 'index']);
+
+        self::assertSame(
+            'handler-string',
+            $middleware->process(
+                (new ServerRequest('GET', '/'))->withAttribute('handler', 'handler-string'),
+                $this->getRequestHandler()
+            )->getHeaderLine('handler')
+        );
+    }
+
+    public function testCreateWithBindRequestAttributesCallable(): void
+    {
+        $container = $this->getContainer([BindRequestAttributesController::class => new BindRequestAttributesController()]);
+        $middleware = $this->getMiddlewareFactory($container)->create(
+            static function (ServerRequestInterface $serverRequest, RequestHandlerInterface $requestHandler, $handler) {
+                $response = $requestHandler->handle($serverRequest);
+                return $response->withStatus(200)->withHeader('handler', $handler);
+            }
+        );
+
+        self::assertSame(
+            'handler-string',
+            $middleware->process(
+                (new ServerRequest('GET', '/'))->withAttribute('handler', 'handler-string'),
+                $this->getRequestHandler()
+            )->getHeaderLine('handler')
+        );
+    }
+
     public function testInvalidMiddlewareWithWrongCallable(): void
     {
         $container = $this->getContainer([TestController::class => new TestController()]);
@@ -118,7 +152,7 @@ final class MiddlewareFactoryTest extends TestCase
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $middleware->process(
-            $this->createMock(ServerRequestInterface::class),
+            new ServerRequest('GET', '/'),
             $this->createMock(RequestHandlerInterface::class)
         );
     }
@@ -149,7 +183,7 @@ final class MiddlewareFactoryTest extends TestCase
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $middleware->process(
-            $this->createMock(ServerRequestInterface::class),
+            new ServerRequest('GET', '/'),
             $this->createMock(RequestHandlerInterface::class)
         );
     }
