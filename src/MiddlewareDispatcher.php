@@ -73,6 +73,9 @@ final class MiddlewareDispatcher
     {
         $new = clone $this;
         $new->middlewareDefinitions = $middlewareDefinitions;
+
+        // Fixes a memory leak.
+        unset($new->stack);
         $new->stack = null;
 
         return $new;
@@ -92,8 +95,10 @@ final class MiddlewareDispatcher
     private function buildMiddlewares(): array
     {
         $middlewares = [];
+        $factory = $this->middlewareFactory;
+
         foreach ($this->middlewareDefinitions as $middlewareDefinition) {
-            $middlewares[] = fn (): MiddlewareInterface => $this->middlewareFactory->create($middlewareDefinition);
+            $middlewares[] = static fn (): MiddlewareInterface => $factory->create($middlewareDefinition);
         }
 
         return $middlewares;
