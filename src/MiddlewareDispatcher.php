@@ -73,7 +73,7 @@ final class MiddlewareDispatcher
     {
         $new = clone $this;
         $new->middlewareDefinitions = $middlewareDefinitions;
-        
+
         $stack = $new->stack;
         $new->stack = null;
         unset($stack);
@@ -96,7 +96,7 @@ final class MiddlewareDispatcher
     {
         $middlewares = [];
         $factory = $this->middlewareFactory;
-        
+
         foreach ($this->middlewareDefinitions as $middlewareDefinition) {
             $middlewares[] = static fn (): MiddlewareInterface => $factory->create($middlewareDefinition);
         }
