@@ -9,7 +9,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use PHPUnit\Framework\TestCase;
 
-class BeforeMiddlewareTest extends TestCase
+final class BeforeMiddlewareTest extends TestCase
 {
     public function testGetMiddlewareAndRequest(): void
     {
