@@ -74,9 +74,9 @@ final class MiddlewareDispatcher
         $new = clone $this;
         $new->middlewareDefinitions = $middlewareDefinitions;
 
-        $stack = $new->stack;
+        // Fixes a memory leak.
+        unset($new->stack);
         $new->stack = null;
-        unset($stack);
 
         return $new;
     }
