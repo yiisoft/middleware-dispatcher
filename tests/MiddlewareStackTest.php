@@ -11,7 +11,7 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareStack;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
-class MiddlewareStackTest extends TestCase
+final class MiddlewareStackTest extends TestCase
 {
     public function testHandleEmpty(): void
     {
