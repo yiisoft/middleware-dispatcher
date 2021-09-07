@@ -71,7 +71,7 @@ final class MiddlewareStack implements RequestHandlerInterface
      */
     private function wrap(Closure $middlewareFactory, RequestHandlerInterface $handler): RequestHandlerInterface
     {
-        return new class($middlewareFactory, $handler, $this->eventDispatcher) implements RequestHandlerInterface {
+        return new class ($middlewareFactory, $handler, $this->eventDispatcher) implements RequestHandlerInterface {
             private Closure $middlewareFactory;
             private ?MiddlewareInterface $middleware = null;
             private RequestHandlerInterface $handler;
