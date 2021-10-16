@@ -10,6 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use ReflectionNamedType;
 use Yiisoft\Injector\Injector;
 
 use function in_array;
@@ -106,9 +107,17 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                     $arguments = [];
 
                     foreach ($parameters as $parameter) {
-                        if ($parameter->hasType() && $parameter->getType()->getName() === ServerRequestInterface::class) {
+                        if (
+                            $parameter->hasType()
+                            && $parameter->getType() instanceof ReflectionNamedType
+                            && $parameter->getType()->getName() === ServerRequestInterface::class
+                        ) {
                             $arguments[$parameter->getName()] = $request;
-                        } elseif ($parameter->hasType() && $parameter->getType()->getName() === RequestHandlerInterface::class) {
+                        } elseif (
+                            $parameter->hasType()
+                            && $parameter->getType() instanceof ReflectionNamedType
+                            && $parameter->getType()->getName() === RequestHandlerInterface::class
+                        ) {
                             $arguments[$parameter->getName()] = $handler;
                         } elseif (
                             (!$parameter->hasType() || $parameter->getType()->isBuiltin())
@@ -161,9 +170,17 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 $arguments = [];
 
                 foreach ($parameters as $parameter) {
-                    if ($parameter->hasType() && $parameter->getType()->getName() === ServerRequestInterface::class) {
+                    if (
+                        $parameter->hasType()
+                        && $parameter->getType() instanceof ReflectionNamedType
+                        && $parameter->getType()->getName() === ServerRequestInterface::class
+                    ) {
                         $arguments[$parameter->getName()] = $request;
-                    } elseif ($parameter->hasType() && $parameter->getType()->getName() === RequestHandlerInterface::class) {
+                    } elseif (
+                        $parameter->hasType()
+                        && $parameter->getType() instanceof ReflectionNamedType
+                        && $parameter->getType()->getName() === RequestHandlerInterface::class
+                    ) {
                         $arguments[$parameter->getName()] = $handler;
                     } elseif (
                         (!$parameter->hasType() || $parameter->getType()->isBuiltin())
