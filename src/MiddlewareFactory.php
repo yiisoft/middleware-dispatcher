@@ -64,7 +64,10 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
     private function wrapCallable($callback): MiddlewareInterface
     {
         if (is_array($callback)) {
-            return new class ($this->container, $callback) implements MiddlewareInterface {
+            return new class($this->container, $callback) implements MiddlewareInterface {
+                /**
+                 * @psalm-var class-string
+                 */
                 private string $class;
                 private string $method;
                 private ContainerInterface $container;
@@ -99,6 +102,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                     RequestHandlerInterface $handler
                 ): array {
                     $parameters = (new \ReflectionClass($this->class))->getMethod($this->method)->getParameters();
+                    /** @psalm-var array{array-key, mixed} $arguments */
                     $arguments = [];
 
                     foreach ($parameters as $parameter) {
@@ -118,9 +122,9 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
             };
         }
 
-        /** @var callable $callback */
+        /** @var callable|Closure $callback */
 
-        return new class ($callback, $this->container) implements MiddlewareInterface {
+        return new class($callback, $this->container) implements MiddlewareInterface {
             private ContainerInterface $container;
             private $callback;
 
@@ -153,6 +157,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 RequestHandlerInterface $handler
             ): array {
                 $parameters = (new \ReflectionFunction($this->callback))->getParameters();
+                /** @psalm-var array{array-key, string} $arguments */
                 $arguments = [];
 
                 foreach ($parameters as $parameter) {
