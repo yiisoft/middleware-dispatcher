@@ -65,7 +65,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
     private function wrapCallable($callback): MiddlewareInterface
     {
         if (is_array($callback)) {
-            return new class($this->container, $callback) implements MiddlewareInterface {
+            return new class ($this->container, $callback) implements MiddlewareInterface {
                 /**
                  * @psalm-var class-string
                  */
@@ -133,7 +133,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
 
         /** @var callable|Closure $callback */
 
-        return new class($callback, $this->container) implements MiddlewareInterface {
+        return new class ($callback, $this->container) implements MiddlewareInterface {
             private ContainerInterface $container;
             private $callback;
 
