@@ -142,9 +142,9 @@ final class MiddlewareFactoryTest extends TestCase
         );
         $handler = 'handler-string';
         $response = $middleware->process(
-    (new ServerRequest('GET', '/'))->withAttribute('handler', $handler),
-    $this->getRequestHandler()
-);
+            (new ServerRequest('GET', '/'))->withAttribute('handler', $handler),
+            $this->getRequestHandler()
+        );
         self::assertSame(
             $handler,
             $response->getHeaderLine('handler')
