@@ -190,7 +190,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
      * @internal
      */
     public static function resolveHandlerArguments(
-        callable $callback,
+        $callback,
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
     ): array {
