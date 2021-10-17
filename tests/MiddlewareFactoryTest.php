@@ -37,12 +37,13 @@ final class MiddlewareFactoryTest extends TestCase
     {
         $container = $this->getContainer([TestController::class => new TestController()]);
         $middleware = $this->getMiddlewareFactory($container)->create([TestController::class, 'index']);
+        $response = $middleware->process(
+            new ServerRequest('GET', '/'),
+            $this->createMock(RequestHandlerInterface::class)
+        );
         self::assertSame(
             'yii',
-            $middleware->process(
-                new ServerRequest('GET', '/'),
-                $this->createMock(RequestHandlerInterface::class)
-            )->getHeaderLine('test')
+            $response->getHeaderLine('test')
         );
     }
 
@@ -54,12 +55,13 @@ final class MiddlewareFactoryTest extends TestCase
                 return (new Response())->withStatus(418);
             }
         );
+        $response = $middleware->process(
+            new ServerRequest('GET', '/'),
+            $this->createMock(RequestHandlerInterface::class)
+        );
         self::assertSame(
             418,
-            $middleware->process(
-                new ServerRequest('GET', '/'),
-                $this->createMock(RequestHandlerInterface::class)
-            )->getStatusCode()
+            $response->getStatusCode()
         );
     }
 
@@ -71,12 +73,13 @@ final class MiddlewareFactoryTest extends TestCase
                 return new TestMiddleware();
             }
         );
+        $response = $middleware->process(
+            new ServerRequest('GET', '/'),
+            $this->createMock(RequestHandlerInterface::class)
+        );
         self::assertSame(
             '42',
-            $middleware->process(
-                new ServerRequest('GET', '/'),
-                $this->createMock(RequestHandlerInterface::class)
-            )->getHeaderLine('test')
+            $response->getHeaderLine('test')
         );
     }
 
@@ -84,13 +87,13 @@ final class MiddlewareFactoryTest extends TestCase
     {
         $container = $this->getContainer([UseParamsMiddleware::class => new UseParamsMiddleware()]);
         $middleware = $this->getMiddlewareFactory($container)->create(UseParamsMiddleware::class);
-
+        $response = $middleware->process(
+            new ServerRequest('GET', '/'),
+            $this->getRequestHandler()
+        );
         self::assertSame(
             'GET',
-            $middleware->process(
-                new ServerRequest('GET', '/'),
-                $this->getRequestHandler()
-            )->getHeaderLine('method')
+            $response->getHeaderLine('method')
         );
     }
 
@@ -98,46 +101,53 @@ final class MiddlewareFactoryTest extends TestCase
     {
         $container = $this->getContainer([UseParamsController::class => new UseParamsController()]);
         $middleware = $this->getMiddlewareFactory($container)->create([UseParamsController::class, 'index']);
-
+        $response = $middleware->process(
+            new ServerRequest('GET', '/'),
+            $this->getRequestHandler()
+        );
         self::assertSame(
             'GET',
-            $middleware->process(
-                new ServerRequest('GET', '/'),
-                $this->getRequestHandler()
-            )->getHeaderLine('method')
+            $response->getHeaderLine('method')
         );
     }
 
     public function testCreateWithBindRequestAttributesController(): void
     {
-        $container = $this->getContainer([BindRequestAttributesController::class => new BindRequestAttributesController()]);
-        $middleware = $this->getMiddlewareFactory($container)->create([BindRequestAttributesController::class, 'index']);
-
+        $container = $this->getContainer(
+            [BindRequestAttributesController::class => new BindRequestAttributesController()]
+        );
+        $middleware = $this->getMiddlewareFactory($container)
+            ->create([BindRequestAttributesController::class, 'index']);
+        $handler = 'handler-string';
+        $response = $middleware->process(
+            (new ServerRequest('GET', '/'))->withAttribute('handler', $handler),
+            $this->getRequestHandler()
+        );
         self::assertSame(
-            'handler-string',
-            $middleware->process(
-                (new ServerRequest('GET', '/'))->withAttribute('handler', 'handler-string'),
-                $this->getRequestHandler()
-            )->getHeaderLine('handler')
+            $handler,
+            $response->getHeaderLine('handler')
         );
     }
 
     public function testCreateWithBindRequestAttributesCallable(): void
     {
-        $container = $this->getContainer([BindRequestAttributesController::class => new BindRequestAttributesController()]);
+        $container = $this->getContainer(
+            [BindRequestAttributesController::class => new BindRequestAttributesController()]
+        );
         $middleware = $this->getMiddlewareFactory($container)->create(
             static function (ServerRequestInterface $serverRequest, RequestHandlerInterface $requestHandler, $handler) {
                 $response = $requestHandler->handle($serverRequest);
                 return $response->withStatus(200)->withHeader('handler', $handler);
             }
         );
-
+        $handler = 'handler-string';
+        $response = $middleware->process(
+    (new ServerRequest('GET', '/'))->withAttribute('handler', $handler),
+    $this->getRequestHandler()
+);
         self::assertSame(
-            'handler-string',
-            $middleware->process(
-                (new ServerRequest('GET', '/'))->withAttribute('handler', 'handler-string'),
-                $this->getRequestHandler()
-            )->getHeaderLine('handler')
+            $handler,
+            $response->getHeaderLine('handler')
         );
     }
 
