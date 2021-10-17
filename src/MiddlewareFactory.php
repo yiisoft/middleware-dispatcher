@@ -90,43 +90,15 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
 
                     /** @var mixed $response */
                     $response = (new Injector($this->container))
-                        ->invoke([$controller, $this->method], $this->resolveHandlerArguments($request, $handler));
+                        ->invoke(
+                            [$controller, $this->method],
+                            MiddlewareFactory::resolveHandlerArguments($this->callback, $request, $handler)
+                        );
                     if ($response instanceof ResponseInterface) {
                         return $response;
                     }
 
                     throw new InvalidMiddlewareDefinitionException($this->callback);
-                }
-
-                private function resolveHandlerArguments(
-                    ServerRequestInterface $request,
-                    RequestHandlerInterface $handler
-                ): array {
-                    $parameters = (new \ReflectionClass($this->class))->getMethod($this->method)->getParameters();
-                    /** @psalm-var array{array-key, mixed} $arguments */
-                    $arguments = [];
-
-                    foreach ($parameters as $parameter) {
-                        if (
-                            $parameter->hasType()
-                            && $parameter->getType() instanceof ReflectionNamedType
-                            && $parameter->getType()->getName() === ServerRequestInterface::class
-                        ) {
-                            $arguments[$parameter->getName()] = $request;
-                        } elseif (
-                            $parameter->hasType()
-                            && $parameter->getType() instanceof ReflectionNamedType
-                            && $parameter->getType()->getName() === RequestHandlerInterface::class
-                        ) {
-                            $arguments[$parameter->getName()] = $handler;
-                        } elseif (
-                            (!$parameter->hasType() || $parameter->getType()->isBuiltin())
-                            && array_key_exists($parameter->getName(), $request->getAttributes())
-                        ) {
-                            $arguments[$parameter->getName()] = $request->getAttribute($parameter->getName());
-                        }
-                    }
-                    return $arguments;
                 }
             };
         }
@@ -150,7 +122,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 /** @var mixed $response */
                 $response = (new Injector($this->container))->invoke(
                     $this->callback,
-                    $this->resolveHandlerArguments($request, $handler)
+                    MiddlewareFactory::resolveHandlerArguments($this->callback, $request, $handler)
                 );
                 if ($response instanceof ResponseInterface) {
                     return $response;
@@ -159,37 +131,6 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                     return $response->process($request, $handler);
                 }
                 throw new InvalidMiddlewareDefinitionException($this->callback);
-            }
-
-            private function resolveHandlerArguments(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler
-            ): array {
-                $parameters = (new \ReflectionFunction($this->callback))->getParameters();
-                /** @psalm-var array{array-key, string} $arguments */
-                $arguments = [];
-
-                foreach ($parameters as $parameter) {
-                    if (
-                        $parameter->hasType()
-                        && $parameter->getType() instanceof ReflectionNamedType
-                        && $parameter->getType()->getName() === ServerRequestInterface::class
-                    ) {
-                        $arguments[$parameter->getName()] = $request;
-                    } elseif (
-                        $parameter->hasType()
-                        && $parameter->getType() instanceof ReflectionNamedType
-                        && $parameter->getType()->getName() === RequestHandlerInterface::class
-                    ) {
-                        $arguments[$parameter->getName()] = $handler;
-                    } elseif (
-                        (!$parameter->hasType() || $parameter->getType()->isBuiltin())
-                        && array_key_exists($parameter->getName(), $request->getAttributes())
-                    ) {
-                        $arguments[$parameter->getName()] = $request->getAttribute($parameter->getName());
-                    }
-                }
-                return $arguments;
             }
         };
     }
@@ -235,5 +176,46 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 class_exists($definition[0]) ? get_class_methods($definition[0]) : [],
                 true
             );
+    }
+
+    /**
+     * @param callable|Closure $callback
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     *
+     * @return array
+     * @throws \ReflectionException
+     * @internal
+     */
+    final public static function resolveHandlerArguments(
+        callable $callback,
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler
+    ): array {
+        if (is_array($callback)) {
+            [$class, $method] = $callback;
+            $parameters = (new \ReflectionMethod($class, $method))->getParameters();
+        } else {
+            $parameters = (new \ReflectionFunction(Closure::fromCallable($callback)))->getParameters();
+        }
+        /** @psalm-var array{array-key, mixed} $arguments */
+        $arguments = [];
+
+        foreach ($parameters as $parameter) {
+            if (
+                $parameter->hasType()
+                && $parameter->getType() instanceof ReflectionNamedType
+                && !$parameter->getType()->isBuiltin()
+            ) {
+                if ($parameter->getType()->getName() === ServerRequestInterface::class) {
+                    $arguments[$parameter->getName()] = $request;
+                } elseif ($parameter->getType()->getName() === RequestHandlerInterface::class) {
+                    $arguments[$parameter->getName()] = $handler;
+                }
+            } elseif (array_key_exists($parameter->getName(), $request->getAttributes())) {
+                $arguments[$parameter->getName()] = $request->getAttribute($parameter->getName());
+            }
+        }
+        return $arguments;
     }
 }
