@@ -183,11 +183,13 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
      * @param ServerRequestInterface $request
      * @param RequestHandlerInterface $handler
      *
-     * @return array
      * @throws \ReflectionException
+     *
+     * @return array
+     *
      * @internal
      */
-    final public static function resolveHandlerArguments(
+    public static function resolveHandlerArguments(
         callable $callback,
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
