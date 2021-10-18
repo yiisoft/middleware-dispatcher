@@ -193,10 +193,6 @@ final class MiddlewareDispatcherTest extends TestCase
 
     private function createDispatcher(ContainerInterface $container = null, ?EventDispatcherInterface $eventDispatcher = null): MiddlewareDispatcher
     {
-        if ($eventDispatcher === null) {
-            $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        }
-
         if ($container === null) {
             return new MiddlewareDispatcher(
                 new MiddlewareFactory($this->createContainer()),
