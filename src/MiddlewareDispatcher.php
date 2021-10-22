@@ -19,14 +19,14 @@ final class MiddlewareDispatcher
      */
     private ?MiddlewareStack $stack = null;
     private MiddlewareFactoryInterface $middlewareFactory;
-    private EventDispatcherInterface $eventDispatcher;
+    private ?EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var array[]|callable[]|string[]
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(MiddlewareFactoryInterface $middlewareFactory, EventDispatcherInterface $eventDispatcher)
+    public function __construct(MiddlewareFactoryInterface $middlewareFactory, ?EventDispatcherInterface $eventDispatcher = null)
     {
         $this->middlewareFactory = $middlewareFactory;
         $this->eventDispatcher = $eventDispatcher;

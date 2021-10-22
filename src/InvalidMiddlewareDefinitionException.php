@@ -62,6 +62,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
                     }
                 }
             );
+            /** @var string[] $items */
             return '[' . implode(', ', $items) . ']';
         }
 
