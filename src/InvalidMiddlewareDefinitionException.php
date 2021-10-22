@@ -42,7 +42,6 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         }
 
         if (is_array($middlewareDefinition)) {
-            /** @psalm-var array<array-key, null|string|object> $middlewareDefinition */
             $items = $middlewareDefinition;
             foreach ($middlewareDefinition as $item) {
                 if (!is_string($item)) {
@@ -63,6 +62,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
                     }
                 }
             );
+            /** @var string[] $items */
             return '[' . implode(', ', $items) . ']';
         }
 
