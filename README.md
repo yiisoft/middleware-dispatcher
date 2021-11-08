@@ -16,7 +16,7 @@
 [![type-coverage](https://shepherd.dev/github/yiisoft/middleware-dispatcher/coverage.svg)](https://shepherd.dev/github/yiisoft/middleware-dispatcher)
 
 The package is a [PSR-15](https://www.php-fig.org/psr/psr-15/) middleware dispatcher. Given a set of middleware and a
-request instance, dispatcher executes it producing a response instance.
+request instance, dispatcher executes it produces a response instance.
 
 ## Requirements
 
