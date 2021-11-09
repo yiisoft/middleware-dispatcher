@@ -72,7 +72,7 @@ final class MiddlewareDispatcher
     public function withMiddlewares(array $middlewareDefinitions): self
     {
         $new = clone $this;
-        $new->middlewareDefinitions = $middlewareDefinitions;
+        $new->middlewareDefinitions = array_reverse($middlewareDefinitions);
 
         // Fixes a memory leak.
         unset($new->stack);
