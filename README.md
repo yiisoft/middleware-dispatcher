@@ -81,7 +81,7 @@ $request = new ServerRequest('GET', '/teapot');
 $response = $dispatcher->dispatch($request, $this->getRequestHandler());
 ```
 
-Given a request dispatcher executes middleware in the set and produces response. Last specified middleware will be
+Given a request dispatcher executes middleware in the set and produces response. First specified middleware will be
 executed first. For each middleware
 `\Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware` and `\Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware`
 events are triggered.
