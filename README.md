@@ -51,6 +51,7 @@ After dispatcher instance obtained, it should be fed with some middleware:
 
 ```php
 $dispatcher = $dispatcher->withMiddlewares([
+    TeapotAccessChecker::class,
     static function (): ResponseInterface {
         return new Response(418);
     },
