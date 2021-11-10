@@ -1,9 +1,9 @@
 # Yii Middleware Dispatcher Change Log
 
 
-## 1.0.1 under development
+## 2.0.0 under development
 
-- no changes in this release.
+- Chg #43: Reverse middleware order in `withMiddlewares()` (rustamwin)
 
 ## 1.0.0 November 08, 2021
 

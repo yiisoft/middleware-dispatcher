@@ -51,6 +51,7 @@ After dispatcher instance obtained, it should be fed with some middleware:
 
 ```php
 $dispatcher = $dispatcher->withMiddlewares([
+    TeapotAccessChecker::class,
     static function (): ResponseInterface {
         return new Response(418);
     },
@@ -81,7 +82,7 @@ $request = new ServerRequest('GET', '/teapot');
 $response = $dispatcher->dispatch($request, $this->getRequestHandler());
 ```
 
-Given a request dispatcher executes middleware in the set and produces response. Last specified middleware will be
+Given a request dispatcher executes middleware in the set and produces response. First specified middleware will be
 executed first. For each middleware
 `\Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware` and `\Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware`
 events are triggered.
