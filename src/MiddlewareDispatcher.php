@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
+use Closure;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -15,7 +16,7 @@ final class MiddlewareDispatcher
     /**
      * Contains a middleware pipeline handler.
      *
-     * @var MiddlewareStack The middleware stack.
+     * @var MiddlewareStack|null The middleware stack.
      */
     private ?MiddlewareStack $stack = null;
     private MiddlewareFactoryInterface $middlewareFactory;
@@ -90,7 +91,7 @@ final class MiddlewareDispatcher
     }
 
     /**
-     * @return \Closure[]
+     * @return Closure[]
      */
     private function buildMiddlewares(): array
     {

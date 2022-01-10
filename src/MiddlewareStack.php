@@ -50,15 +50,17 @@ final class MiddlewareStack implements RequestHandlerInterface
             $this->build();
         }
 
-        /** @psalm-suppress PossiblyNullReference */
         return $this->stack->handle($request);
     }
 
+    /**
+     * @psalm-assert RequestHandlerInterface $this->stack
+     */
     private function build(): void
     {
         $handler = $this->fallbackHandler;
 
-        /** @var  Closure $middleware */
+        /** @var Closure $middleware */
         foreach ($this->middlewares as $middleware) {
             $handler = $this->wrap($middleware, $handler);
         }

@@ -96,8 +96,6 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
             };
         }
 
-        /** @var callable $callback */
-
         return new class ($callback, $this->container) implements MiddlewareInterface {
             private ContainerInterface $container;
             private $callback;

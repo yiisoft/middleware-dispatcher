@@ -8,7 +8,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 
 /**
- * AfterMiddleware event is raised before executing a middleware.
+ * `BeforeMiddleware` event is raised before executing a middleware.
  */
 final class BeforeMiddleware
 {
