@@ -127,13 +127,6 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 }
                 throw new InvalidMiddlewareDefinitionException($this->callback);
             }
-
-            public function __debugInfo()
-            {
-                return [
-                    'callback' => $this->callback,
-                ];
-            }
         };
     }
 

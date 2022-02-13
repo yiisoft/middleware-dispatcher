@@ -43,6 +43,10 @@ final class MiddlewareFactoryTest extends TestCase
                 $this->createMock(RequestHandlerInterface::class)
             )->getHeaderLine('test')
         );
+        self::assertSame(
+            [TestController::class, 'index'],
+            $middleware->__debugInfo()['callback']
+        );
     }
 
     public function testCreateFromClosureResponse(): void
