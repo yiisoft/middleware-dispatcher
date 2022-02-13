@@ -93,6 +93,13 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
 
                     throw new InvalidMiddlewareDefinitionException($this->callback);
                 }
+
+                public function __debugInfo()
+                {
+                    return [
+                        'callback' => $this->callback,
+                    ];
+                }
             };
         }
 
@@ -119,6 +126,13 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                     return $response->process($request, $handler);
                 }
                 throw new InvalidMiddlewareDefinitionException($this->callback);
+            }
+
+            public function __debugInfo()
+            {
+                return [
+                    'callback' => $this->callback,
+                ];
             }
         };
     }
