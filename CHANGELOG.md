@@ -3,7 +3,7 @@
 
 ## 2.0.1 under development
 
-- no changes in this release.
+- Chg #47: Add debug info to action wrapper (rustamwin)
 
 
 ## 2.0.0 November 10, 2021
