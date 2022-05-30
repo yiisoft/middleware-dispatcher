@@ -2,8 +2,7 @@
 
 ## 2.0.2 under development
 
-- no changes in this release.
-
+- Enh #45: Implement friendly exception for `InvalidMiddlewareDefinitionException` (vjik)
 
 ## 2.0.1 February 14, 2022
 
