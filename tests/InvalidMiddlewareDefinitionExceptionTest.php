@@ -17,12 +17,12 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             [
                 'test',
                 '"test"',
-                'Class `test` not found'
+                'Class `test` not found',
             ],
             [
                 TestController::class,
                 '"Yiisoft\Middleware\Dispatcher\Tests\Support\TestController"',
-                'Class `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` exists, but not implement'
+                'Class `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` exists, but not implement',
             ],
             [
                 new TestController(),
@@ -32,7 +32,7 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             [
                 [TestController::class, 'notExistsAction'],
                 '["Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "notExistsAction"]',
-                'Try add action `notExistsAction()` to controller '
+                'Try add action `notExistsAction()` to controller ',
             ],
             [
                 ['class' => TestController::class, 'index'],
