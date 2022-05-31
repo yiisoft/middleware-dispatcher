@@ -28,20 +28,26 @@ final class MiddlewareFactoryTest extends TestCase
     public function testCreateFromString(): void
     {
         $container = $this->getContainer([TestMiddleware::class => new TestMiddleware()]);
-        $middleware = $this->getMiddlewareFactory($container)->create(TestMiddleware::class);
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create(TestMiddleware::class);
         self::assertInstanceOf(TestMiddleware::class, $middleware);
     }
 
     public function testCreateFromArray(): void
     {
         $container = $this->getContainer([TestController::class => new TestController()]);
-        $middleware = $this->getMiddlewareFactory($container)->create([TestController::class, 'index']);
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create([TestController::class, 'index']);
         self::assertSame(
             'yii',
-            $middleware->process(
-                $this->createMock(ServerRequestInterface::class),
-                $this->createMock(RequestHandlerInterface::class)
-            )->getHeaderLine('test')
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getHeaderLine('test')
         );
         self::assertSame(
             [TestController::class, 'index'],
@@ -52,73 +58,91 @@ final class MiddlewareFactoryTest extends TestCase
     public function testCreateFromClosureResponse(): void
     {
         $container = $this->getContainer([TestController::class => new TestController()]);
-        $middleware = $this->getMiddlewareFactory($container)->create(
-            static function (): ResponseInterface {
-                return (new Response())->withStatus(418);
-            }
-        );
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create(
+                static function (): ResponseInterface {
+                    return (new Response())->withStatus(418);
+                }
+            );
         self::assertSame(
             418,
-            $middleware->process(
-                $this->createMock(ServerRequestInterface::class),
-                $this->createMock(RequestHandlerInterface::class)
-            )->getStatusCode()
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getStatusCode()
         );
     }
 
     public function testCreateFromClosureMiddleware(): void
     {
         $container = $this->getContainer([TestController::class => new TestController()]);
-        $middleware = $this->getMiddlewareFactory($container)->create(
-            static function (): MiddlewareInterface {
-                return new TestMiddleware();
-            }
-        );
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create(
+                static function (): MiddlewareInterface {
+                    return new TestMiddleware();
+                }
+            );
         self::assertSame(
             '42',
-            $middleware->process(
-                $this->createMock(ServerRequestInterface::class),
-                $this->createMock(RequestHandlerInterface::class)
-            )->getHeaderLine('test')
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getHeaderLine('test')
         );
     }
 
     public function testCreateWithUseParamsMiddleware(): void
     {
         $container = $this->getContainer([UseParamsMiddleware::class => new UseParamsMiddleware()]);
-        $middleware = $this->getMiddlewareFactory($container)->create(UseParamsMiddleware::class);
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create(UseParamsMiddleware::class);
 
         self::assertSame(
             'GET',
-            $middleware->process(
-                new ServerRequest('GET', '/'),
-                $this->getRequestHandler()
-            )->getHeaderLine('method')
+            $middleware
+                ->process(
+                    new ServerRequest('GET', '/'),
+                    $this->getRequestHandler()
+                )
+                ->getHeaderLine('method')
         );
     }
 
     public function testCreateWithUseParamsController(): void
     {
         $container = $this->getContainer([UseParamsController::class => new UseParamsController()]);
-        $middleware = $this->getMiddlewareFactory($container)->create([UseParamsController::class, 'index']);
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create([UseParamsController::class, 'index']);
 
         self::assertSame(
             'GET',
-            $middleware->process(
-                new ServerRequest('GET', '/'),
-                $this->getRequestHandler()
-            )->getHeaderLine('method')
+            $middleware
+                ->process(
+                    new ServerRequest('GET', '/'),
+                    $this->getRequestHandler()
+                )
+                ->getHeaderLine('method')
         );
     }
 
     public function testInvalidMiddlewareWithWrongCallable(): void
     {
         $container = $this->getContainer([TestController::class => new TestController()]);
-        $middleware = $this->getMiddlewareFactory($container)->create(
-            static function () {
-                return 42;
-            }
-        );
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create(
+                static function () {
+                    return 42;
+                }
+            );
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $middleware->process(
@@ -130,26 +154,34 @@ final class MiddlewareFactoryTest extends TestCase
     public function testInvalidMiddlewareWithWrongInstance(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this->getMiddlewareFactory()->create(new stdClass());
+        $this
+            ->getMiddlewareFactory()
+            ->create(new stdClass());
     }
 
     public function testInvalidMiddlewareWithWrongString(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this->getMiddlewareFactory()->create('test');
+        $this
+            ->getMiddlewareFactory()
+            ->create('test');
     }
 
     public function testInvalidMiddlewareWithWrongClass(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $this->expectExceptionMessage('Parameter should be either PSR middleware class name or a callable.');
-        $this->getMiddlewareFactory()->create(TestController::class);
+        $this
+            ->getMiddlewareFactory()
+            ->create(TestController::class);
     }
 
     public function testInvalidMiddlewareWithWrongController(): void
     {
         $container = $this->getContainer([InvalidController::class => new InvalidController()]);
-        $middleware = $this->getMiddlewareFactory($container)->create([InvalidController::class, 'index']);
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create([InvalidController::class, 'index']);
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $middleware->process(
@@ -161,31 +193,41 @@ final class MiddlewareFactoryTest extends TestCase
     public function testInvalidMiddlewareWithWrongArraySize(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this->getMiddlewareFactory()->create(['test']);
+        $this
+            ->getMiddlewareFactory()
+            ->create(['test']);
     }
 
     public function testInvalidMiddlewareWithWrongArrayClass(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this->getMiddlewareFactory()->create(['class', 'test']);
+        $this
+            ->getMiddlewareFactory()
+            ->create(['class', 'test']);
     }
 
     public function testInvalidMiddlewareWithWrongArrayType(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this->getMiddlewareFactory()->create(['class' => TestController::class, 'index']);
+        $this
+            ->getMiddlewareFactory()
+            ->create(['class' => TestController::class, 'index']);
     }
 
     public function testInvalidMiddlewareWithWrongArrayWithInstance(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this->getMiddlewareFactory()->create([new TestController(), 'index']);
+        $this
+            ->getMiddlewareFactory()
+            ->create([new TestController(), 'index']);
     }
 
     public function testInvalidMiddlewareWithWrongArrayWithIntItems(): void
     {
         $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this->getMiddlewareFactory()->create([7, 42]);
+        $this
+            ->getMiddlewareFactory()
+            ->create([7, 42]);
     }
 
     private function getMiddlewareFactory(ContainerInterface $container = null): MiddlewareFactoryInterface

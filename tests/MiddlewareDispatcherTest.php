@@ -28,11 +28,13 @@ final class MiddlewareDispatcherTest extends TestCase
     {
         $request = new ServerRequest('GET', '/');
 
-        $dispatcher = $this->createDispatcher()->withMiddlewares([
-            static function (): ResponseInterface {
-                return new Response(418);
-            },
-        ]);
+        $dispatcher = $this
+            ->createDispatcher()
+            ->withMiddlewares([
+                static function (): ResponseInterface {
+                    return new Response(418);
+                },
+            ]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
         $this->assertSame(418, $response->getStatusCode());
@@ -44,7 +46,9 @@ final class MiddlewareDispatcherTest extends TestCase
         $container = $this->createContainer([
             TestController::class => new TestController(),
         ]);
-        $dispatcher = $this->createDispatcher($container)->withMiddlewares([[TestController::class, 'index']]);
+        $dispatcher = $this
+            ->createDispatcher($container)
+            ->withMiddlewares([[TestController::class, 'index']]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
         $this->assertSame(200, $response->getStatusCode());
@@ -62,7 +66,9 @@ final class MiddlewareDispatcherTest extends TestCase
             return new Response(200, [], null, '1.1', implode($request->getAttributes()));
         };
 
-        $dispatcher = $this->createDispatcher()->withMiddlewares([$middleware1, $middleware2]);
+        $dispatcher = $this
+            ->createDispatcher()
+            ->withMiddlewares([$middleware1, $middleware2]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
         $this->assertSame(200, $response->getStatusCode());
@@ -80,7 +86,9 @@ final class MiddlewareDispatcherTest extends TestCase
             return new Response(200);
         };
 
-        $dispatcher = $this->createDispatcher()->withMiddlewares([$middleware1, $middleware2]);
+        $dispatcher = $this
+            ->createDispatcher()
+            ->withMiddlewares([$middleware1, $middleware2]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
         $this->assertSame(403, $response->getStatusCode());
@@ -99,7 +107,9 @@ final class MiddlewareDispatcherTest extends TestCase
             return new Response();
         };
 
-        $dispatcher = $this->createDispatcher(null, $eventDispatcher)->withMiddlewares([$middleware1, $middleware2]);
+        $dispatcher = $this
+            ->createDispatcher(null, $eventDispatcher)
+            ->withMiddlewares([$middleware1, $middleware2]);
         $dispatcher->dispatch($request, $this->getRequestHandler());
 
         $this->assertEquals(
@@ -121,7 +131,9 @@ final class MiddlewareDispatcherTest extends TestCase
         $request = new ServerRequest('GET', '/');
         $eventDispatcher = new SimpleEventDispatcher();
         $middleware = fn () => new FailMiddleware();
-        $dispatcher = $this->createDispatcher(null, $eventDispatcher)->withMiddlewares([$middleware]);
+        $dispatcher = $this
+            ->createDispatcher(null, $eventDispatcher)
+            ->withMiddlewares([$middleware]);
 
         try {
             $dispatcher->dispatch($request, $this->getRequestHandler());
@@ -151,7 +163,10 @@ final class MiddlewareDispatcherTest extends TestCase
     {
         self::assertSame(
             $expected,
-            $this->createDispatcher()->withMiddlewares($definitions)->hasMiddlewares()
+            $this
+                ->createDispatcher()
+                ->withMiddlewares($definitions)
+                ->hasMiddlewares()
         );
     }
 
