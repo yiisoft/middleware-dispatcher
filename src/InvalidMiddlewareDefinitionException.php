@@ -79,14 +79,14 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
     {
         if ($this->isControllerWithNonExistAction()) {
             return <<<SOLUTION
-            Class `{$this->definition[0]}` exist, but not contain method `{$this->definition[1]}()`.
+            Class `{$this->definition[0]}` exists, but does not contain method `{$this->definition[1]}()`.
 
-            Try add action `{$this->definition[1]}()` to controller `{$this->definition[0]}`:
+            Try adding `{$this->definition[1]}()` action to `{$this->definition[0]}` controller:
 
             ```php
             public function {$this->definition[1]}(): ResponseInterface
             {
-                // TODO: Implement you action
+                // TODO: Implement your action
             }
             ```
             SOLUTION;
@@ -94,7 +94,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
 
         if ($this->isNotMiddlewareClassName()) {
             return sprintf(
-                'Class `%s` exists, but not implement `%s`.',
+                'Class `%s` exists, but does not implement `%s`.',
                 $this->definition,
                 MiddlewareInterface::class
             );
@@ -102,7 +102,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
 
         if ($this->isStringNotClassName()) {
             return sprintf(
-                'Class `%s` not found. It may be need to install a package with this middleware.',
+                'Class `%s` not found. It may be needed to install a package with this middleware.',
                 $this->definition
             );
         }
