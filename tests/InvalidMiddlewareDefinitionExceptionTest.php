@@ -17,18 +17,27 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             [
                 'test',
                 '"test"',
+                'Class `test` not found',
+            ],
+            [
+                TestController::class,
+                '"Yiisoft\Middleware\Dispatcher\Tests\Support\TestController"',
+                'Class `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` exists, but does not implement',
             ],
             [
                 new TestController(),
                 'an instance of "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController"',
+                'Related links',
             ],
             [
                 [TestController::class, 'notExistsAction'],
                 '["Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "notExistsAction"]',
+                'Try adding `notExistsAction()` action to `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` controller:',
             ],
             [
                 ['class' => TestController::class, 'index'],
                 '["class" => "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "index"]',
+                null,
             ],
         ];
     }
@@ -38,10 +47,13 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
      *
      * @param mixed $definition
      */
-    public function testBase($definition, string $expected): void
+    public function testBase($definition, string $expectedMessage, ?string $expectedSolution): void
     {
         $exception = new InvalidMiddlewareDefinitionException($definition);
-        self::assertStringEndsWith('. Got ' . $expected . '.', $exception->getMessage());
+        self::assertStringEndsWith('. Got ' . $expectedMessage . '.', $exception->getMessage());
+        if ($expectedSolution !== null) {
+            self::assertStringContainsString($expectedSolution, $exception->getSolution());
+        }
     }
 
     public function dataUnknownDefinition(): array
@@ -63,6 +75,16 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
         self::assertSame(
             'Parameter should be either PSR middleware class name or a callable.',
             $exception->getMessage()
+        );
+    }
+
+    public function testName(): void
+    {
+        $exception = new InvalidMiddlewareDefinitionException('test');
+
+        self::assertSame(
+            'Invalid middleware definition',
+            $exception->getName()
         );
     }
 }
