@@ -13,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use stdClass;
+use Yiisoft\Middleware\Dispatcher\ArrayDefinition\ArrayDefinitionMiddleware;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
@@ -130,6 +131,27 @@ final class MiddlewareFactoryTest extends TestCase
                     $this->getRequestHandler()
                 )
                 ->getHeaderLine('method')
+        );
+    }
+
+    public function testCreateWithArrayDefinition(): void
+    {
+        $container = $this->getContainer([TestMiddleware::class => new TestMiddleware()]);
+
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create(['class' => TestMiddleware::class]);
+
+        self::assertInstanceOf(ArrayDefinitionMiddleware::class, $middleware);
+
+        self::assertSame(
+            '42',
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getHeaderLine('test')
         );
     }
 
