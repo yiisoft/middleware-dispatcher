@@ -66,6 +66,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
         if ($this->isArrayDefinition($middlewareDefinition)) {
             /**
              * @psalm-var ArrayDefinitionConfig $middlewareDefinition
+             *
              * @var MiddlewareInterface
              */
             return ArrayDefinition::fromConfig($middlewareDefinition)->resolve($this->container);
