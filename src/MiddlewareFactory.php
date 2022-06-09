@@ -12,7 +12,6 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Injector\Injector;
-use Yiisoft\Middleware\Dispatcher\ArrayDefinition\ArrayDefinitionMiddleware;
 
 use function in_array;
 use function is_array;
@@ -65,8 +64,11 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
         }
 
         if ($this->isArrayDefinition($middlewareDefinition)) {
-            /** @psalm-var ArrayDefinitionConfig $middlewareDefinition */
-            return new ArrayDefinitionMiddleware($middlewareDefinition, $this->container);
+            /**
+             * @psalm-var ArrayDefinitionConfig $middlewareDefinition
+             * @var MiddlewareInterface
+             */
+            return ArrayDefinition::fromConfig($middlewareDefinition)->resolve($this->container);
         }
 
         throw new InvalidMiddlewareDefinitionException($middlewareDefinition);

@@ -140,12 +140,14 @@ final class MiddlewareFactoryTest extends TestCase
 
         $middleware = $this
             ->getMiddlewareFactory($container)
-            ->create(['class' => TestMiddleware::class]);
+            ->create([
+                'class' => TestMiddleware::class,
+                'setTestValue()' => ['7'],
+            ]);
 
-        self::assertInstanceOf(ArrayDefinitionMiddleware::class, $middleware);
-
+        self::assertInstanceOf(TestMiddleware::class, $middleware);
         self::assertSame(
-            '42',
+            '7',
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
