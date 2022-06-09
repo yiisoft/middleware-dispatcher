@@ -193,7 +193,6 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
             return false;
         }
 
-        return is_subclass_of($class, MiddlewareInterface::class)
-            || is_subclass_of($class, ResponseInterface::class);
+        return is_subclass_of($class, MiddlewareInterface::class);
     }
 }

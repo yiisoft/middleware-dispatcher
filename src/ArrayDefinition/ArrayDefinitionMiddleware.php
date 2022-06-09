@@ -45,11 +45,6 @@ final class ArrayDefinitionMiddleware implements MiddlewareInterface
 
         /** @var mixed $response */
         $response = $definition->resolve($container);
-
-        if ($response instanceof ResponseInterface) {
-            return $response;
-        }
-
         if ($response instanceof MiddlewareInterface) {
             return $response->process($request, $handler);
         }
