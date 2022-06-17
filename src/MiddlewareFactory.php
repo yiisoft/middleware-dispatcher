@@ -11,6 +11,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\Injector\Injector;
 
 use function in_array;
@@ -191,11 +193,12 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
             return false;
         }
 
-        $class = $definition['class'] ?? null;
-        if (!is_string($class)) {
+        try {
+            DefinitionValidator::validateArrayDefinition($definition);
+        } catch (InvalidConfigException $e) {
             return false;
         }
 
-        return is_subclass_of($class, MiddlewareInterface::class);
+        return is_subclass_of((string) ($definition['class'] ?? ''), MiddlewareInterface::class);
     }
 }
