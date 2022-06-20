@@ -32,12 +32,25 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             [
                 [TestController::class, 'notExistsAction'],
                 '["Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "notExistsAction"]',
-                'Try adding `notExistsAction()` action to `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` controller:',
+                'Try adding `notExistsAction()` action to ' .
+                '`Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` controller:',
             ],
             [
                 ['class' => TestController::class, 'index'],
                 '["class" => "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "index"]',
                 null,
+            ],
+            [
+                ['object' => TestController::class, 'index'],
+                '["object" => "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "index"]',
+                'You may have an error in array definition. Array definition validation result',
+            ],
+            [
+                ['class' => TestController::class],
+                '["class" => "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController"]',
+                'Array definition valid, ' .
+                'class `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` exists, ' .
+                'but does not implement `Psr\Http\Server\MiddlewareInterface`.',
             ],
         ];
     }

@@ -6,6 +6,8 @@ namespace Yiisoft\Middleware\Dispatcher;
 
 use InvalidArgumentException;
 use Psr\Http\Server\MiddlewareInterface;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
 use function array_slice;
@@ -64,8 +66,28 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         $solution[] = <<<SOLUTION
         ## Middleware definition examples
 
-        - PSR middleware class name: `Yiisoft\Session\SessionMiddleware::class`.
-        - Action in controller: `[App\Backend\UserController::class, 'index']`.
+        ### PSR middleware class name
+
+        ```php
+        Yiisoft\Session\SessionMiddleware::class
+        ```
+
+        ### Action in controller
+
+        ```php
+        [App\Backend\UserController::class, 'index']
+        ```
+
+        ### PSR middleware array definition
+
+        ```php
+        [
+            'class' => MyMiddleware::class,
+            '__construct()' => [
+                'someVar' => 42,
+            ],
+        ]
+        ```
 
         ## Related links
 
@@ -104,6 +126,26 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
             return sprintf(
                 'Class `%s` not found. It may be needed to install a package with this middleware.',
                 $this->definition
+            );
+        }
+
+        if (is_array($this->definition)) {
+            try {
+                DefinitionValidator::validateArrayDefinition($this->definition);
+            } catch (InvalidConfigException $e) {
+                return <<<SOLUTION
+                You may have an error in array definition. Array definition validation result:
+
+                ```
+                {$e->getMessage()}
+                ```
+                SOLUTION;
+            }
+
+            return sprintf(
+                'Array definition valid, class `%s` exists, but does not implement `%s`.',
+                $this->definition['class'],
+                MiddlewareInterface::class
             );
         }
 
