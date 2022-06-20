@@ -61,6 +61,12 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
         return [
             [42, '42'],
             [[new stdClass()], '[stdClass]'],
+            [true, 'true'],
+            [false, 'false'],
+            [
+                ['class' => null, 'setValue()' => [42], 'prepare()' => []],
+                '["class" => null, "setValue()" => array, ...]'
+            ],
         ];
     }
 
