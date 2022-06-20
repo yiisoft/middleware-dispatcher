@@ -59,8 +59,8 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
     public function dataUnknownDefinition(): array
     {
         return [
-            [42],
-            [[new stdClass()]],
+            [42, '42'],
+            [[new stdClass()], '[stdClass]'],
         ];
     }
 
@@ -69,11 +69,11 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
      *
      * @param mixed $definition
      */
-    public function testUnknownDefinition($definition): void
+    public function testUnknownDefinition($definition, string $value): void
     {
         $exception = new InvalidMiddlewareDefinitionException($definition);
         self::assertSame(
-            'Parameter should be either PSR middleware class name or a callable.',
+            'Parameter should be either PSR middleware class name or a callable. Got ' . $value . '.',
             $exception->getMessage()
         );
     }
