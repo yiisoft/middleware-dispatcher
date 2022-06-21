@@ -48,7 +48,7 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             [
                 ['class' => TestController::class],
                 '["class" => "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController"]',
-                'Array definition valid, ' .
+                'Array definition is valid, ' .
                 'class `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` exists, ' .
                 'but does not implement `Psr\Http\Server\MiddlewareInterface`.',
             ],
