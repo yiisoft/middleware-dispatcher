@@ -161,7 +161,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
 
             /** @psalm-suppress MixedArgument In valid array definition element "class" always is string */
             return sprintf(
-                'Array definition valid, class `%s` exists, but does not implement `%s`.',
+                'Array definition is valid, class `%s` exists, but does not implement `%s`.',
                 $this->definition['class'],
                 MiddlewareInterface::class
             );

@@ -2,7 +2,7 @@
 
 ## 2.1.0 under development
 
-- New #53: Add array definition supports for define middleware (vjik)
+- New #53: Add array definition support for middleware (vjik)
 - Enh #45: Implement friendly exception for `InvalidMiddlewareDefinitionException` (vjik)
 
 ## 2.0.1 February 14, 2022
