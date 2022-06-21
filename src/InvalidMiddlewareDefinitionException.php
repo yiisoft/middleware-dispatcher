@@ -66,19 +66,19 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         $solution[] = <<<SOLUTION
         ## Middleware definition examples
 
-        ### PSR middleware class name
+        PSR middleware class name:
 
         ```php
         Yiisoft\Session\SessionMiddleware::class
         ```
 
-        ### Action in controller
+        Action in controller:
 
         ```php
         [App\Backend\UserController::class, 'index']
         ```
 
-        ### PSR middleware array definition
+        PSR middleware array definition:
 
         ```php
         [
