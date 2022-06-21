@@ -72,12 +72,6 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         Yiisoft\Session\SessionMiddleware::class
         ```
 
-        Action in controller:
-
-        ```php
-        [App\Backend\UserController::class, 'index']
-        ```
-
         PSR middleware array definition:
 
         ```php
@@ -89,8 +83,31 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         ]
         ```
 
+        Closure that returns `ResponseInterface`:
+
+        ```php
+        static function (): ResponseInterface {
+            return new Response(418);
+        },
+        ```
+
+        Closure that returns `MiddlewareInterface`:
+
+        ```php
+        static function (): MiddlewareInterface {
+            return new TestMiddleware();
+        }
+        ```
+
+        Action in controller:
+
+        ```php
+        [App\Backend\UserController::class, 'index']
+        ```
+
         ## Related links
 
+        - [Array definition syntax](https://github.com/yiisoft/definitions#arraydefinition)
         - [Callable PHP documentation](https://www.php.net/manual/language.types.callable.php)
         SOLUTION;
 
