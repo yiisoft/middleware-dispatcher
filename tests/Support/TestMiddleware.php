@@ -12,8 +12,15 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 final class TestMiddleware implements MiddlewareInterface
 {
+    private string $testValue = '42';
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        return new Response(200, ['test' => '42']);
+        return new Response(200, ['test' => $this->testValue]);
+    }
+
+    public function setTestValue(string $value): void
+    {
+        $this->testValue = $value;
     }
 }

@@ -10,6 +10,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\Injector\Injector;
 
 use function in_array;
@@ -18,6 +21,8 @@ use function is_string;
 
 /**
  * Creates a PSR-15 middleware based on the definition provided.
+ *
+ * @psalm-import-type ArrayDefinitionConfig from ArrayDefinition
  */
 final class MiddlewareFactory implements MiddlewareFactoryInterface
 {
@@ -35,7 +40,8 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
      * @param array|callable|string $middlewareDefinition Middleware definition in one of the following formats:
      *
      * - A name of PSR-15 middleware class. The middleware instance will be obtained from container and executed.
-     * - A callable with `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
+     * - A callable with
+     *   `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      *   signature.
      * - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will
      *   be created and `index()` method will be executed.
@@ -45,23 +51,36 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
      * typed parameters are automatically injected using dependency injection container.
      * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
      * and {@see RequestHandlerInterface}.
+     *
+     * @throws InvalidMiddlewareDefinitionException
      */
     public function create($middlewareDefinition): MiddlewareInterface
     {
-        $this->validateMiddleware($middlewareDefinition);
-
-        if (is_string($middlewareDefinition)) {
+        if ($this->isMiddlewareClassDefinition($middlewareDefinition)) {
             /** @var MiddlewareInterface */
             return $this->container->get($middlewareDefinition);
         }
 
-        return $this->wrapCallable($middlewareDefinition);
+        if ($this->isCallableDefinition($middlewareDefinition)) {
+            return $this->wrapCallableDefinition($middlewareDefinition);
+        }
+
+        if ($this->isArrayDefinition($middlewareDefinition)) {
+            /**
+             * @psalm-var ArrayDefinitionConfig $middlewareDefinition
+             *
+             * @var MiddlewareInterface
+             */
+            return ArrayDefinition::fromConfig($middlewareDefinition)->resolve($this->container);
+        }
+
+        throw new InvalidMiddlewareDefinitionException($middlewareDefinition);
     }
 
     /**
-     * @param array|callable $callback
+     * @param array|Closure $callback
      */
-    private function wrapCallable($callback): MiddlewareInterface
+    private function wrapCallableDefinition($callback): MiddlewareInterface
     {
         if (is_array($callback)) {
             return new class ($this->container, $callback) implements MiddlewareInterface {
@@ -131,32 +150,22 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
     }
 
     /**
-     * @param array|callable|string $middlewareDefinition A name of PSR-15 middleware, a callable with
-     * `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface` signature or
-     * a handler action (an array of [handlerClass, handlerMethod]). For handler action and callable typed parameters
-     * are automatically injected using dependency injection container passed to the route.
-     * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
-     * and {@see RequestHandlerInterface}.
+     * @param mixed $definition
      *
-     * @throws InvalidMiddlewareDefinitionException
+     * @psalm-assert-if-true class-string<MiddlewareInterface> $definition
      */
-    private function validateMiddleware($middlewareDefinition): void
+    private function isMiddlewareClassDefinition($definition): bool
     {
-        if (is_string($middlewareDefinition) && is_subclass_of($middlewareDefinition, MiddlewareInterface::class)) {
-            return;
-        }
-
-        if ($this->isCallable($middlewareDefinition)) {
-            return;
-        }
-
-        throw new InvalidMiddlewareDefinitionException($middlewareDefinition);
+        return is_string($definition)
+            && is_subclass_of($definition, MiddlewareInterface::class);
     }
 
     /**
      * @param mixed $definition
+     *
+     * @psalm-assert-if-true array|Closure $definition
      */
-    private function isCallable($definition): bool
+    private function isCallableDefinition($definition): bool
     {
         if ($definition instanceof Closure) {
             return true;
@@ -171,5 +180,25 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
                 class_exists($definition[0]) ? get_class_methods($definition[0]) : [],
                 true
             );
+    }
+
+    /**
+     * @param mixed $definition
+     *
+     * @psalm-assert-if-true ArrayDefinitionConfig $definition
+     */
+    private function isArrayDefinition($definition): bool
+    {
+        if (!is_array($definition)) {
+            return false;
+        }
+
+        try {
+            DefinitionValidator::validateArrayDefinition($definition);
+        } catch (InvalidConfigException $e) {
+            return false;
+        }
+
+        return is_subclass_of((string) ($definition['class'] ?? ''), MiddlewareInterface::class);
     }
 }

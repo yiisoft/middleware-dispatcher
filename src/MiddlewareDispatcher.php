@@ -62,6 +62,7 @@ final class MiddlewareDispatcher
      * - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will
      *   be created and `index()` method will be executed.
      * - A function returning a middleware. The middleware returned will be executed.
+     * - An array definition of middleware ({@link https://github.com/yiisoft/definitions#arraydefinition}).
      *
      * For handler action and callable
      * typed parameters are automatically injected using dependency injection container.

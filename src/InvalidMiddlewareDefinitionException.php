@@ -6,10 +6,18 @@ namespace Yiisoft\Middleware\Dispatcher;
 
 use InvalidArgumentException;
 use Psr\Http\Server\MiddlewareInterface;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
+use function array_slice;
+use function count;
 use function get_class;
+use function gettype;
 use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
 use function is_object;
 use function is_string;
 
@@ -19,7 +27,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
      * @var mixed
      */
     private $definition;
-    private ?string $definitionString;
+    private string $definitionString;
 
     /**
      * @param mixed $middlewareDefinition
@@ -29,13 +37,9 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         $this->definition = $middlewareDefinition;
         $this->definitionString = $this->convertDefinitionToString($middlewareDefinition);
 
-        $message = 'Parameter should be either PSR middleware class name or a callable.';
-
-        if ($this->definitionString !== null) {
-            $message .= ' Got ' . $this->definitionString . '.';
-        }
-
-        parent::__construct($message);
+        parent::__construct(
+            'Parameter should be either PSR middleware class name or a callable. Got ' . $this->definitionString . '.'
+        );
     }
 
     public function getName(): string
@@ -45,15 +49,13 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
 
     public function getSolution(): ?string
     {
-        $solution = [];
-
-        if ($this->definitionString !== null) {
-            $solution[] = <<<SOLUTION
+        $solution = [
+            <<<SOLUTION
             ## Got definition value
 
             `{$this->definitionString}`
-            SOLUTION;
-        }
+            SOLUTION
+        ];
 
         $suggestion = $this->generateSuggestion();
         if ($suggestion !== null) {
@@ -64,11 +66,48 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         $solution[] = <<<SOLUTION
         ## Middleware definition examples
 
-        - PSR middleware class name: `Yiisoft\Session\SessionMiddleware::class`.
-        - Action in controller: `[App\Backend\UserController::class, 'index']`.
+        PSR middleware class name:
+
+        ```php
+        Yiisoft\Session\SessionMiddleware::class
+        ```
+
+        PSR middleware array definition:
+
+        ```php
+        [
+            'class' => MyMiddleware::class,
+            '__construct()' => [
+                'someVar' => 42,
+            ],
+        ]
+        ```
+
+        Closure that returns `ResponseInterface`:
+
+        ```php
+        static function (): ResponseInterface {
+            return new Response(418);
+        },
+        ```
+
+        Closure that returns `MiddlewareInterface`:
+
+        ```php
+        static function (): MiddlewareInterface {
+            return new TestMiddleware();
+        }
+        ```
+
+        Action in controller:
+
+        ```php
+        [App\Backend\UserController::class, 'index']
+        ```
 
         ## Related links
 
+        - [Array definition syntax](https://github.com/yiisoft/definitions#arraydefinition)
         - [Callable PHP documentation](https://www.php.net/manual/language.types.callable.php)
         SOLUTION;
 
@@ -107,6 +146,27 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
             );
         }
 
+        if (is_array($this->definition)) {
+            try {
+                DefinitionValidator::validateArrayDefinition($this->definition);
+            } catch (InvalidConfigException $e) {
+                return <<<SOLUTION
+                You may have an error in array definition. Array definition validation result:
+
+                ```
+                {$e->getMessage()}
+                ```
+                SOLUTION;
+            }
+
+            /** @psalm-suppress MixedArgument In valid array definition element "class" always is string */
+            return sprintf(
+                'Array definition is valid, class `%s` exists, but does not implement `%s`.',
+                $this->definition['class'],
+                MiddlewareInterface::class
+            );
+        }
+
         return null;
     }
 
@@ -142,7 +202,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
     /**
      * @param mixed $middlewareDefinition
      */
-    private function convertDefinitionToString($middlewareDefinition): ?string
+    private function convertDefinitionToString($middlewareDefinition): string
     {
         if (is_object($middlewareDefinition)) {
             return 'an instance of "' . get_class($middlewareDefinition) . '"';
@@ -153,30 +213,42 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         }
 
         if (is_array($middlewareDefinition)) {
-            $items = $middlewareDefinition;
-            foreach ($middlewareDefinition as $item) {
-                if (!is_string($item)) {
-                    return null;
-                }
+            $items = [];
+            /** @var mixed $value */
+            foreach (array_slice($middlewareDefinition, 0, 2) as $key => $value) {
+                $items[] = (is_string($key) ? '"' . $key . '" => ' : '') . $this->convertToString($value);
             }
-            array_walk(
-                $items,
-                /**
-                 * @param mixed $item
-                 * @psalm-param array-key $key
-                 */
-                static function (&$item, $key) {
-                    $item = (string)$item;
-                    $item = '"' . $item . '"';
-                    if (is_string($key)) {
-                        $item = '"' . $key . '" => ' . $item;
-                    }
-                }
-            );
-            /** @var string[] $items */
-            return '[' . implode(', ', $items) . ']';
+            return '[' . implode(', ', $items) . (count($middlewareDefinition) > 2 ? ', ...' : '') . ']';
         }
 
-        return null;
+        return $this->convertToString($middlewareDefinition);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function convertToString($value): string
+    {
+        if (is_string($value)) {
+            return '"' . $value . '"';
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if ($value === null) {
+            return 'null';
+        }
+
+        if (is_object($value)) {
+            return get_class($value);
+        }
+
+        return gettype($value);
     }
 }

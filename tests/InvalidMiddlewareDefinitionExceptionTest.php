@@ -32,12 +32,25 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             [
                 [TestController::class, 'notExistsAction'],
                 '["Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "notExistsAction"]',
-                'Try adding `notExistsAction()` action to `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` controller:',
+                'Try adding `notExistsAction()` action to ' .
+                '`Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` controller:',
             ],
             [
                 ['class' => TestController::class, 'index'],
                 '["class" => "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "index"]',
                 null,
+            ],
+            [
+                ['object' => TestController::class, 'index'],
+                '["object" => "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "index"]',
+                'You may have an error in array definition. Array definition validation result',
+            ],
+            [
+                ['class' => TestController::class],
+                '["class" => "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController"]',
+                'Array definition is valid, ' .
+                'class `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` exists, ' .
+                'but does not implement `Psr\Http\Server\MiddlewareInterface`.',
             ],
         ];
     }
@@ -59,8 +72,14 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
     public function dataUnknownDefinition(): array
     {
         return [
-            [42],
-            [[new stdClass()]],
+            [42, '42'],
+            [[new stdClass()], '[stdClass]'],
+            [true, 'true'],
+            [false, 'false'],
+            [
+                ['class' => null, 'setValue()' => [42], 'prepare()' => []],
+                '["class" => null, "setValue()" => array, ...]',
+            ],
         ];
     }
 
@@ -69,11 +88,11 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
      *
      * @param mixed $definition
      */
-    public function testUnknownDefinition($definition): void
+    public function testUnknownDefinition($definition, string $value): void
     {
         $exception = new InvalidMiddlewareDefinitionException($definition);
         self::assertSame(
-            'Parameter should be either PSR middleware class name or a callable.',
+            'Parameter should be either PSR middleware class name or a callable. Got ' . $value . '.',
             $exception->getMessage()
         );
     }

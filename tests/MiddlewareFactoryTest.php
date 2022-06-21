@@ -133,6 +133,29 @@ final class MiddlewareFactoryTest extends TestCase
         );
     }
 
+    public function testCreateWithArrayDefinition(): void
+    {
+        $container = $this->getContainer([TestMiddleware::class => new TestMiddleware()]);
+
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create([
+                'class' => TestMiddleware::class,
+                'setTestValue()' => ['7'],
+            ]);
+
+        self::assertInstanceOf(TestMiddleware::class, $middleware);
+        self::assertSame(
+            '7',
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getHeaderLine('test')
+        );
+    }
+
     public function testInvalidMiddlewareWithWrongCallable(): void
     {
         $container = $this->getContainer([TestController::class => new TestController()]);

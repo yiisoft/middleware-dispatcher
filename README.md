@@ -71,6 +71,15 @@ In the above we have used a callback. Overall the following options are availabl
   ```
   The middleware returned will be executed.
 - A callback `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`.
+- An array definition (see [syntax](https://github.com/yiisoft/definitions#arraydefinition)) of middleware:
+  ```php
+  [
+      'class' => MyMiddleware::class,
+      '__construct()' => [
+          'someVar' => 42,
+      ],
+  ]
+  ``` 
 
 For handler action and callable typed parameters are automatically injected using dependency injection container.
 Current request and handler could be obtained by type-hinting for `ServerRequestInterface` and `RequestHandlerInterface`.
