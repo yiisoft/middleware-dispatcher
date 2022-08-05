@@ -1,6 +1,6 @@
 # Yii Middleware Dispatcher Change Log
 
-## 2.1.0 under development
+## 2.1.0 August 05, 2022
 
 - New #53: Add array definition support for middleware (@vjik)
 - Enh #45: Implement friendly exception for `InvalidMiddlewareDefinitionException` (@vjik)
