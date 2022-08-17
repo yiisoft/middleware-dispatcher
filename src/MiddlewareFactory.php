@@ -13,7 +13,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
-use Yiisoft\Injector\Injector;
 
 use function in_array;
 use function is_array;

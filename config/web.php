@@ -9,5 +9,5 @@ use Yiisoft\Middleware\Dispatcher\WrapperFactoryInterface;
 
 return [
     MiddlewareFactoryInterface::class => MiddlewareFactory::class,
-    WrapperFactoryInterface::class => WrapperFactory::class
+    WrapperFactoryInterface::class => WrapperFactory::class,
 ];
