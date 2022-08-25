@@ -16,8 +16,7 @@ interface WrapperFactoryInterface
     /**
      * Create a PSR-15 middleware that wraps the provided callable.
      *
-     * @param \Closure|array{0:class-string, 1:string} $callable
+     * @param array{0:class-string, 1:string}|\Closure $callable
      */
     public function create($callable): MiddlewareInterface;
-
 }

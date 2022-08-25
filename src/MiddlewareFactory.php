@@ -63,7 +63,7 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
         }
 
         if ($this->isCallableDefinition($middlewareDefinition)) {
-            /** @var Closure|array{0:class-string, 1:string} $middlewareDefinition */
+            /** @var array{0:class-string, 1:string}|Closure $middlewareDefinition */
             return $this->wrapperFactory->create($middlewareDefinition);
         }
 
