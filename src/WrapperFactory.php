@@ -48,7 +48,7 @@ final class WrapperFactory implements WrapperFactoryInterface
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
             ): ResponseInterface {
-                /** @var ResponseInterface|MiddlewareInterface|mixed $response */
+                /** @var MiddlewareInterface|mixed|ResponseInterface $response */
                 $response = (new Injector($this->container))->invoke($this->callback, [$request, $handler]);
                 if ($response instanceof ResponseInterface) {
                     return $response;
@@ -82,7 +82,7 @@ final class WrapperFactory implements WrapperFactoryInterface
                 /** @var mixed $controller */
                 $controller = $this->container->get($this->class);
 
-                /** @var ResponseInterface|mixed $response */
+                /** @var mixed|ResponseInterface $response */
                 $response = (new Injector($this->container))
                     ->invoke([$controller, $this->method], [$request, $handler]);
                 if ($response instanceof ResponseInterface) {
