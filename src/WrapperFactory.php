@@ -21,8 +21,17 @@ final class WrapperFactory implements WrapperFactoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
+    public function create($callable): MiddlewareInterface
+    {
+        if (is_array($callable)) {
+            return $this->createActionWrapper($callable[0], $callable[1]);
+        }
+
+        return $this->createCallableWrapper($callable);
+    }
+
     public function createCallableWrapper(callable $callback): MiddlewareInterface
     {
         return new class ($callback, $this->container) implements MiddlewareInterface {
@@ -39,7 +48,7 @@ final class WrapperFactory implements WrapperFactoryInterface
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
             ): ResponseInterface {
-                /** @var mixed $response */
+                /** @var ResponseInterface|MiddlewareInterface|mixed $response */
                 $response = (new Injector($this->container))->invoke($this->callback, [$request, $handler]);
                 if ($response instanceof ResponseInterface) {
                     return $response;
@@ -52,7 +61,7 @@ final class WrapperFactory implements WrapperFactoryInterface
         };
     }
 
-    public function createActionWrapper(string $class, string $method): MiddlewareInterface
+    private function createActionWrapper(string $class, string $method): MiddlewareInterface
     {
         return new class ($this->container, $class, $method) implements MiddlewareInterface {
             private string $class;
@@ -73,6 +82,7 @@ final class WrapperFactory implements WrapperFactoryInterface
                 /** @var mixed $controller */
                 $controller = $this->container->get($this->class);
 
+                /** @var ResponseInterface|mixed $response */
                 $response = (new Injector($this->container))
                     ->invoke([$controller, $this->method], [$request, $handler]);
                 if ($response instanceof ResponseInterface) {

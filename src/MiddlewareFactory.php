@@ -63,7 +63,8 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
         }
 
         if ($this->isCallableDefinition($middlewareDefinition)) {
-            return $this->wrapCallableDefinition($middlewareDefinition);
+            /** @var Closure|array{0:class-string, 1:string} $middlewareDefinition */
+            return $this->wrapperFactory->create($middlewareDefinition);
         }
 
         if ($this->isArrayDefinition($middlewareDefinition)) {
@@ -76,18 +77,6 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
         }
 
         throw new InvalidMiddlewareDefinitionException($middlewareDefinition);
-    }
-
-    /**
-     * @param array|Closure $callback
-     */
-    private function wrapCallableDefinition($callback): MiddlewareInterface
-    {
-        if (is_array($callback)) {
-            return $this->wrapperFactory->createActionWrapper($callback[0], $callback[1]);
-        }
-
-        return $this->wrapperFactory->createCallableWrapper($callback);
     }
 
     /**

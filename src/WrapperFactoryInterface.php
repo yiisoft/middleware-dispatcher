@@ -7,20 +7,17 @@ namespace Yiisoft\Middleware\Dispatcher;
 use Psr\Http\Server\MiddlewareInterface;
 
 /**
- * Creates a PSR-15 middleware based on the definition provided.
+ * Creates a PSR-15 middleware that wraps the provided callable.
  * You may implement this interface if you want to introduce custom definitions or pass additional data to
  * the middleware created.
  */
 interface WrapperFactoryInterface
 {
     /**
-     * Create a PSR-15 middleware based on definition provided.
+     * Create a PSR-15 middleware that wraps the provided callable.
      *
-     * @param callable $callback
-     *
-     * @return MiddlewareInterface
+     * @param \Closure|array{0:class-string, 1:string} $callable
      */
-    public function createCallableWrapper(callable $callback): MiddlewareInterface;
+    public function create($callable): MiddlewareInterface;
 
-    public function createActionWrapper(string $class, string $method): MiddlewareInterface;
 }
