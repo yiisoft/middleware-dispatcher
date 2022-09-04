@@ -13,7 +13,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
-use Yiisoft\Injector\Injector;
 
 use function in_array;
 use function is_array;
@@ -27,13 +26,15 @@ use function is_string;
 final class MiddlewareFactory implements MiddlewareFactoryInterface
 {
     private ContainerInterface $container;
+    private WrapperFactoryInterface $wrapperFactory;
 
     /**
      * @param ContainerInterface $container Container to use for resolving definitions.
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, WrapperFactoryInterface $wrapperFactory)
     {
         $this->container = $container;
+        $this->wrapperFactory = $wrapperFactory;
     }
 
     /**
@@ -62,7 +63,8 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
         }
 
         if ($this->isCallableDefinition($middlewareDefinition)) {
-            return $this->wrapCallableDefinition($middlewareDefinition);
+            /** @var array{0:class-string, 1:string}|Closure $middlewareDefinition */
+            return $this->wrapperFactory->create($middlewareDefinition);
         }
 
         if ($this->isArrayDefinition($middlewareDefinition)) {
@@ -75,78 +77,6 @@ final class MiddlewareFactory implements MiddlewareFactoryInterface
         }
 
         throw new InvalidMiddlewareDefinitionException($middlewareDefinition);
-    }
-
-    /**
-     * @param array|Closure $callback
-     */
-    private function wrapCallableDefinition($callback): MiddlewareInterface
-    {
-        if (is_array($callback)) {
-            return new class ($this->container, $callback) implements MiddlewareInterface {
-                private string $class;
-                private string $method;
-                private ContainerInterface $container;
-                private array $callback;
-
-                public function __construct(ContainerInterface $container, array $callback)
-                {
-                    [$this->class, $this->method] = $callback;
-                    $this->container = $container;
-                    $this->callback = $callback;
-                }
-
-                public function process(
-                    ServerRequestInterface $request,
-                    RequestHandlerInterface $handler
-                ): ResponseInterface {
-                    /** @var mixed $controller */
-                    $controller = $this->container->get($this->class);
-
-                    /** @var mixed $response */
-                    $response = (new Injector($this->container))
-                        ->invoke([$controller, $this->method], [$request, $handler]);
-                    if ($response instanceof ResponseInterface) {
-                        return $response;
-                    }
-
-                    throw new InvalidMiddlewareDefinitionException($this->callback);
-                }
-
-                public function __debugInfo()
-                {
-                    return [
-                        'callback' => $this->callback,
-                    ];
-                }
-            };
-        }
-
-        return new class ($callback, $this->container) implements MiddlewareInterface {
-            private ContainerInterface $container;
-            private $callback;
-
-            public function __construct(callable $callback, ContainerInterface $container)
-            {
-                $this->callback = $callback;
-                $this->container = $container;
-            }
-
-            public function process(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler
-            ): ResponseInterface {
-                /** @var mixed $response */
-                $response = (new Injector($this->container))->invoke($this->callback, [$request, $handler]);
-                if ($response instanceof ResponseInterface) {
-                    return $response;
-                }
-                if ($response instanceof MiddlewareInterface) {
-                    return $response->process($request, $handler);
-                }
-                throw new InvalidMiddlewareDefinitionException($this->callback);
-            }
-        };
     }
 
     /**
