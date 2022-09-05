@@ -15,7 +15,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use stdClass;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
-use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
@@ -254,7 +253,7 @@ final class MiddlewareFactoryTest extends TestCase
             ->create([7, 42]);
     }
 
-    private function getMiddlewareFactory(ContainerInterface $container = null): MiddlewareFactoryInterface
+    private function getMiddlewareFactory(ContainerInterface $container = null): MiddlewareFactory
     {
         if ($container !== null) {
             return new MiddlewareFactory($container, new WrapperFactory($container));

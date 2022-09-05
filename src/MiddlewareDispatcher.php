@@ -19,7 +19,7 @@ final class MiddlewareDispatcher
      * @var MiddlewareStack|null The middleware stack.
      */
     private ?MiddlewareStack $stack = null;
-    private MiddlewareFactoryInterface $middlewareFactory;
+    private MiddlewareFactory $middlewareFactory;
     private ?EventDispatcherInterface $eventDispatcher;
 
     /**
@@ -27,7 +27,7 @@ final class MiddlewareDispatcher
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(MiddlewareFactoryInterface $middlewareFactory, ?EventDispatcherInterface $eventDispatcher = null)
+    public function __construct(MiddlewareFactory $middlewareFactory, ?EventDispatcherInterface $eventDispatcher = null)
     {
         $this->middlewareFactory = $middlewareFactory;
         $this->eventDispatcher = $eventDispatcher;
