@@ -19,7 +19,7 @@ use function is_array;
 use function is_string;
 
 /**
- * @internal Creates a PSR-15 middleware based on the definition provided.
+ * Creates a PSR-15 middleware based on the definition provided.
  *
  * @psalm-import-type ArrayDefinitionConfig from ArrayDefinition
  */
