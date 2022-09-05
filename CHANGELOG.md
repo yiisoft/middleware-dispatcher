@@ -3,7 +3,7 @@
 ## 3.0.0 under development
 
 - New #55: Add wrapper factory (@rustamwin)
-- Chg #56: Make `MiddlewareFactory` internal (@rustamwin)
+- Chg #56: Remove `MiddlewareFactoryInterface`, so the factory doesn't need to be implemented (@rustamwin)
 
 ## 2.1.0 August 05, 2022
 
