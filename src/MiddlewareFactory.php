@@ -19,11 +19,11 @@ use function is_array;
 use function is_string;
 
 /**
- * Creates a PSR-15 middleware based on the definition provided.
+ * @internal Creates a PSR-15 middleware based on the definition provided.
  *
  * @psalm-import-type ArrayDefinitionConfig from ArrayDefinition
  */
-final class MiddlewareFactory implements MiddlewareFactoryInterface
+final class MiddlewareFactory
 {
     private ContainerInterface $container;
     private WrapperFactoryInterface $wrapperFactory;
