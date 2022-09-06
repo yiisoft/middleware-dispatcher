@@ -96,28 +96,28 @@ executed first. For each middleware
 `\Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware` and `\Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware`
 events are triggered.
 
-### Customizing definition syntax
+### Customizing callable wrapper
 
-Middleware definition syntax could be customized by providing your own `MiddlewareFactoryInterface` implementation:
+Callable wrapper could be customized by providing your own `WrapperFactoryInterface` implementation:
 
 ```php
-use \Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
+use \Yiisoft\Middleware\Dispatcher\WrapperFactoryInterface;
 
-class CoolMiddlewareFactory implements MiddlewareFactoryInterface
+class CoolWrapperFactory implements WrapperFactoryInterface
 {
-    private MiddlewareFactoryInterface $middlewareFactory;
+    private WrapperFactoryInterface $wrapperFactory;
     
-    public function __construct(MiddlewareFactoryInterface $middlewareFactory) {
-        $this->middlewareFactory = $middlewareFactory;
+    public function __construct(WrapperFactoryInterface $wrapperFactory) {
+        $this->wrapperFactory = $wrapperFactory;
     }    
 
-    public function create($middlewareDefinition): MiddlewareInterface
+    public function create($callable): MiddlewareInterface
     {
-        if (is_string($middlewareDefinition) && strpos($middlewareDefinition, '@') === 0) {
-            return createMiddleware($middlewareDefinition);
+        if (is_array($callable)) {
+            return createMiddleware($callable);
         }
         
-        $this->middlewareFactory->create($middlewareDefinition);
+        $this->wrapperFactory->create($callable);
     }
 }
 ```
@@ -129,7 +129,7 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 
 $dispatcher = new MiddlewareDispatcher(
-    new CoolMiddlewareFactory(new MiddlewareFactory($diContainer)),
+    new MiddlewareFactory($diContainer, new CoolWrapperFactory($wrapperFactory)),
     $eventDispatcher
 );
 ```
