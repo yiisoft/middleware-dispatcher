@@ -1,5 +1,9 @@
 # Yii Middleware Dispatcher Change Log
 
+## 3.0.1 under development
+
+- no changes in this release.
+
 ## 3.0.0 September 07, 2022
 
 - New #55: Add wrapper factory (@rustamwin)
