@@ -1,6 +1,6 @@
 # Yii Middleware Dispatcher Change Log
 
-## 3.0.0 under development
+## 3.0.0 September 07, 2022
 
 - New #55: Add wrapper factory (@rustamwin)
 - Chg #56: Remove `MiddlewareFactoryInterface`, so the factory doesn't need to be implemented (@rustamwin)
