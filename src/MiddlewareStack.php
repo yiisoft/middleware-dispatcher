@@ -23,8 +23,6 @@ final class MiddlewareStack implements RequestHandlerInterface
      * @var RequestHandlerInterface|null stack of middleware
      */
     private ?RequestHandlerInterface $stack = null;
-    private ?EventDispatcherInterface $eventDispatcher;
-    private RequestHandlerInterface $fallbackHandler;
     private array $middlewares;
 
     /**
@@ -33,15 +31,13 @@ final class MiddlewareStack implements RequestHandlerInterface
      * @param EventDispatcherInterface $eventDispatcher Event dispatcher to use for triggering before/after middleware
      * events.
      */
-    public function __construct(array $middlewares, RequestHandlerInterface $fallbackHandler, ?EventDispatcherInterface $eventDispatcher = null)
+    public function __construct(array $middlewares, private RequestHandlerInterface $fallbackHandler, private ?\Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher = null)
     {
         if ($middlewares === []) {
             throw new RuntimeException('Stack is empty.');
         }
 
         $this->middlewares = $middlewares;
-        $this->fallbackHandler = $fallbackHandler;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -76,17 +72,13 @@ final class MiddlewareStack implements RequestHandlerInterface
         return new class ($middlewareFactory, $handler, $this->eventDispatcher) implements RequestHandlerInterface {
             private Closure $middlewareFactory;
             private ?MiddlewareInterface $middleware = null;
-            private RequestHandlerInterface $handler;
-            private ?EventDispatcherInterface $eventDispatcher;
 
             public function __construct(
                 Closure $middlewareFactory,
-                RequestHandlerInterface $handler,
-                ?EventDispatcherInterface $eventDispatcher
+                private RequestHandlerInterface $handler,
+                private ?\Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher
             ) {
                 $this->middlewareFactory = $middlewareFactory;
-                $this->handler = $handler;
-                $this->eventDispatcher = $eventDispatcher;
             }
 
             public function handle(ServerRequestInterface $request): ResponseInterface
