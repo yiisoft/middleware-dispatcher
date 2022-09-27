@@ -25,16 +25,11 @@ use function is_string;
  */
 final class MiddlewareFactory
 {
-    private ContainerInterface $container;
-    private WrapperFactoryInterface $wrapperFactory;
-
     /**
      * @param ContainerInterface $container Container to use for resolving definitions.
      */
-    public function __construct(ContainerInterface $container, WrapperFactoryInterface $wrapperFactory)
+    public function __construct(private ContainerInterface $container, private WrapperFactoryInterface $wrapperFactory)
     {
-        $this->container = $container;
-        $this->wrapperFactory = $wrapperFactory;
     }
 
     /**
@@ -55,7 +50,7 @@ final class MiddlewareFactory
      *
      * @throws InvalidMiddlewareDefinitionException
      */
-    public function create($middlewareDefinition): MiddlewareInterface
+    public function create(array|callable|string $middlewareDefinition): MiddlewareInterface
     {
         if ($this->isMiddlewareClassDefinition($middlewareDefinition)) {
             /** @var MiddlewareInterface */
@@ -80,22 +75,18 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param mixed $definition
-     *
      * @psalm-assert-if-true class-string<MiddlewareInterface> $definition
      */
-    private function isMiddlewareClassDefinition($definition): bool
+    private function isMiddlewareClassDefinition(mixed $definition): bool
     {
         return is_string($definition)
             && is_subclass_of($definition, MiddlewareInterface::class);
     }
 
     /**
-     * @param mixed $definition
-     *
      * @psalm-assert-if-true array|Closure $definition
      */
-    private function isCallableDefinition($definition): bool
+    private function isCallableDefinition(mixed $definition): bool
     {
         if ($definition instanceof Closure) {
             return true;
@@ -113,11 +104,9 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param mixed $definition
-     *
      * @psalm-assert-if-true ArrayDefinitionConfig $definition
      */
-    private function isArrayDefinition($definition): bool
+    private function isArrayDefinition(mixed $definition): bool
     {
         if (!is_array($definition)) {
             return false;
@@ -125,7 +114,7 @@ final class MiddlewareFactory
 
         try {
             DefinitionValidator::validateArrayDefinition($definition);
-        } catch (InvalidConfigException $e) {
+        } catch (InvalidConfigException) {
             return false;
         }
 

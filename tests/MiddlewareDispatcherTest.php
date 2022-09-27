@@ -32,9 +32,7 @@ final class MiddlewareDispatcherTest extends TestCase
         $dispatcher = $this
             ->createDispatcher()
             ->withMiddlewares([
-                static function (): ResponseInterface {
-                    return new Response(418);
-                },
+                static fn (): ResponseInterface => new Response(418),
             ]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
@@ -63,9 +61,7 @@ final class MiddlewareDispatcherTest extends TestCase
             $request = $request->withAttribute('middleware', 'middleware1');
             return $handler->handle($request);
         };
-        $middleware2 = static function (ServerRequestInterface $request) {
-            return new Response(200, [], null, '1.1', implode($request->getAttributes()));
-        };
+        $middleware2 = static fn (ServerRequestInterface $request) => new Response(200, [], null, '1.1', implode($request->getAttributes()));
 
         $dispatcher = $this
             ->createDispatcher()
@@ -80,12 +76,8 @@ final class MiddlewareDispatcherTest extends TestCase
     {
         $request = new ServerRequest('GET', '/');
 
-        $middleware1 = static function () {
-            return new Response(403);
-        };
-        $middleware2 = static function () {
-            return new Response(200);
-        };
+        $middleware1 = static fn () => new Response(403);
+        $middleware2 = static fn () => new Response(200);
 
         $dispatcher = $this
             ->createDispatcher()
@@ -101,12 +93,8 @@ final class MiddlewareDispatcherTest extends TestCase
 
         $request = new ServerRequest('GET', '/');
 
-        $middleware1 = static function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
-            return $handler->handle($request);
-        };
-        $middleware2 = static function () {
-            return new Response();
-        };
+        $middleware1 = static fn (ServerRequestInterface $request, RequestHandlerInterface $handler) => $handler->handle($request);
+        $middleware2 = static fn () => new Response();
 
         $dispatcher = $this
             ->createDispatcher(null, $eventDispatcher)

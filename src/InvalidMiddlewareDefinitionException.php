@@ -12,7 +12,6 @@ use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
 use function array_slice;
 use function count;
-use function get_class;
 use function gettype;
 use function is_array;
 use function is_bool;
@@ -23,19 +22,11 @@ use function is_string;
 
 final class InvalidMiddlewareDefinitionException extends InvalidArgumentException implements FriendlyExceptionInterface
 {
-    /**
-     * @var mixed
-     */
-    private $definition;
     private string $definitionString;
 
-    /**
-     * @param mixed $middlewareDefinition
-     */
-    public function __construct($middlewareDefinition)
+    public function __construct(private mixed $definition)
     {
-        $this->definition = $middlewareDefinition;
-        $this->definitionString = $this->convertDefinitionToString($middlewareDefinition);
+        $this->definitionString = $this->convertDefinitionToString($definition);
 
         parent::__construct(
             'Parameter should be either PSR middleware class name or a callable. Got ' . $this->definitionString . '.'
@@ -199,13 +190,10 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
             && class_exists($this->definition[0]);
     }
 
-    /**
-     * @param mixed $middlewareDefinition
-     */
-    private function convertDefinitionToString($middlewareDefinition): string
+    private function convertDefinitionToString(mixed $middlewareDefinition): string
     {
         if (is_object($middlewareDefinition)) {
-            return 'an instance of "' . get_class($middlewareDefinition) . '"';
+            return 'an instance of "' . $middlewareDefinition::class . '"';
         }
 
         if (is_string($middlewareDefinition)) {
@@ -224,10 +212,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         return $this->convertToString($middlewareDefinition);
     }
 
-    /**
-     * @param mixed $value
-     */
-    private function convertToString($value): string
+    private function convertToString(mixed $value): string
     {
         if (is_string($value)) {
             return '"' . $value . '"';
@@ -246,7 +231,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         }
 
         if (is_object($value)) {
-            return get_class($value);
+            return $value::class;
         }
 
         return gettype($value);
