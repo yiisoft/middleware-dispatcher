@@ -61,7 +61,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn(): ResponseInterface => (new Response())->withStatus(418)
+                static fn (): ResponseInterface => (new Response())->withStatus(418)
             );
         self::assertSame(
             418,
@@ -80,7 +80,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn(): MiddlewareInterface => new TestMiddleware()
+                static fn (): MiddlewareInterface => new TestMiddleware()
             );
         self::assertSame(
             '42',
@@ -158,7 +158,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn() => 42
+                static fn () => 42
             );
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);

@@ -25,7 +25,7 @@ final class MiddlewareDispatcher
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(private MiddlewareFactory $middlewareFactory, private ?\Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher = null)
+    public function __construct(private MiddlewareFactory $middlewareFactory, private ?EventDispatcherInterface $eventDispatcher = null)
     {
     }
 

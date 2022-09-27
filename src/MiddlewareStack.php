@@ -31,7 +31,7 @@ final class MiddlewareStack implements RequestHandlerInterface
      * @param EventDispatcherInterface $eventDispatcher Event dispatcher to use for triggering before/after middleware
      * events.
      */
-    public function __construct(array $middlewares, private RequestHandlerInterface $fallbackHandler, private ?\Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher = null)
+    public function __construct(array $middlewares, private RequestHandlerInterface $fallbackHandler, private ?EventDispatcherInterface $eventDispatcher = null)
     {
         if ($middlewares === []) {
             throw new RuntimeException('Stack is empty.');
@@ -76,7 +76,7 @@ final class MiddlewareStack implements RequestHandlerInterface
             public function __construct(
                 Closure $middlewareFactory,
                 private RequestHandlerInterface $handler,
-                private ?\Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher
+                private ?EventDispatcherInterface $eventDispatcher
             ) {
                 $this->middlewareFactory = $middlewareFactory;
             }

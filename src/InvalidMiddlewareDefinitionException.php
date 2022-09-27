@@ -12,7 +12,6 @@ use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
 use function array_slice;
 use function count;
-use function get_class;
 use function gettype;
 use function is_array;
 use function is_bool;
