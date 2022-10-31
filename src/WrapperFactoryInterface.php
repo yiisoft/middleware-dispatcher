@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
+use Closure;
 use Psr\Http\Server\MiddlewareInterface;
 
 /**
@@ -16,7 +17,7 @@ interface WrapperFactoryInterface
     /**
      * Create a PSR-15 middleware that wraps the provided callable.
      *
-     * @param array{0:class-string, 1:string}|\Closure $callable
+     * @param array{0:class-string, 1:string}|Closure $callable
      */
     public function create($callable): MiddlewareInterface;
 }

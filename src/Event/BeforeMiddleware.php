@@ -16,8 +16,10 @@ final class BeforeMiddleware
      * @param MiddlewareInterface $middleware Middleware to be executed.
      * @param ServerRequestInterface $request Request to be passed to the middleware.
      */
-    public function __construct(private MiddlewareInterface $middleware, private ServerRequestInterface $request)
-    {
+    public function __construct(
+        private MiddlewareInterface $middleware,
+        private ServerRequestInterface $request
+    ) {
     }
 
     /**

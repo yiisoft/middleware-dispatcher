@@ -23,21 +23,21 @@ final class MiddlewareStack implements RequestHandlerInterface
      * @var RequestHandlerInterface|null stack of middleware
      */
     private ?RequestHandlerInterface $stack = null;
-    private array $middlewares;
 
     /**
      * @param Closure[] $middlewares Middlewares.
      * @param RequestHandlerInterface $fallbackHandler Fallback handler
-     * @param EventDispatcherInterface $eventDispatcher Event dispatcher to use for triggering before/after middleware
-     * events.
+     * @param EventDispatcherInterface|null $eventDispatcher Event dispatcher to use for triggering before/after
+     * middleware events.
      */
-    public function __construct(array $middlewares, private RequestHandlerInterface $fallbackHandler, private ?EventDispatcherInterface $eventDispatcher = null)
-    {
+    public function __construct(
+        private array $middlewares,
+        private RequestHandlerInterface $fallbackHandler,
+        private ?EventDispatcherInterface $eventDispatcher = null
+    ) {
         if ($middlewares === []) {
             throw new RuntimeException('Stack is empty.');
         }
-
-        $this->middlewares = $middlewares;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -56,7 +56,6 @@ final class MiddlewareStack implements RequestHandlerInterface
     {
         $handler = $this->fallbackHandler;
 
-        /** @var Closure $middleware */
         foreach ($this->middlewares as $middleware) {
             $handler = $this->wrap($middleware, $handler);
         }
@@ -84,20 +83,16 @@ final class MiddlewareStack implements RequestHandlerInterface
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 if ($this->middleware === null) {
-                    /** @var  MiddlewareInterface */
+                    /** @var MiddlewareInterface */
                     $this->middleware = ($this->middlewareFactory)();
                 }
 
-                if ($this->eventDispatcher !== null) {
-                    $this->eventDispatcher->dispatch(new BeforeMiddleware($this->middleware, $request));
-                }
+                $this->eventDispatcher?->dispatch(new BeforeMiddleware($this->middleware, $request));
 
                 try {
                     return $response = $this->middleware->process($request, $this->handler);
                 } finally {
-                    if ($this->eventDispatcher !== null) {
-                        $this->eventDispatcher->dispatch(new AfterMiddleware($this->middleware, $response ?? null));
-                    }
+                    $this->eventDispatcher?->dispatch(new AfterMiddleware($this->middleware, $response ?? null));
                 }
             }
         };

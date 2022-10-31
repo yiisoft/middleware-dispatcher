@@ -28,8 +28,10 @@ final class MiddlewareFactory
     /**
      * @param ContainerInterface $container Container to use for resolving definitions.
      */
-    public function __construct(private ContainerInterface $container, private WrapperFactoryInterface $wrapperFactory)
-    {
+    public function __construct(
+        private ContainerInterface $container,
+        private WrapperFactoryInterface $wrapperFactory
+    ) {
     }
 
     /**

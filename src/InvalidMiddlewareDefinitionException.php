@@ -24,8 +24,9 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
 {
     private string $definitionString;
 
-    public function __construct(private mixed $definition)
-    {
+    public function __construct(
+        private mixed $definition
+    ) {
         $this->definitionString = $this->convertDefinitionToString($definition);
 
         parent::__construct(
