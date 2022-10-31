@@ -12,7 +12,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use stdClass;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
@@ -166,14 +165,6 @@ final class MiddlewareFactoryTest extends TestCase
             $this->createMock(ServerRequestInterface::class),
             $this->createMock(RequestHandlerInterface::class)
         );
-    }
-
-    public function testInvalidMiddlewareWithWrongInstance(): void
-    {
-        $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this
-            ->getMiddlewareFactory()
-            ->create(new stdClass());
     }
 
     public function testInvalidMiddlewareWithWrongString(): void
