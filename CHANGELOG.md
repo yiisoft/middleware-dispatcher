@@ -2,7 +2,7 @@
 
 ## 3.0.1 under development
 
-- no changes in this release.
+- Enh #59: Raise minimum PHP version to 8.0 (@xepozz, @vjik)
 
 ## 3.0.0 September 07, 2022
 

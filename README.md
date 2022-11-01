@@ -20,14 +20,14 @@ request instance, dispatcher executes it produces a response instance.
 
 ## Requirements
 
-- PHP 7.4 or higher.
+- PHP 8.0 or higher.
 
 ## Installation
 
 The package could be installed with composer:
 
 ```shell
-composer require yiisoft/middleware-dispatcher --prefer-dist
+composer require yiisoft/middleware-dispatcher
 ```
 
 ## General usage

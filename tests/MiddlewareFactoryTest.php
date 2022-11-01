@@ -12,7 +12,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use stdClass;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
@@ -61,9 +60,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static function (): ResponseInterface {
-                    return (new Response())->withStatus(418);
-                }
+                static fn (): ResponseInterface => (new Response())->withStatus(418)
             );
         self::assertSame(
             418,
@@ -82,9 +79,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static function (): MiddlewareInterface {
-                    return new TestMiddleware();
-                }
+                static fn (): MiddlewareInterface => new TestMiddleware()
             );
         self::assertSame(
             '42',
@@ -162,9 +157,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static function () {
-                    return 42;
-                }
+                static fn () => 42
             );
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);
@@ -172,14 +165,6 @@ final class MiddlewareFactoryTest extends TestCase
             $this->createMock(ServerRequestInterface::class),
             $this->createMock(RequestHandlerInterface::class)
         );
-    }
-
-    public function testInvalidMiddlewareWithWrongInstance(): void
-    {
-        $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this
-            ->getMiddlewareFactory()
-            ->create(new stdClass());
     }
 
     public function testInvalidMiddlewareWithWrongString(): void

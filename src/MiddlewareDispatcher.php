@@ -19,18 +19,16 @@ final class MiddlewareDispatcher
      * @var MiddlewareStack|null The middleware stack.
      */
     private ?MiddlewareStack $stack = null;
-    private MiddlewareFactory $middlewareFactory;
-    private ?EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var array[]|callable[]|string[]
      */
     private array $middlewareDefinitions = [];
 
-    public function __construct(MiddlewareFactory $middlewareFactory, ?EventDispatcherInterface $eventDispatcher = null)
-    {
-        $this->middlewareFactory = $middlewareFactory;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(
+        private MiddlewareFactory $middlewareFactory,
+        private ?EventDispatcherInterface $eventDispatcher = null
+    ) {
     }
 
     /**
@@ -68,8 +66,6 @@ final class MiddlewareDispatcher
      * typed parameters are automatically injected using dependency injection container.
      * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
      * and {@see RequestHandlerInterface}.
-     *
-     * @return self
      */
     public function withMiddlewares(array $middlewareDefinitions): self
     {
