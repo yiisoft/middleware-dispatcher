@@ -3,6 +3,7 @@
 ## 3.0.1 under development
 
 - Enh #59: Raise minimum PHP version to 8.0 (@xepozz, @vjik)
+- Enh #62: Add support for `yiisoft/definitions` version `^3.0` (@vjik)
 
 ## 3.0.0 September 07, 2022
 
