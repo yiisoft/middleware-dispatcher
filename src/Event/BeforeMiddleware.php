@@ -12,17 +12,14 @@ use Psr\Http\Server\MiddlewareInterface;
  */
 final class BeforeMiddleware
 {
-    private MiddlewareInterface $middleware;
-    private ServerRequestInterface $request;
-
     /**
      * @param MiddlewareInterface $middleware Middleware to be executed.
      * @param ServerRequestInterface $request Request to be passed to the middleware.
      */
-    public function __construct(MiddlewareInterface $middleware, ServerRequestInterface $request)
-    {
-        $this->middleware = $middleware;
-        $this->request = $request;
+    public function __construct(
+        private MiddlewareInterface $middleware,
+        private ServerRequestInterface $request
+    ) {
     }
 
     /**

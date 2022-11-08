@@ -13,11 +13,9 @@ use Yiisoft\Injector\Injector;
 
 final class WrapperFactory implements WrapperFactoryInterface
 {
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        private ContainerInterface $container
+    ) {
     }
 
     /**
@@ -35,13 +33,13 @@ final class WrapperFactory implements WrapperFactoryInterface
     public function createCallableWrapper(callable $callback): MiddlewareInterface
     {
         return new class ($callback, $this->container) implements MiddlewareInterface {
-            private ContainerInterface $container;
             private $callback;
 
-            public function __construct(callable $callback, ContainerInterface $container)
-            {
+            public function __construct(
+                callable $callback,
+                private ContainerInterface $container
+            ) {
                 $this->callback = $callback;
-                $this->container = $container;
             }
 
             public function process(
@@ -64,15 +62,11 @@ final class WrapperFactory implements WrapperFactoryInterface
     private function createActionWrapper(string $class, string $method): MiddlewareInterface
     {
         return new class ($this->container, $class, $method) implements MiddlewareInterface {
-            private string $class;
-            private string $method;
-            private ContainerInterface $container;
-
-            public function __construct(ContainerInterface $container, string $class, string $method)
-            {
-                $this->container = $container;
-                $this->class = $class;
-                $this->method = $method;
+            public function __construct(
+                private ContainerInterface $container,
+                private string $class,
+                private string $method
+            ) {
             }
 
             public function process(
