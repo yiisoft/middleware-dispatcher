@@ -1,6 +1,6 @@
 # Yii Middleware Dispatcher Change Log
 
-## 3.0.1 under development
+## 4.0.0 November 10, 2022
 
 - Enh #59: Raise minimum PHP version to `^8.0` (@xepozz, @vjik)
 - Enh #62: Add support for `yiisoft/definitions` version `^3.0` (@vjik)
