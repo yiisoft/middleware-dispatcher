@@ -129,7 +129,7 @@ final class MiddlewareFactory
     /**
      * @param array{0:class-string, 1:string}|Closure $callable
      */
-    private function wrap(array|\Closure $callable): MiddlewareInterface
+    private function wrap(array|Closure $callable): MiddlewareInterface
     {
         if (is_array($callable)) {
             return $this->createActionWrapper($callable[0], $callable[1]);
@@ -184,7 +184,6 @@ final class MiddlewareFactory
 
     /**
      * @param class-string $class
-     *
      */
     private function createActionWrapper(string $class, string $method): MiddlewareInterface
     {
