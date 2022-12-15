@@ -19,7 +19,7 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\FailMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
-use Yiisoft\Middleware\Dispatcher\WrapperFactory;
+use Yiisoft\Middleware\Dispatcher\SimpleParametersResolver;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
@@ -202,7 +202,7 @@ final class MiddlewareDispatcherTest extends TestCase
         }
 
         return new MiddlewareDispatcher(
-            new MiddlewareFactory($container, new WrapperFactory($container)),
+            new MiddlewareFactory($container, new SimpleParametersResolver($container)),
             $eventDispatcher
         );
     }

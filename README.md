@@ -101,13 +101,13 @@ events are triggered.
 Callable wrapper could be customized by providing your own `WrapperFactoryInterface` implementation:
 
 ```php
-use \Yiisoft\Middleware\Dispatcher\WrapperFactoryInterface;
+use \Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
 
-class CoolWrapperFactory implements WrapperFactoryInterface
+class CoolWrapperFactory implements ParametersResolverInterface
 {
-    private WrapperFactoryInterface $wrapperFactory;
+    private ParametersResolverInterface $wrapperFactory;
     
-    public function __construct(WrapperFactoryInterface $wrapperFactory) {
+    public function __construct(ParametersResolverInterface $wrapperFactory) {
         $this->wrapperFactory = $wrapperFactory;
     }    
 

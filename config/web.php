@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Yiisoft\Middleware\Dispatcher\WrapperFactory;
-use Yiisoft\Middleware\Dispatcher\WrapperFactoryInterface;
+use Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
+use Yiisoft\Middleware\Dispatcher\SimpleParametersResolver;
 
 return [
-    WrapperFactoryInterface::class => WrapperFactory::class,
+    ParametersResolverInterface::class => SimpleParametersResolver::class,
 ];

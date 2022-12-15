@@ -19,7 +19,7 @@ use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
-use Yiisoft\Middleware\Dispatcher\WrapperFactory;
+use Yiisoft\Middleware\Dispatcher\SimpleParametersResolver;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class MiddlewareFactoryTest extends TestCase
@@ -241,10 +241,10 @@ final class MiddlewareFactoryTest extends TestCase
     private function getMiddlewareFactory(ContainerInterface $container = null): MiddlewareFactory
     {
         if ($container !== null) {
-            return new MiddlewareFactory($container, new WrapperFactory($container));
+            return new MiddlewareFactory($container, new SimpleParametersResolver($container));
         }
 
-        return new MiddlewareFactory($this->getContainer(), new WrapperFactory($this->getContainer()));
+        return new MiddlewareFactory($this->getContainer(), new SimpleParametersResolver($this->getContainer()));
     }
 
     private function getContainer(array $instances = []): ContainerInterface

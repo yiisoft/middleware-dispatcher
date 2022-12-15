@@ -6,12 +6,17 @@ namespace Yiisoft\Middleware\Dispatcher;
 
 use Closure;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use ReflectionClass;
+use ReflectionFunction;
+use ReflectionMethod;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
+use Yiisoft\Injector\Injector;
 
 use function in_array;
 use function is_array;
@@ -29,7 +34,7 @@ final class MiddlewareFactory
      */
     public function __construct(
         private ContainerInterface $container,
-        private WrapperFactoryInterface $wrapperFactory
+        private ParametersResolverInterface $parametersResolver
     ) {
     }
 
@@ -60,7 +65,7 @@ final class MiddlewareFactory
 
         if ($this->isCallableDefinition($middlewareDefinition)) {
             /** @var array{0:class-string, 1:string}|Closure $middlewareDefinition */
-            return $this->wrapperFactory->create($middlewareDefinition);
+            return $this->wrap($middlewareDefinition);
         }
 
         if ($this->isArrayDefinition($middlewareDefinition)) {
@@ -120,5 +125,120 @@ final class MiddlewareFactory
         }
 
         return is_subclass_of((string) ($definition['class'] ?? ''), MiddlewareInterface::class);
+    }
+
+    /**
+     * @param array{0:class-string, 1:string}|Closure $callable
+     *
+     * @return MiddlewareInterface
+     */
+    private function wrap($callable): MiddlewareInterface
+    {
+        if (is_array($callable)) {
+            return $this->createActionWrapper($callable[0], $callable[1]);
+        }
+
+        return $this->createCallableWrapper($callable);
+    }
+
+    private function createCallableWrapper(callable $callback): MiddlewareInterface
+    {
+        return new class ($callback, $this->container, $this->parametersResolver) implements MiddlewareInterface {
+            private $callback;
+
+            public function __construct(
+                callable $callback,
+                private ContainerInterface $container,
+                private ParametersResolverInterface $parametersResolver
+            ) {
+                $this->callback = $callback;
+            }
+
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler
+            ): ResponseInterface {
+                $parameters = array_merge(
+                    [$request, $handler],
+                    $this->parametersResolver->resolve($this->getCallableParameters(), $request)
+                );
+                /** @var MiddlewareInterface|mixed|ResponseInterface $response */
+                $response = (new Injector($this->container))->invoke($this->callback, $parameters);
+                if ($response instanceof ResponseInterface) {
+                    return $response;
+                }
+                if ($response instanceof MiddlewareInterface) {
+                    return $response->process($request, $handler);
+                }
+                throw new InvalidMiddlewareDefinitionException($this->callback);
+            }
+
+            /**
+             * @return \ReflectionParameter[]
+             */
+            private function getCallableParameters(): array
+            {
+                $callback = Closure::fromCallable($this->callback);
+
+                return (new ReflectionFunction($callback))->getParameters();
+            }
+        };
+    }
+
+    /**
+     * @param class-string $class
+     * @param string $method
+     *
+     * @return MiddlewareInterface
+     */
+    private function createActionWrapper(string $class, string $method): MiddlewareInterface
+    {
+        return new class ($this->container, $this->parametersResolver, $class, $method) implements MiddlewareInterface {
+            public function __construct(
+                private ContainerInterface $container,
+                private ParametersResolverInterface $parametersResolver,
+                /** @var class-string */
+                private string $class,
+                private string $method
+            ) {
+            }
+
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler
+            ): ResponseInterface {
+                /** @var mixed $controller */
+                $controller = $this->container->get($this->class);
+                $parameters = array_merge(
+                    [$request, $handler],
+                    $this->parametersResolver->resolve($this->getActionParameters(), $request)
+                );
+
+                /** @var mixed|ResponseInterface $response */
+                $response = (new Injector($this->container))->invoke([$controller, $this->method], $parameters);
+                if ($response instanceof ResponseInterface) {
+                    return $response;
+                }
+
+                throw new InvalidMiddlewareDefinitionException([$this->class, $this->method]);
+            }
+
+            /**
+             * @throws \ReflectionException
+             *
+             * @return \ReflectionParameter[]
+             */
+            private function getActionParameters(): array
+            {
+                return (new ReflectionClass($this->class))->getMethod($this->method)->getParameters();
+            }
+
+            public function __debugInfo()
+            {
+                return [
+                    'callback' => [$this->class, $this->method],
+                ];
+            }
+        };
     }
 }

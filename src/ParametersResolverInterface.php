@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
-use Closure;
-use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use ReflectionParameter;
 
 /**
  * Creates a PSR-15 middleware that wraps the provided callable.
  * You may implement this interface if you want to introduce custom definitions or pass additional data to
  * the middleware created.
  */
-interface WrapperFactoryInterface
+interface ParametersResolverInterface
 {
     /**
      * Create a PSR-15 middleware that wraps the provided callable.
      *
-     * @param array{0:class-string, 1:string}|Closure $callable
+     * @param ReflectionParameter[] $parameters
+     * @param ServerRequestInterface $request
+     *
+     * @return array<array-key, mixed>
      */
-    public function create($callable): MiddlewareInterface;
+    public function resolve(array $parameters, ServerRequestInterface $request): array;
 }
