@@ -18,7 +18,6 @@ interface ParametersResolverInterface
      * Create a PSR-15 middleware that wraps the provided callable.
      *
      * @param ReflectionParameter[] $parameters
-     * @param ServerRequestInterface $request
      *
      * @return array<array-key, mixed>
      */
