@@ -19,7 +19,6 @@ use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
-use Yiisoft\Middleware\Dispatcher\SimpleParametersResolver;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class MiddlewareFactoryTest extends TestCase
