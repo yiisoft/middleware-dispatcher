@@ -33,7 +33,7 @@ final class MiddlewareFactory
      */
     public function __construct(
         private ContainerInterface $container,
-        private ParametersResolverInterface $parametersResolver
+        private ?ParametersResolverInterface $parametersResolver = null
     ) {
     }
 
@@ -64,7 +64,7 @@ final class MiddlewareFactory
 
         if ($this->isCallableDefinition($middlewareDefinition)) {
             /** @var array{0:class-string, 1:string}|Closure $middlewareDefinition */
-            return $this->wrap($middlewareDefinition);
+            return $this->wrapCallable($middlewareDefinition);
         }
 
         if ($this->isArrayDefinition($middlewareDefinition)) {
@@ -123,13 +123,13 @@ final class MiddlewareFactory
             return false;
         }
 
-        return is_subclass_of((string) ($definition['class'] ?? ''), MiddlewareInterface::class);
+        return is_subclass_of((string)($definition['class'] ?? ''), MiddlewareInterface::class);
     }
 
     /**
      * @param array{0:class-string, 1:string}|Closure $callable
      */
-    private function wrap(array|Closure $callable): MiddlewareInterface
+    private function wrapCallable(array|Closure $callable): MiddlewareInterface
     {
         if (is_array($callable)) {
             return $this->createActionWrapper($callable[0], $callable[1]);
@@ -146,7 +146,7 @@ final class MiddlewareFactory
             public function __construct(
                 callable $callback,
                 private ContainerInterface $container,
-                private ParametersResolverInterface $parametersResolver
+                private ?ParametersResolverInterface $parametersResolver
             ) {
                 $this->callback = $callback;
             }
@@ -155,10 +155,13 @@ final class MiddlewareFactory
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
             ): ResponseInterface {
-                $parameters = array_merge(
-                    [$request, $handler],
-                    $this->parametersResolver->resolve($this->getCallableParameters(), $request)
-                );
+                $parameters = [$request, $handler];
+                if ($this->parametersResolver !== null) {
+                    $parameters = array_merge(
+                        $parameters,
+                        $this->parametersResolver->resolve($this->getCallableParameters(), $request)
+                    );
+                }
                 /** @var MiddlewareInterface|mixed|ResponseInterface $response */
                 $response = (new Injector($this->container))->invoke($this->callback, $parameters);
                 if ($response instanceof ResponseInterface) {
@@ -190,7 +193,7 @@ final class MiddlewareFactory
         return new class ($this->container, $this->parametersResolver, $class, $method) implements MiddlewareInterface {
             public function __construct(
                 private ContainerInterface $container,
-                private ParametersResolverInterface $parametersResolver,
+                private ?ParametersResolverInterface $parametersResolver,
                 /** @var class-string */
                 private string $class,
                 private string $method
@@ -203,10 +206,13 @@ final class MiddlewareFactory
             ): ResponseInterface {
                 /** @var mixed $controller */
                 $controller = $this->container->get($this->class);
-                $parameters = array_merge(
-                    [$request, $handler],
-                    $this->parametersResolver->resolve($this->getActionParameters(), $request)
-                );
+                $parameters = [$request, $handler];
+                if ($this->parametersResolver !== null) {
+                    $parameters = array_merge(
+                        $parameters,
+                        $this->parametersResolver->resolve($this->getActionParameters(), $request)
+                    );
+                }
 
                 /** @var mixed|ResponseInterface $response */
                 $response = (new Injector($this->container))->invoke([$controller, $this->method], $parameters);

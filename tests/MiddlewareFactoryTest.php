@@ -241,10 +241,10 @@ final class MiddlewareFactoryTest extends TestCase
     private function getMiddlewareFactory(ContainerInterface $container = null): MiddlewareFactory
     {
         if ($container !== null) {
-            return new MiddlewareFactory($container, new SimpleParametersResolver($container));
+            return new MiddlewareFactory($container);
         }
 
-        return new MiddlewareFactory($this->getContainer(), new SimpleParametersResolver($this->getContainer()));
+        return new MiddlewareFactory($this->getContainer());
     }
 
     private function getContainer(array $instances = []): ContainerInterface

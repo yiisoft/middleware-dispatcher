@@ -202,7 +202,7 @@ final class MiddlewareDispatcherTest extends TestCase
         }
 
         return new MiddlewareDispatcher(
-            new MiddlewareFactory($container, new SimpleParametersResolver($container)),
+            new MiddlewareFactory($container),
             $eventDispatcher
         );
     }
