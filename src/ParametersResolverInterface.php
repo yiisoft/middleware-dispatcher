@@ -8,14 +8,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use ReflectionParameter;
 
 /**
- * Creates a PSR-15 middleware that wraps the provided callable.
- * You may implement this interface if you want to introduce custom definitions or pass additional data to
- * the middleware created.
+ * Resolves parameters of PSR-15 middleware that are provided as callable.
+ * You may implement this interface if you want to introduce custom dependencies or inject additional data from
+ * the {@see ServerRequestInterface} (e.g. using attributes) to the middleware.
  */
 interface ParametersResolverInterface
 {
     /**
-     * Create a PSR-15 middleware that wraps the provided callable.
+     * Resolve parameters of a PSR-15 middleware the provided as callable.
      *
      * @param ReflectionParameter[] $parameters
      *

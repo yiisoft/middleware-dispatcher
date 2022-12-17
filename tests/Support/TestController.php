@@ -13,4 +13,9 @@ final class TestController
     {
         return new Response(200, ['test' => 'yii']);
     }
+
+    public function indexWithParams(string $test = '')
+    {
+        return new Response(200, ['test' => $test]);
+    }
 }
