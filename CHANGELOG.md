@@ -1,8 +1,9 @@
 # Yii Middleware Dispatcher Change Log
 
-## 4.0.1 under development
+## 5.0.0 under development
 
-- no changes in this release.
+- Chg #68: Remove wrapper factory (@rustamwin)
+- New #68: Add `ParametersResolverInterface` to resolve parameters of middleware that are provided as callable (@rustamwin)
 
 ## 4.0.0 November 10, 2022
 
