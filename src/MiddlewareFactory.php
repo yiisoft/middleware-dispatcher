@@ -63,7 +63,7 @@ final class MiddlewareFactory
         }
 
         if ($this->isCallableDefinition($middlewareDefinition)) {
-            /** @var array{0:class-string, 1:string}|Closure $middlewareDefinition */
+            /** @var array{0:class-string, 1:non-empty-string}|Closure $middlewareDefinition */
             return $this->wrapCallable($middlewareDefinition);
         }
 
@@ -127,7 +127,7 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param array{0:class-string, 1:string}|Closure $callable
+     * @param array{0:class-string, 1:non-empty-string}|Closure $callable
      */
     private function wrapCallable(array|Closure $callable): MiddlewareInterface
     {
@@ -187,6 +187,7 @@ final class MiddlewareFactory
 
     /**
      * @param class-string $class
+     * @param non-empty-string $method
      */
     private function createActionWrapper(string $class, string $method): MiddlewareInterface
     {
@@ -196,6 +197,7 @@ final class MiddlewareFactory
                 private ?ParametersResolverInterface $parametersResolver,
                 /** @var class-string */
                 private string $class,
+                /** @var non-empty-string */
                 private string $method
             ) {
             }
