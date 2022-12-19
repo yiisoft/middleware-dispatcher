@@ -96,7 +96,7 @@ executed first. For each middleware
 `\Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware` and `\Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware`
 events are triggered.
 
-### Creating your own implementation of parameters resolver.
+### Creating your own implementation of parameters resolver
 
 Parameters resolver could be customized by providing your own `ParametersResolverInterface` implementation:
 
