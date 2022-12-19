@@ -63,16 +63,11 @@ final class MiddlewareFactory
         }
 
         if ($this->isCallableDefinition($middlewareDefinition)) {
-            /** @var array{0:class-string, 1:non-empty-string}|Closure $middlewareDefinition */
             return $this->wrapCallable($middlewareDefinition);
         }
 
         if ($this->isArrayDefinition($middlewareDefinition)) {
-            /**
-             * @psalm-var ArrayDefinitionConfig $middlewareDefinition
-             *
-             * @var MiddlewareInterface
-             */
+            /** @var MiddlewareInterface */
             return ArrayDefinition::fromConfig($middlewareDefinition)->resolve($this->container);
         }
 
@@ -82,16 +77,16 @@ final class MiddlewareFactory
     /**
      * @psalm-assert-if-true class-string<MiddlewareInterface> $definition
      */
-    private function isMiddlewareClassDefinition(mixed $definition): bool
+    private function isMiddlewareClassDefinition(array|callable|string $definition): bool
     {
         return is_string($definition)
             && is_subclass_of($definition, MiddlewareInterface::class);
     }
 
     /**
-     * @psalm-assert-if-true array|Closure $definition
+     * @psalm-assert-if-true array{0:class-string, 1:non-empty-string}|Closure $definition
      */
-    private function isCallableDefinition(mixed $definition): bool
+    private function isCallableDefinition(array|callable|string $definition): bool
     {
         if ($definition instanceof Closure) {
             return true;
@@ -111,7 +106,7 @@ final class MiddlewareFactory
     /**
      * @psalm-assert-if-true ArrayDefinitionConfig $definition
      */
-    private function isArrayDefinition(mixed $definition): bool
+    private function isArrayDefinition(array|callable|string $definition): bool
     {
         if (!is_array($definition)) {
             return false;
