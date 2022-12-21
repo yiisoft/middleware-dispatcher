@@ -186,7 +186,6 @@ final class MiddlewareFactory
 
     /**
      * @param class-string|object $class
-     * @param string $method
      */
     private function createActionWrapper(string|object $class, string $method): MiddlewareInterface
     {
