@@ -14,12 +14,13 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
+use Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\SimpleParametersResolver;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
-use Yiisoft\Middleware\Dispatcher\WrapperFactory;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class MiddlewareFactoryTest extends TestCase
@@ -54,6 +55,23 @@ final class MiddlewareFactoryTest extends TestCase
         );
     }
 
+    public function testCreateFromArrayWithResolver(): void
+    {
+        $container = $this->getContainer([TestController::class => new TestController()]);
+        $middleware = $this
+            ->getMiddlewareFactory($container, new SimpleParametersResolver())
+            ->create([TestController::class, 'indexWithParams']);
+        self::assertSame(
+            'yii',
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getHeaderLine('test')
+        );
+    }
+
     public function testCreateFromClosureResponse(): void
     {
         $container = $this->getContainer([TestController::class => new TestController()]);
@@ -70,6 +88,25 @@ final class MiddlewareFactoryTest extends TestCase
                     $this->createMock(RequestHandlerInterface::class)
                 )
                 ->getStatusCode()
+        );
+    }
+
+    public function testCreateFromClosureWithResolver(): void
+    {
+        $container = $this->getContainer([TestController::class => new TestController()]);
+        $middleware = $this
+            ->getMiddlewareFactory($container, new SimpleParametersResolver())
+            ->create(
+                static fn (string $test = ''): ResponseInterface => (new Response())->withStatus(418, $test)
+            );
+        self::assertSame(
+            'yii',
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getReasonPhrase()
         );
     }
 
@@ -238,13 +275,13 @@ final class MiddlewareFactoryTest extends TestCase
             ->create([7, 42]);
     }
 
-    private function getMiddlewareFactory(ContainerInterface $container = null): MiddlewareFactory
+    private function getMiddlewareFactory(ContainerInterface $container = null, ParametersResolverInterface $parametersResolver = null): MiddlewareFactory
     {
         if ($container !== null) {
-            return new MiddlewareFactory($container, new WrapperFactory($container));
+            return new MiddlewareFactory($container, $parametersResolver);
         }
 
-        return new MiddlewareFactory($this->getContainer(), new WrapperFactory($this->getContainer()));
+        return new MiddlewareFactory($this->getContainer(), $parametersResolver);
     }
 
     private function getContainer(array $instances = []): ContainerInterface

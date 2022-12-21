@@ -96,28 +96,26 @@ executed first. For each middleware
 `\Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware` and `\Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware`
 events are triggered.
 
-### Customizing callable wrapper
+### Creating your own implementation of parameters resolver
 
-Callable wrapper could be customized by providing your own `WrapperFactoryInterface` implementation:
+Parameters resolver could be customized by providing your own `ParametersResolverInterface` implementation:
 
 ```php
-use \Yiisoft\Middleware\Dispatcher\WrapperFactoryInterface;
+use \Psr\Http\Message\ServerRequestInterface;
+use \Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
 
-class CoolWrapperFactory implements WrapperFactoryInterface
+class CoolParametersResolver implements ParametersResolverInterface
 {
-    private WrapperFactoryInterface $wrapperFactory;
-    
-    public function __construct(WrapperFactoryInterface $wrapperFactory) {
-        $this->wrapperFactory = $wrapperFactory;
-    }    
-
-    public function create($callable): MiddlewareInterface
+    public function resolve(array $parameters, ServerRequestInterface $request): MiddlewareInterface
     {
-        if (is_array($callable)) {
-            return createMiddleware($callable);
+        $resolvedParameters = [];
+        foreach ($parameters as $parameter) {
+            if ($request->getAttribute($parameter->getName()) !== null) {
+                $resolvedParameters[$parameter->getName()] = $request->getAttribute($parameter->getName())
+            }
         }
         
-        $this->wrapperFactory->create($callable);
+        return $resolvedParameters;
     }
 }
 ```
@@ -129,7 +127,7 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 
 $dispatcher = new MiddlewareDispatcher(
-    new MiddlewareFactory($diContainer, new CoolWrapperFactory($wrapperFactory)),
+    new MiddlewareFactory($diContainer, new CoolParametersResolver()),
     $eventDispatcher
 );
 ```
