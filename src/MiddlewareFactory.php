@@ -88,7 +88,7 @@ final class MiddlewareFactory
     }
 
     /**
-     * @psalm-assert-if-true array{0:class-string|object, 1:string}|callable $definition
+     * @psalm-assert-if-true array{0:class-string|object, 1:non-empty-string}|callable-object|Closure $definition
      */
     private function isCallableDefinition(array|callable|string $definition): bool
     {
@@ -126,7 +126,7 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param array{0:class-string|object, 1:string}|callable $callable
+     * @param array{0:class-string|object, 1:non-empty-string}|callable-object|Closure $callable
      */
     private function wrapCallable(array|callable $callable): MiddlewareInterface
     {
@@ -186,7 +186,7 @@ final class MiddlewareFactory
 
     /**
      * @param class-string|object $class
-     * @param string $method
+     * @param non-empty-string $method
      */
     private function createActionWrapper(string|object $class, string $method): MiddlewareInterface
     {
@@ -196,7 +196,7 @@ final class MiddlewareFactory
                 private ?ParametersResolverInterface $parametersResolver,
                 /** @var class-string|object */
                 private string|object $class,
-                /** @var string */
+                /** @var non-empty-string */
                 private string $method
             ) {
             }
