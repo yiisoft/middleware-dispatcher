@@ -44,8 +44,9 @@ final class MiddlewareFactory
      * - A callable with
      *   `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      *   signature.
-     * - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will
-     *   be created and `index()` method will be executed.
+     * - A callable object instance.
+     * - A controller handler action in format `[TestController::class, 'index']` or `[new TestController(), 'index']`.
+     *   `TestController` instance will be created if it is not an instance and `index()` method will be executed.
      * - A function returning a middleware. The middleware returned will be executed.
      *
      * For handler action and callable
@@ -87,21 +88,21 @@ final class MiddlewareFactory
     }
 
     /**
-     * @psalm-assert-if-true array{0:class-string, 1:non-empty-string}|Closure $definition
+     * @psalm-assert-if-true array{0:class-string|object, 1:string}|callable $definition
      */
     private function isCallableDefinition(array|callable|string $definition): bool
     {
-        if ($definition instanceof Closure) {
+        if ($definition instanceof Closure || is_object($definition)) {
             return true;
         }
 
         return is_array($definition)
             && array_keys($definition) === [0, 1]
-            && is_string($definition[0])
+            && (is_string($definition[0]) || is_object($definition[0]))
             && is_string($definition[1])
             && in_array(
                 $definition[1],
-                class_exists($definition[0]) ? get_class_methods($definition[0]) : [],
+                is_object($definition[0]) || class_exists($definition[0]) ? get_class_methods($definition[0]) : [],
                 true
             );
     }
@@ -125,9 +126,9 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param array{0:class-string, 1:non-empty-string}|Closure $callable
+     * @param array{0:class-string|object, 1:string}|callable $callable
      */
-    private function wrapCallable(array|Closure $callable): MiddlewareInterface
+    private function wrapCallable(array|callable $callable): MiddlewareInterface
     {
         if (is_array($callable)) {
             return $this->createActionWrapper($callable[0], $callable[1]);
@@ -184,18 +185,18 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param class-string $class
-     * @param non-empty-string $method
+     * @param class-string|object $class
+     * @param string $method
      */
-    private function createActionWrapper(string $class, string $method): MiddlewareInterface
+    private function createActionWrapper(string|object $class, string $method): MiddlewareInterface
     {
         return new class ($this->container, $this->parametersResolver, $class, $method) implements MiddlewareInterface {
             public function __construct(
                 private ContainerInterface $container,
                 private ?ParametersResolverInterface $parametersResolver,
-                /** @var class-string */
-                private string $class,
-                /** @var non-empty-string */
+                /** @var class-string|object */
+                private string|object $class,
+                /** @var string */
                 private string $method
             ) {
             }
@@ -204,8 +205,12 @@ final class MiddlewareFactory
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
             ): ResponseInterface {
-                /** @var mixed $controller */
-                $controller = $this->container->get($this->class);
+                if (is_string($this->class)) {
+                    /** @var mixed $controller */
+                    $controller = $this->container->get($this->class);
+                } else {
+                    $controller = $this->class;
+                }
                 $parameters = [$request, $handler];
                 if ($this->parametersResolver !== null) {
                     $parameters = array_merge(

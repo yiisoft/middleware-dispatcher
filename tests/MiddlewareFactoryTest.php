@@ -15,6 +15,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\InvokeableAction;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\SimpleParametersResolver;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
@@ -107,6 +108,45 @@ final class MiddlewareFactoryTest extends TestCase
                     $this->createMock(RequestHandlerInterface::class)
                 )
                 ->getReasonPhrase()
+        );
+    }
+
+    public function testCreateCallableFromArrayWithInstance(): void
+    {
+        $container = $this->getContainer();
+        $controller = new TestController();
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create([$controller, 'index']);
+        self::assertSame(
+            'yii',
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getHeaderLine('test')
+        );
+        self::assertSame(
+            [$controller, 'index'],
+            $middleware->__debugInfo()['callback']
+        );
+    }
+
+    public function testCreateCallableInstance(): void
+    {
+        $container = $this->getContainer();
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create(new InvokeableAction());
+        self::assertSame(
+            'yii',
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getHeaderLine('test')
         );
     }
 
@@ -257,14 +297,6 @@ final class MiddlewareFactoryTest extends TestCase
         $this
             ->getMiddlewareFactory()
             ->create(['class' => TestController::class, 'index']);
-    }
-
-    public function testInvalidMiddlewareWithWrongArrayWithInstance(): void
-    {
-        $this->expectException(InvalidMiddlewareDefinitionException::class);
-        $this
-            ->getMiddlewareFactory()
-            ->create([new TestController(), 'index']);
     }
 
     public function testInvalidMiddlewareWithWrongArrayWithIntItems(): void
