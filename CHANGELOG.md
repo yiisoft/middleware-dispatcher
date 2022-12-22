@@ -4,6 +4,7 @@
 
 - Chg #68: Remove wrapper factory (@rustamwin)
 - New #68: Add `ParametersResolverInterface` to resolve parameters of middleware that are provided as callable (@rustamwin)
+- Enh #69: Add support for callable middlewares (@rustamwin)
 
 ## 4.0.0 November 10, 2022
 
