@@ -133,7 +133,7 @@ final class MiddlewareFactoryTest extends TestCase
         );
     }
 
-    public function testCreateCallableInstance(): void
+    public function testCreateCallableObject(): void
     {
         $container = $this->getContainer();
         $middleware = $this

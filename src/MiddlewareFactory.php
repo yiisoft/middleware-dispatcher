@@ -44,7 +44,7 @@ final class MiddlewareFactory
      * - A callable with
      *   `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      *   signature.
-     * - A callable object instance.
+     * - Any callable.
      * - A controller handler action in format `[TestController::class, 'index']` or `[new TestController(), 'index']`.
      *   `TestController` instance will be created if it is not an instance and `index()` method will be executed.
      * - A function returning a middleware. The middleware returned will be executed.
@@ -88,11 +88,11 @@ final class MiddlewareFactory
     }
 
     /**
-     * @psalm-assert-if-true array{0:class-string|object, 1:non-empty-string}|callable-object|Closure $definition
+     * @psalm-assert-if-true array{0:class-string|object, 1:non-empty-string}|callable-object|callable-string|Closure $definition
      */
     private function isCallableDefinition(array|callable|string $definition): bool
     {
-        if ($definition instanceof Closure || is_object($definition)) {
+        if (is_callable($definition)) {
             return true;
         }
 
@@ -126,7 +126,7 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param array{0:class-string|object, 1:non-empty-string}|callable-object|Closure $callable
+     * @param array{0:class-string|object, 1:non-empty-string}|callable-object|callable-string|Closure $callable
      */
     private function wrapCallable(array|callable $callable): MiddlewareInterface
     {
