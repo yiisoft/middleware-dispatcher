@@ -44,6 +44,7 @@ final class MiddlewareFactory
      * - A callable with
      *   `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      *   signature.
+     * - Any callable.
      * - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will
      *   be created and `index()` method will be executed.
      * - A function returning a middleware. The middleware returned will be executed.
@@ -87,11 +88,11 @@ final class MiddlewareFactory
     }
 
     /**
-     * @psalm-assert-if-true array{0:class-string, 1:non-empty-string}|Closure $definition
+     * @psalm-assert-if-true array{0:class-string, 1:non-empty-string}|callable $definition
      */
     private function isCallableDefinition(array|callable|string $definition): bool
     {
-        if ($definition instanceof Closure) {
+        if (is_callable($definition)) {
             return true;
         }
 
@@ -125,15 +126,15 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param array{0:class-string, 1:non-empty-string}|Closure $callable
+     * @param array{0:class-string, 1:non-empty-string}|callable $callable
      */
-    private function wrapCallable(array|Closure $callable): MiddlewareInterface
+    private function wrapCallable(array|callable $callable): MiddlewareInterface
     {
-        if (is_array($callable)) {
-            return $this->createActionWrapper($callable[0], $callable[1]);
+        if (is_callable($callable)) {
+            return $this->createCallableWrapper($callable);
         }
 
-        return $this->createCallableWrapper($callable);
+        return $this->createActionWrapper($callable[0], $callable[1]);
     }
 
     private function createCallableWrapper(callable $callback): MiddlewareInterface
@@ -169,6 +170,11 @@ final class MiddlewareFactory
                     return $response->process($request, $handler);
                 }
                 throw new InvalidMiddlewareDefinitionException($this->callback);
+            }
+
+            public function __debugInfo(): array
+            {
+                return ['callback' => $this->callback];
             }
 
             /**
