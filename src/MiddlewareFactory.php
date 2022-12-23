@@ -45,8 +45,8 @@ final class MiddlewareFactory
      *   `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      *   signature.
      * - Any callable.
-     * - A controller handler action in format `[TestController::class, 'index']` or `[new TestController(), 'index']`.
-     *   `TestController` instance will be created if it is not an instance and `index()` method will be executed.
+     * - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will
+     *   be created and `index()` method will be executed.
      * - A function returning a middleware. The middleware returned will be executed.
      *
      * For handler action and callable
