@@ -88,7 +88,7 @@ final class MiddlewareFactory
     }
 
     /**
-     * @psalm-assert-if-true array{0:class-string|object, 1:non-empty-string}|callable-object|callable-string|Closure $definition
+     * @psalm-assert-if-true array{0:class-string, 1:non-empty-string}|callable $definition
      */
     private function isCallableDefinition(array|callable|string $definition): bool
     {
@@ -98,11 +98,11 @@ final class MiddlewareFactory
 
         return is_array($definition)
             && array_keys($definition) === [0, 1]
-            && (is_string($definition[0]) || is_object($definition[0]))
+            && is_string($definition[0])
             && is_string($definition[1])
             && in_array(
                 $definition[1],
-                is_object($definition[0]) || class_exists($definition[0]) ? get_class_methods($definition[0]) : [],
+                class_exists($definition[0]) ? get_class_methods($definition[0]) : [],
                 true
             );
     }
@@ -126,15 +126,15 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param array{0:class-string|object, 1:non-empty-string}|callable-object|callable-string|Closure $callable
+     * @param array{0:class-string, 1:non-empty-string}|callable $callable
      */
     private function wrapCallable(array|callable $callable): MiddlewareInterface
     {
-        if (is_array($callable)) {
-            return $this->createActionWrapper($callable[0], $callable[1]);
+        if (is_callable($callable)) {
+            return $this->createCallableWrapper($callable);
         }
 
-        return $this->createCallableWrapper($callable);
+        return $this->createActionWrapper($callable[0], $callable[1]);
     }
 
     private function createCallableWrapper(callable $callback): MiddlewareInterface
@@ -172,6 +172,11 @@ final class MiddlewareFactory
                 throw new InvalidMiddlewareDefinitionException($this->callback);
             }
 
+            public function __debugInfo(): array
+            {
+                return ['callback' => $this->callback];
+            }
+
             /**
              * @return \ReflectionParameter[]
              */
@@ -185,17 +190,17 @@ final class MiddlewareFactory
     }
 
     /**
-     * @param class-string|object $class
+     * @param class-string $class
      * @param non-empty-string $method
      */
-    private function createActionWrapper(string|object $class, string $method): MiddlewareInterface
+    private function createActionWrapper(string $class, string $method): MiddlewareInterface
     {
         return new class ($this->container, $this->parametersResolver, $class, $method) implements MiddlewareInterface {
             public function __construct(
                 private ContainerInterface $container,
                 private ?ParametersResolverInterface $parametersResolver,
-                /** @var class-string|object */
-                private string|object $class,
+                /** @var class-string */
+                private string $class,
                 /** @var non-empty-string */
                 private string $method
             ) {
@@ -205,12 +210,8 @@ final class MiddlewareFactory
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
             ): ResponseInterface {
-                if (is_string($this->class)) {
-                    /** @var mixed $controller */
-                    $controller = $this->container->get($this->class);
-                } else {
-                    $controller = $this->class;
-                }
+                /** @var mixed $controller */
+                $controller = $this->container->get($this->class);
                 $parameters = [$request, $handler];
                 if ($this->parametersResolver !== null) {
                     $parameters = array_merge(
