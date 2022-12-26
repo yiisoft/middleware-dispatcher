@@ -10,10 +10,11 @@
 [![Total Downloads](https://poser.pugx.org/yiisoft/middleware-dispatcher/downloads.png)](https://packagist.org/packages/yiisoft/middleware-dispatcher)
 [![Build status](https://github.com/yiisoft/middleware-dispatcher/workflows/build/badge.svg)](https://github.com/yiisoft/middleware-dispatcher/actions?query=workflow%3Abuild)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/middleware-dispatcher/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/middleware-dispatcher/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/middleware-dispatcher/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/middleware-dispatcher/?branch=master)
+[![Code Coverage](https://codecov.io/gh/yiisoft/middleware-dispatcher/branch/master/graph/badge.svg)](https://codecov.io/gh/yiisoft/middleware-dispatcher)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fmiddleware-dispatcher%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/middleware-dispatcher/master)
 [![static analysis](https://github.com/yiisoft/middleware-dispatcher/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/middleware-dispatcher/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/middleware-dispatcher/coverage.svg)](https://shepherd.dev/github/yiisoft/middleware-dispatcher)
+[![psalm-level](https://shepherd.dev/github/yiisoft/middleware-dispatcher/level.svg)](https://shepherd.dev/github/yiisoft/middleware-dispatcher)
 
 The package is a [PSR-15](https://www.php-fig.org/psr/psr-15/) middleware dispatcher. Given a set of middleware and a
 request instance, dispatcher executes it produces a response instance.
