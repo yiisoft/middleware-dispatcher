@@ -1,5 +1,9 @@
 # Yii Middleware Dispatcher Change Log
 
+## 5.0.1 under development
+
+- no changes in this release.
+
 ## 5.0.0 January 09, 2023
 
 - New #68: Add `ParametersResolverInterface` to resolve parameters of middleware that are provided as callable (@rustamwin)
