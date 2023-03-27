@@ -12,6 +12,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
 use ReflectionFunction;
+use ReflectionParameter;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
@@ -141,6 +142,8 @@ final class MiddlewareFactory
     {
         return new class ($callback, $this->container, $this->parametersResolver) implements MiddlewareInterface {
             private $callback;
+            /** @var ReflectionParameter[] */
+            private array $callableParameters;
 
             public function __construct(
                 callable $callback,
@@ -148,6 +151,8 @@ final class MiddlewareFactory
                 private ?ParametersResolverInterface $parametersResolver
             ) {
                 $this->callback = $callback;
+                $callback = Closure::fromCallable($callback);
+                $this->callableParameters = (new ReflectionFunction($callback))->getParameters();
             }
 
             public function process(
@@ -158,7 +163,7 @@ final class MiddlewareFactory
                 if ($this->parametersResolver !== null) {
                     $parameters = array_merge(
                         $parameters,
-                        $this->parametersResolver->resolve($this->getCallableParameters(), $request)
+                        $this->parametersResolver->resolve($this->callableParameters, $request)
                     );
                 }
                 /** @var MiddlewareInterface|mixed|ResponseInterface $response */
@@ -176,16 +181,6 @@ final class MiddlewareFactory
             {
                 return ['callback' => $this->callback];
             }
-
-            /**
-             * @return \ReflectionParameter[]
-             */
-            private function getCallableParameters(): array
-            {
-                $callback = Closure::fromCallable($this->callback);
-
-                return (new ReflectionFunction($callback))->getParameters();
-            }
         };
     }
 
@@ -196,6 +191,9 @@ final class MiddlewareFactory
     private function createActionWrapper(string $class, string $method): MiddlewareInterface
     {
         return new class ($this->container, $this->parametersResolver, $class, $method) implements MiddlewareInterface {
+            /** @var ReflectionParameter[] */
+            private array $actionParameters;
+
             public function __construct(
                 private ContainerInterface $container,
                 private ?ParametersResolverInterface $parametersResolver,
@@ -204,6 +202,9 @@ final class MiddlewareFactory
                 /** @var non-empty-string */
                 private string $method
             ) {
+                $this->actionParameters = (new ReflectionClass($this->class))
+                    ->getMethod($this->method)
+                    ->getParameters();
             }
 
             public function process(
@@ -216,7 +217,7 @@ final class MiddlewareFactory
                 if ($this->parametersResolver !== null) {
                     $parameters = array_merge(
                         $parameters,
-                        $this->parametersResolver->resolve($this->getActionParameters(), $request)
+                        $this->parametersResolver->resolve($this->actionParameters, $request)
                     );
                 }
 
@@ -227,16 +228,6 @@ final class MiddlewareFactory
                 }
 
                 throw new InvalidMiddlewareDefinitionException([$this->class, $this->method]);
-            }
-
-            /**
-             * @throws \ReflectionException
-             *
-             * @return \ReflectionParameter[]
-             */
-            private function getActionParameters(): array
-            {
-                return (new ReflectionClass($this->class))->getMethod($this->method)->getParameters();
             }
 
             public function __debugInfo()
