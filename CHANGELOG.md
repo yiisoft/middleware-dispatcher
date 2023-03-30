@@ -2,7 +2,7 @@
 
 ## 5.0.1 under development
 
-- Enh #75: Optimize MiddlewareFactory performance (@random-rage)
+- Enh #75: Optimize `MiddlewareFactory` performance (@random-rage)
 
 ## 5.0.0 January 09, 2023
 
