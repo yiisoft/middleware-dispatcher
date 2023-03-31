@@ -71,6 +71,7 @@ final class MiddlewareFactory
         if ($this->isArrayDefinition($middlewareDefinition)) {
             /**
              * @var MiddlewareInterface
+             *
              * @psalm-suppress InvalidArgument Need for Psalm version 4.* only.
              */
             return ArrayDefinition::fromConfig($middlewareDefinition)->resolve($this->container);
