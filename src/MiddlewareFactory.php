@@ -142,6 +142,7 @@ final class MiddlewareFactory
     private function createCallableWrapper(callable $callback): MiddlewareInterface
     {
         return new class ($callback, $this->container, $this->parametersResolver) implements MiddlewareInterface {
+            /** @var callable */
             private $callback;
             /** @var ReflectionParameter[] */
             private array $callableParameters;
