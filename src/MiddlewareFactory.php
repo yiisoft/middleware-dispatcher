@@ -144,7 +144,10 @@ final class MiddlewareFactory
         return new class ($callback, $this->container, $this->parametersResolver) implements MiddlewareInterface {
             /** @var callable */
             private $callback;
-            /** @var ReflectionParameter[] */
+            /**
+             * @var ReflectionParameter[]
+             * @psalm-var array<string,ReflectionParameter>
+             */
             private array $callableParameters;
 
             public function __construct(
@@ -154,7 +157,12 @@ final class MiddlewareFactory
             ) {
                 $this->callback = $callback;
                 $callback = Closure::fromCallable($callback);
-                $this->callableParameters = (new ReflectionFunction($callback))->getParameters();
+
+                $callableParameters = (new ReflectionFunction($callback))->getParameters();
+                $this->callableParameters = [];
+                foreach ($callableParameters as $parameter) {
+                    $this->callableParameters[$parameter->getName()] = $parameter;
+                }
             }
 
             public function process(
@@ -168,6 +176,7 @@ final class MiddlewareFactory
                         $this->parametersResolver->resolve($this->callableParameters, $request)
                     );
                 }
+
                 /** @var MiddlewareInterface|mixed|ResponseInterface $response */
                 $response = (new Injector($this->container))->invoke($this->callback, $parameters);
                 if ($response instanceof ResponseInterface) {
@@ -176,6 +185,7 @@ final class MiddlewareFactory
                 if ($response instanceof MiddlewareInterface) {
                     return $response->process($request, $handler);
                 }
+
                 throw new InvalidMiddlewareDefinitionException($this->callback);
             }
 
@@ -193,7 +203,10 @@ final class MiddlewareFactory
     private function createActionWrapper(string $class, string $method): MiddlewareInterface
     {
         return new class ($this->container, $this->parametersResolver, $class, $method) implements MiddlewareInterface {
-            /** @var ReflectionParameter[] */
+            /**
+             * @var ReflectionParameter[]
+             * @psalm-var array<string,ReflectionParameter>
+             */
             private array $actionParameters;
 
             public function __construct(
@@ -204,9 +217,11 @@ final class MiddlewareFactory
                 /** @var non-empty-string */
                 private string $method
             ) {
-                $this->actionParameters = (new ReflectionClass($this->class))
-                    ->getMethod($this->method)
-                    ->getParameters();
+                $actionParameters = (new ReflectionClass($this->class))->getMethod($this->method)->getParameters();
+                $this->actionParameters = [];
+                foreach ($actionParameters as $parameter) {
+                    $this->actionParameters[$parameter->getName()] = $parameter;
+                }
             }
 
             public function process(

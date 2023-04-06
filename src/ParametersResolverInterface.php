@@ -19,7 +19,9 @@ interface ParametersResolverInterface
      *
      * @param ReflectionParameter[] $parameters
      *
-     * @return array<array-key, mixed>
+     * @psalm-param array<string,ReflectionParameter> $parameters
+     *
+     * @psalm-return array<string,mixed>
      */
     public function resolve(array $parameters, ServerRequestInterface $request): array;
 }

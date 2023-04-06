@@ -110,9 +110,9 @@ class CoolParametersResolver implements ParametersResolverInterface
     public function resolve(array $parameters, ServerRequestInterface $request): MiddlewareInterface
     {
         $resolvedParameters = [];
-        foreach ($parameters as $parameter) {
-            if ($request->getAttribute($parameter->getName()) !== null) {
-                $resolvedParameters[$parameter->getName()] = $request->getAttribute($parameter->getName())
+        foreach ($parameters as $name => $parameter) {
+            if ($request->getAttribute($name) !== null) {
+                $resolvedParameters[$name] = $request->getAttribute($name)
             }
         }
         
@@ -129,6 +129,24 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 
 $dispatcher = new MiddlewareDispatcher(
     new MiddlewareFactory($diContainer, new CoolParametersResolver()),
+    $eventDispatcher
+);
+```
+
+To combine several parameters' resolvers use `CompositeParametersResolver`:
+
+```php
+use Yiisoft\Middleware\Dispatcher\CompositeParametersResolver;
+use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
+use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
+
+$dispatcher = new MiddlewareDispatcher(
+    new MiddlewareFactory(
+        $diContainer, new CompositeParametersResolver(
+            new CoolParametersResolver(),
+            new YetAnotherParametersResolver(),
+        )
+    ),
     $eventDispatcher
 );
 ```
