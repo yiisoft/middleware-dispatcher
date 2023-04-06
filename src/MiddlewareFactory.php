@@ -148,7 +148,7 @@ final class MiddlewareFactory
              * @var ReflectionParameter[]
              * @psalm-var array<string,ReflectionParameter>
              */
-            private array $callableParameters;
+            private array $callableParameters = [];
 
             public function __construct(
                 callable $callback,
@@ -159,7 +159,6 @@ final class MiddlewareFactory
                 $callback = Closure::fromCallable($callback);
 
                 $callableParameters = (new ReflectionFunction($callback))->getParameters();
-                $this->callableParameters = [];
                 foreach ($callableParameters as $parameter) {
                     $this->callableParameters[$parameter->getName()] = $parameter;
                 }
@@ -207,7 +206,7 @@ final class MiddlewareFactory
              * @var ReflectionParameter[]
              * @psalm-var array<string,ReflectionParameter>
              */
-            private array $actionParameters;
+            private array $actionParameters = [];
 
             public function __construct(
                 private ContainerInterface $container,
@@ -218,7 +217,6 @@ final class MiddlewareFactory
                 private string $method
             ) {
                 $actionParameters = (new ReflectionClass($this->class))->getMethod($this->method)->getParameters();
-                $this->actionParameters = [];
                 foreach ($actionParameters as $parameter) {
                     $this->actionParameters[$parameter->getName()] = $parameter;
                 }
