@@ -14,8 +14,15 @@ final class TestController
         return new Response(200, ['test' => 'yii']);
     }
 
-    public function indexWithParams(string $test = '')
+    public function indexWithParams(string $test = ''): ResponseInterface
     {
         return new Response(200, ['test' => $test]);
+    }
+
+    public function compositeResolver(int $a = 0, int $b = 0, int $c = 0, int $d = 0): ResponseInterface
+    {
+        return new Response(
+            reason: $a . '-' . $b . '-' . $c . '-' . $d,
+        );
     }
 }
