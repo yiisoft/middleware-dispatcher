@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Middleware\Dispatcher\Tests\Support;
+namespace Yiisoft\Middleware\Dispatcher\Tests\Support\ParametersResolver;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;

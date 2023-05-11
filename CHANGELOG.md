@@ -1,7 +1,8 @@
 # Yii Middleware Dispatcher Change Log
 
-## 5.0.1 under development
+## 5.1.0 under development
 
+- New #76: Add composite parameters resolver (@vjik)
 - Enh #75: Optimize `MiddlewareFactory` performance (@random-rage)
 - Enh #81: Add support for `psr/http-message` version `^2.0` (@vjik)
 

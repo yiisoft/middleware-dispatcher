@@ -16,7 +16,7 @@ use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvokeableAction;
-use Yiisoft\Middleware\Dispatcher\Tests\Support\SimpleParametersResolver;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\ParametersResolver\SimpleParametersResolver;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
