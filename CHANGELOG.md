@@ -2,8 +2,9 @@
 
 ## 5.1.0 under development
 
-- Enh #75: Optimize `MiddlewareFactory` performance (@random-rage)
 - New #76: Add composite parameters resolver (@vjik)
+- Enh #75: Optimize `MiddlewareFactory` performance (@random-rage)
+- Enh #81: Add support for `psr/http-message` version `^2.0` (@vjik)
 
 ## 5.0.0 January 09, 2023
 
