@@ -1,6 +1,6 @@
 # Yii Middleware Dispatcher Change Log
 
-## 5.1.0 under development
+## 5.1.0 May 11, 2023
 
 - New #76: Add composite parameters resolver (@vjik)
 - Enh #75: Optimize `MiddlewareFactory` performance (@random-rage)
