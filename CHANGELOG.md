@@ -1,5 +1,9 @@
 # Yii Middleware Dispatcher Change Log
 
+## 5.1.1 under development
+
+- no changes in this release.
+
 ## 5.1.0 May 11, 2023
 
 - New #76: Add composite parameters resolver (@vjik)
