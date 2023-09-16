@@ -17,6 +17,8 @@ use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\FailMiddleware;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\InvokeableAction;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\SimpleRequestHandler;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
 use Yiisoft\Test\Support\Container\SimpleContainer;
@@ -31,14 +33,48 @@ final class MiddlewareDispatcherTest extends TestCase
         $dispatcher = $this
             ->createDispatcher()
             ->withMiddlewares([
-                static fn (): ResponseInterface => new Response(418),
+                static fn(): ResponseInterface => new Response(418),
             ]);
 
         $response = $dispatcher->dispatch($request, $this->getRequestHandler());
         $this->assertSame(418, $response->getStatusCode());
     }
 
-    public function testArrayMiddlewareCall(): void
+    public function testInvokableMiddlewareCalled(): void
+    {
+        $request = new ServerRequest('GET', '/');
+        $container = $this->createContainer([InvokeableAction::class => new InvokeableAction()]);
+
+        $dispatcher = $this
+            ->createDispatcher($container)
+            ->withMiddlewares([
+                InvokeableAction::class,
+            ]);
+
+        $response = $dispatcher->dispatch($request, $this->getRequestHandler());
+        $this->assertSame(200, $response->getStatusCode());
+    }
+
+    public function testRequestHandlerCalled(): void
+    {
+        $request = new ServerRequest('GET', '/');
+        $container = $this->createContainer(
+            [
+                SimpleRequestHandler::class => new SimpleRequestHandler(),
+            ]
+        );
+
+        $dispatcher = $this
+            ->createDispatcher($container)
+            ->withMiddlewares([
+                SimpleRequestHandler::class,
+            ]);
+
+        $response = $dispatcher->dispatch($request, $this->getRequestHandler());
+        $this->assertSame(200, $response->getStatusCode());
+    }
+
+    public function testArrayMiddlewareCalled(): void
     {
         $request = new ServerRequest('GET', '/');
         $container = $this->createContainer([
@@ -60,7 +96,13 @@ final class MiddlewareDispatcherTest extends TestCase
             $request = $request->withAttribute('middleware', 'middleware1');
             return $handler->handle($request);
         };
-        $middleware2 = static fn (ServerRequestInterface $request) => new Response(200, [], null, '1.1', implode($request->getAttributes()));
+        $middleware2 = static fn(ServerRequestInterface $request) => new Response(
+            200,
+            [],
+            null,
+            '1.1',
+            implode($request->getAttributes())
+        );
 
         $dispatcher = $this
             ->createDispatcher()
@@ -75,8 +117,8 @@ final class MiddlewareDispatcherTest extends TestCase
     {
         $request = new ServerRequest('GET', '/');
 
-        $middleware1 = static fn () => new Response(403);
-        $middleware2 = static fn () => new Response(200);
+        $middleware1 = static fn() => new Response(403);
+        $middleware2 = static fn() => new Response(200);
 
         $dispatcher = $this
             ->createDispatcher()
@@ -92,8 +134,10 @@ final class MiddlewareDispatcherTest extends TestCase
 
         $request = new ServerRequest('GET', '/');
 
-        $middleware1 = static fn (ServerRequestInterface $request, RequestHandlerInterface $handler) => $handler->handle($request);
-        $middleware2 = static fn () => new Response();
+        $middleware1 = static fn(ServerRequestInterface $request, RequestHandlerInterface $handler) => $handler->handle(
+            $request
+        );
+        $middleware2 = static fn() => new Response();
 
         $dispatcher = $this
             ->createDispatcher(null, $eventDispatcher)
@@ -118,7 +162,7 @@ final class MiddlewareDispatcherTest extends TestCase
 
         $request = new ServerRequest('GET', '/');
         $eventDispatcher = new SimpleEventDispatcher();
-        $middleware = fn () => new FailMiddleware();
+        $middleware = fn() => new FailMiddleware();
         $dispatcher = $this
             ->createDispatcher(null, $eventDispatcher)
             ->withMiddlewares([$middleware]);
@@ -151,10 +195,7 @@ final class MiddlewareDispatcherTest extends TestCase
     {
         self::assertSame(
             $expected,
-            $this
-                ->createDispatcher()
-                ->withMiddlewares($definitions)
-                ->hasMiddlewares()
+            $this->createDispatcher()->withMiddlewares($definitions)->hasMiddlewares()
         );
     }
 
@@ -194,8 +235,10 @@ final class MiddlewareDispatcherTest extends TestCase
         };
     }
 
-    private function createDispatcher(ContainerInterface $container = null, ?EventDispatcherInterface $eventDispatcher = null): MiddlewareDispatcher
-    {
+    private function createDispatcher(
+        ContainerInterface $container = null,
+        ?EventDispatcherInterface $eventDispatcher = null
+    ): MiddlewareDispatcher {
         if ($container === null) {
             $container = $this->createContainer();
         }
