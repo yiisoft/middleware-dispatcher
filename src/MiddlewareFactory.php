@@ -113,8 +113,11 @@ final class MiddlewareFactory
      */
     private function isInvokableClassDefinition(array|callable|string $definition): bool
     {
-        return is_string($definition)
-            && method_exists($definition, '__invoke');
+        /**
+         * @psalm-suppress ArgumentTypeCoercion `method_exists()` allow use any string as first argument and returns
+         * false if it not class name.
+         */
+        return is_string($definition) && method_exists($definition, '__invoke');
     }
 
     /**
