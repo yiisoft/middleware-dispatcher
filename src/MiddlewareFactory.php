@@ -66,12 +66,12 @@ final class MiddlewareFactory
             return $this->container->get($middlewareDefinition);
         }
 
-        if ($this->isInvokableClassDefinition($middlewareDefinition)) {
-            return $this->wrapCallable([$middlewareDefinition, '__invoke']);
-        }
-
         if ($this->isRequestHandlerClassDefinition($middlewareDefinition)) {
             return $this->wrapCallable([$middlewareDefinition, 'handle']);
+        }
+
+        if ($this->isInvokableClassDefinition($middlewareDefinition)) {
+            return $this->wrapCallable([$middlewareDefinition, '__invoke']);
         }
 
         if ($this->isCallableDefinition($middlewareDefinition)) {

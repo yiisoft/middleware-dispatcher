@@ -2,7 +2,7 @@
 
 ## 5.1.1 under development
 
-- no changes in this release.
+- Enh #89: Add support for invokable class names & classes that implements `Psr\Http\Server\RequestHandlerInterface` (@rustamwin)
 
 ## 5.1.0 May 11, 2023
 
