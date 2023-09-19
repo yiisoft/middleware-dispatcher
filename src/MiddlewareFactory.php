@@ -42,6 +42,8 @@ final class MiddlewareFactory
      * @param array|callable|string $middlewareDefinition Middleware definition in one of the following formats:
      *
      * - A name of PSR-15 middleware class. The middleware instance will be obtained from container and executed.
+     * - A name of PSR-15 request handler class. The request handler instance will be obtained from container and executed.
+     * - A name of invokable class. The invokable class instance will be obtained from container and executed.
      * - A callable with
      *   `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      *   signature.
@@ -62,6 +64,14 @@ final class MiddlewareFactory
         if ($this->isMiddlewareClassDefinition($middlewareDefinition)) {
             /** @var MiddlewareInterface */
             return $this->container->get($middlewareDefinition);
+        }
+
+        if ($this->isRequestHandlerClassDefinition($middlewareDefinition)) {
+            return $this->wrapCallable([$middlewareDefinition, 'handle']);
+        }
+
+        if ($this->isInvokableClassDefinition($middlewareDefinition)) {
+            return $this->wrapCallable([$middlewareDefinition, '__invoke']);
         }
 
         if ($this->isCallableDefinition($middlewareDefinition)) {
@@ -87,6 +97,27 @@ final class MiddlewareFactory
     {
         return is_string($definition)
             && is_subclass_of($definition, MiddlewareInterface::class);
+    }
+
+    /**
+     * @psalm-assert-if-true class-string<RequestHandlerInterface> $definition
+     */
+    private function isRequestHandlerClassDefinition(array|callable|string $definition): bool
+    {
+        return is_string($definition)
+            && is_subclass_of($definition, RequestHandlerInterface::class);
+    }
+
+    /**
+     * @psalm-assert-if-true class-string|object $definition
+     */
+    private function isInvokableClassDefinition(array|callable|string $definition): bool
+    {
+        /**
+         * @psalm-suppress ArgumentTypeCoercion `method_exists()` allow use any string as first argument and returns
+         * false if it not class name.
+         */
+        return is_string($definition) && method_exists($definition, '__invoke');
     }
 
     /**
@@ -124,7 +155,7 @@ final class MiddlewareFactory
             return false;
         }
 
-        return is_subclass_of((string)($definition['class'] ?? ''), MiddlewareInterface::class);
+        return is_subclass_of((string) ($definition['class'] ?? ''), MiddlewareInterface::class);
     }
 
     /**

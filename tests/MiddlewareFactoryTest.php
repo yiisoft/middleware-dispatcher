@@ -15,13 +15,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\InvokeableAction;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\ParametersResolver\SimpleParametersResolver;
-use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
-use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
-use Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\SimpleRequestHandler;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsController;
+use Yiisoft\Middleware\Dispatcher\Tests\Support\UseParamsMiddleware;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class MiddlewareFactoryTest extends TestCase
@@ -29,10 +30,25 @@ final class MiddlewareFactoryTest extends TestCase
     public function testCreateFromString(): void
     {
         $container = $this->getContainer([TestMiddleware::class => new TestMiddleware()]);
-        $middleware = $this
-            ->getMiddlewareFactory($container)
-            ->create(TestMiddleware::class);
+        $middleware = $this->getMiddlewareFactory($container)->create(TestMiddleware::class);
+
         self::assertInstanceOf(TestMiddleware::class, $middleware);
+    }
+
+    public function testCreateFromInvokable(): void
+    {
+        $container = $this->getContainer([InvokeableAction::class => new InvokeableAction()]);
+        $middleware = $this->getMiddlewareFactory($container)->create(InvokeableAction::class);
+
+        self::assertInstanceOf(MiddlewareInterface::class, $middleware);
+    }
+
+    public function testCreateFromRequestHandler(): void
+    {
+        $container = $this->getContainer([SimpleRequestHandler::class => new SimpleRequestHandler()]);
+        $middleware = $this->getMiddlewareFactory($container)->create(SimpleRequestHandler::class);
+
+        self::assertInstanceOf(MiddlewareInterface::class, $middleware);
     }
 
     public function testCreateFromArray(): void
@@ -79,7 +95,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn (): ResponseInterface => (new Response())->withStatus(418)
+                static fn(): ResponseInterface => (new Response())->withStatus(418)
             );
         self::assertSame(
             418,
@@ -98,7 +114,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container, new SimpleParametersResolver())
             ->create(
-                static fn (string $test = ''): ResponseInterface => (new Response())->withStatus(418, $test)
+                static fn(string $test = ''): ResponseInterface => (new Response())->withStatus(418, $test)
             );
         self::assertSame(
             'yii',
@@ -156,7 +172,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn (): MiddlewareInterface => new TestMiddleware()
+                static fn(): MiddlewareInterface => new TestMiddleware()
             );
         self::assertSame(
             '42',
@@ -234,7 +250,7 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn () => 42
+                static fn() => 42
             );
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);
@@ -307,8 +323,10 @@ final class MiddlewareFactoryTest extends TestCase
             ->create([7, 42]);
     }
 
-    private function getMiddlewareFactory(ContainerInterface $container = null, ParametersResolverInterface $parametersResolver = null): MiddlewareFactory
-    {
+    private function getMiddlewareFactory(
+        ContainerInterface $container = null,
+        ParametersResolverInterface $parametersResolver = null
+    ): MiddlewareFactory {
         if ($container !== null) {
             return new MiddlewareFactory($container, $parametersResolver);
         }
