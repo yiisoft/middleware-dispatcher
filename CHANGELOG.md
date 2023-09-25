@@ -1,5 +1,9 @@
 # Yii Middleware Dispatcher Change Log
 
+## 5.2.1 under development
+
+- no changes in this release.
+
 ## 5.2.0 September 25, 2023
 
 - Enh #89: Add support for invokable class names & classes that implements `Psr\Http\Server\RequestHandlerInterface` (@rustamwin)
