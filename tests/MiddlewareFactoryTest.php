@@ -391,5 +391,4 @@ final class MiddlewareFactoryTest extends TestCase
             }
         };
     }
-
 }

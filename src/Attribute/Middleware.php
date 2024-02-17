@@ -13,5 +13,4 @@ final class Middleware
         public $definition
     ) {
     }
-
 }

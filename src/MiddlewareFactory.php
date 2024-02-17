@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Middleware\Dispatcher;
 
 use Closure;
-use PhpBench\Reflection\ReflectionMethod;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -13,7 +12,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionAttribute;
-use ReflectionClass;
 use ReflectionFunction;
 use ReflectionParameter;
 use Yiisoft\Definitions\ArrayDefinition;
@@ -260,12 +258,11 @@ final class MiddlewareFactory
                     && isset($this->callback[0], $this->callback[1])
                     && is_object($this->callback[0])
                     && is_string($this->callback[1])
-                ){
+                ) {
                     return ['callback' => [$this->callback[0]::class, $this->callback[1]]];
                 }
                 return ['callback' => $this->callback];
             }
         };
     }
-
 }
