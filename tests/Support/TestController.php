@@ -35,4 +35,21 @@ final class TestController
     {
         return new Response(404);
     }
+
+    #[Middleware([
+        'class' => SetHeaderMiddleware::class,
+        '__construct()' => ['x-test1', 'yii1'],
+    ])]
+    #[Middleware([
+        'class' => SetHeaderMiddleware::class,
+        '__construct()' => ['x-test2', 'yii2'],
+    ])]
+    #[Middleware([
+        'class' => SetHeaderMiddleware::class,
+        '__construct()' => ['x-test3', 'yii3'],
+    ])]
+    public function severalMiddlewares(): ResponseInterface
+    {
+        return new Response(404);
+    }
 }
