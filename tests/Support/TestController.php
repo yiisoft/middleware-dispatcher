@@ -6,6 +6,7 @@ namespace Yiisoft\Middleware\Dispatcher\Tests\Support;
 
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
+use Yiisoft\Middleware\Dispatcher\Middleware;
 
 final class TestController
 {
@@ -24,5 +25,14 @@ final class TestController
         return new Response(
             reason: $a . '-' . $b . '-' . $c . '-' . $d,
         );
+    }
+
+    #[Middleware([
+        'class' => ResponseMiddleware::class,
+        '__construct()' => [200],
+    ])]
+    public function error(): ResponseInterface
+    {
+        return new Response(404);
     }
 }

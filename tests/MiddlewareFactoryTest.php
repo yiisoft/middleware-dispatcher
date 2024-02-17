@@ -323,6 +323,23 @@ final class MiddlewareFactoryTest extends TestCase
             ->create([7, 42]);
     }
 
+
+    public function testControllerMiddleware(): void
+    {
+        $container = $this->getContainer([TestController::class => new TestController()]);
+        $middleware = $this
+            ->getMiddlewareFactory($container, new SimpleParametersResolver())
+            ->create([TestController::class, 'error']);
+        $response = $middleware->process(
+                $this->createMock(ServerRequestInterface::class),
+                $this->createMock(RequestHandlerInterface::class)
+            );
+        self::assertSame(
+            200,
+            $response->getStatusCode()
+        );
+    }
+
     private function getMiddlewareFactory(
         ContainerInterface $container = null,
         ParametersResolverInterface $parametersResolver = null
@@ -348,4 +365,5 @@ final class MiddlewareFactoryTest extends TestCase
             }
         };
     }
+
 }

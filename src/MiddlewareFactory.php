@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace Yiisoft\Middleware\Dispatcher;
 
 use Closure;
+use PhpBench\Reflection\ReflectionMethod;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionFunction;
+use ReflectionObject;
 use ReflectionParameter;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -232,22 +236,40 @@ final class MiddlewareFactory
      */
     private function createActionWrapper(string $class, string $method): MiddlewareInterface
     {
-        return new class ($this->container, $this->parametersResolver, $class, $method) implements MiddlewareInterface {
+        return new class (
+            $this->container,
+            $this,
+            null,
+            $this->parametersResolver,
+            $class,
+            $method,
+        ) implements MiddlewareInterface {
             /**
              * @var ReflectionParameter[]
              * @psalm-var array<string,ReflectionParameter>
              */
             private array $actionParameters = [];
 
+            private array $middlewares = [];
+
             public function __construct(
                 private ContainerInterface $container,
+                private MiddlewareFactory $middlewareFactory,
+                private ?EventDispatcherInterface $eventDispatcher,
                 private ?ParametersResolverInterface $parametersResolver,
                 /** @var class-string */
                 private string $class,
                 /** @var non-empty-string */
                 private string $method
             ) {
-                $actionParameters = (new ReflectionClass($this->class))->getMethod($this->method)->getParameters();
+                $reflectionMethod = (new ReflectionClass($this->class))->getMethod($this->method);
+                $middlewareAttributes = $reflectionMethod->getAttributes(Middleware::class);
+
+                $this->middlewares = array_map(
+                    static fn (ReflectionAttribute $attribute) => $attribute->newInstance()->definition,
+                    $middlewareAttributes
+                );
+                $actionParameters = $reflectionMethod->getParameters();
                 foreach ($actionParameters as $parameter) {
                     $this->actionParameters[$parameter->getName()] = $parameter;
                 }
@@ -267,8 +289,15 @@ final class MiddlewareFactory
                     );
                 }
 
-                /** @var mixed|ResponseInterface $response */
-                $response = (new Injector($this->container))->invoke([$controller, $this->method], $parameters);
+                if ($this->middlewares !== []) {
+                    $this->middlewares[] = [$controller, $this->method];
+                    $middlewareDispatcher = new MiddlewareDispatcher($this->middlewareFactory, $this->eventDispatcher);
+                    $middlewareDispatcher = $middlewareDispatcher->withMiddlewares($this->middlewares);
+                    $response = $middlewareDispatcher->dispatch($request, $handler);
+                } else {
+                    /** @var mixed|ResponseInterface $response */
+                    $response = (new Injector($this->container))->invoke([$controller, $this->method], $parameters);
+                }
                 if ($response instanceof ResponseInterface) {
                     return $response;
                 }
