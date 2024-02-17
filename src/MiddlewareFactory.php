@@ -15,12 +15,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionFunction;
-use ReflectionObject;
 use ReflectionParameter;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\Injector\Injector;
+use Yiisoft\Middleware\Dispatcher\Attribute\Middleware;
 
 use function in_array;
 use function is_array;

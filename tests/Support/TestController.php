@@ -6,7 +6,7 @@ namespace Yiisoft\Middleware\Dispatcher\Tests\Support;
 
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
-use Yiisoft\Middleware\Dispatcher\Middleware;
+use Yiisoft\Middleware\Dispatcher\Attribute\Middleware;
 
 final class TestController
 {
