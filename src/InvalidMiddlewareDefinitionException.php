@@ -9,6 +9,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\FriendlyException\FriendlyExceptionInterface;
+use Yiisoft\Middleware\Dispatcher\Helper\DefinitionHelper;
 
 use function array_slice;
 use function count;
@@ -27,7 +28,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
     public function __construct(
         private mixed $definition
     ) {
-        $this->definitionString = $this->convertDefinitionToString($definition);
+        $this->definitionString = DefinitionHelper::convertDefinitionToString($definition);
 
         parent::__construct(
             'Parameter should be either PSR middleware class name or a callable. Got ' . $this->definitionString . '.'
@@ -189,52 +190,5 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
             && array_keys($this->definition) === [0, 1]
             && is_string($this->definition[0])
             && class_exists($this->definition[0]);
-    }
-
-    private function convertDefinitionToString(mixed $middlewareDefinition): string
-    {
-        if (is_object($middlewareDefinition)) {
-            return 'an instance of "' . $middlewareDefinition::class . '"';
-        }
-
-        if (is_string($middlewareDefinition)) {
-            return '"' . $middlewareDefinition . '"';
-        }
-
-        if (is_array($middlewareDefinition)) {
-            $items = [];
-            /** @var mixed $value */
-            foreach (array_slice($middlewareDefinition, 0, 2) as $key => $value) {
-                $items[] = (is_string($key) ? '"' . $key . '" => ' : '') . $this->convertToString($value);
-            }
-            return '[' . implode(', ', $items) . (count($middlewareDefinition) > 2 ? ', ...' : '') . ']';
-        }
-
-        return $this->convertToString($middlewareDefinition);
-    }
-
-    private function convertToString(mixed $value): string
-    {
-        if (is_string($value)) {
-            return '"' . $value . '"';
-        }
-
-        if (is_int($value) || is_float($value)) {
-            return (string) $value;
-        }
-
-        if (is_bool($value)) {
-            return $value ? 'true' : 'false';
-        }
-
-        if ($value === null) {
-            return 'null';
-        }
-
-        if (is_object($value)) {
-            return $value::class;
-        }
-
-        return gettype($value);
     }
 }
