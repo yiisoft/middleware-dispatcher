@@ -21,7 +21,7 @@ request instance, dispatcher executes it produces a response instance.
 
 ## Requirements
 
-- PHP 8.0 or higher.
+- PHP 8.1 or higher.
 
 ## Installation
 
