@@ -21,9 +21,9 @@ final class DefinitionHelper
     public static function isValidArrayDefinition(mixed $definition): bool
     {
         if (!is_array($definition)) {
-         return false;
+            return false;
         }
-        try{
+        try {
             DefinitionValidator::validateArrayDefinition($definition);
             return true;
         } catch (\Exception $e) {

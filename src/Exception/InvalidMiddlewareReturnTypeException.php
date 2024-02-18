@@ -14,15 +14,7 @@ use Yiisoft\Middleware\Dispatcher\Helper\DefinitionHelper;
 
 use Yiisoft\Middleware\Dispatcher\Helper\ResponseHelper;
 
-use function array_slice;
-use function count;
-use function gettype;
 use function is_array;
-use function is_bool;
-use function is_float;
-use function is_int;
-use function is_object;
-use function is_string;
 
 final class InvalidMiddlewareReturnTypeException extends InvalidArgumentException implements FriendlyExceptionInterface
 {
