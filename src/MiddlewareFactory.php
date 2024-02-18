@@ -197,7 +197,7 @@ final class MiddlewareFactory
              * @psalm-var array<string,ReflectionParameter>
              */
             private array $callableParameters = [];
-            public array $middlewares;
+            public array $middlewares = [];
 
             public function __construct(
                 callable $callback,
@@ -207,16 +207,13 @@ final class MiddlewareFactory
                 private ?ParametersResolverInterface $parametersResolver
             ) {
                 $this->callback = $callback;
-                $callback = Closure::fromCallable($callback);
 
-                $reflectionFunction = new ReflectionFunction($callback);
+                $reflectionFunction = new ReflectionFunction(Closure::fromCallable($callback));
 
-                $this->middlewares = array_map(
-                    static fn (ReflectionAttribute $attribute) => $attribute->newInstance()->definition,
-                    $reflectionFunction->getAttributes(Middleware::class)
-                );
-                $callableParameters = $reflectionFunction->getParameters();
-                foreach ($callableParameters as $parameter) {
+                foreach ($reflectionFunction->getAttributes(Middleware::class) as $attribute) {
+                    $this->middlewares[] = $attribute->newInstance()->getDefinition();
+                }
+                foreach ($reflectionFunction->getParameters() as $parameter) {
                     $this->callableParameters[$parameter->getName()] = $parameter;
                 }
             }
