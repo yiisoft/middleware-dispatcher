@@ -29,7 +29,9 @@ final class MiddlewareDispatcher
         private MiddlewareFactory $middlewareFactory,
         private ?EventDispatcherInterface $eventDispatcher = null
     ) {
-        $this->middlewareFactory->withEventDispatcher($eventDispatcher);
+        if ($eventDispatcher !== null && !$middlewareFactory->hasEventDispatcher()) {
+            $this->middlewareFactory = $this->middlewareFactory->withEventDispatcher($eventDispatcher);
+        }
     }
 
     /**

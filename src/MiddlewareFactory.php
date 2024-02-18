@@ -48,6 +48,11 @@ final class MiddlewareFactory
         return $new;
     }
 
+    public function hasEventDispatcher(): bool
+    {
+        return $this->eventDispatcher !== null;
+    }
+
     /**
      * @param array|callable|string $middlewareDefinition Middleware definition in one of the following formats:
      *
