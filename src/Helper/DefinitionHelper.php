@@ -63,7 +63,7 @@ final class DefinitionHelper
     public static function convertDefinitionToString(mixed $middlewareDefinition): string
     {
         if (is_object($middlewareDefinition)) {
-            return 'an instance of "' . $middlewareDefinition::class . '"';
+            return 'an instance of `' . $middlewareDefinition::class . '`';
         }
 
         if (is_string($middlewareDefinition)) {

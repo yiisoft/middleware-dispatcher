@@ -2,14 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Middleware\Dispatcher\Tests;
+namespace Yiisoft\Middleware\Dispatcher\Tests\Exception;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use stdClass;
+use Yiisoft\Middleware\Dispatcher\Exception\InvalidMiddlewareReturnTypeException;
+use Yiisoft\Middleware\Dispatcher\Helper\ResponseHelper;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 
-final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
+final class InvalidMiddlewareReturnTypeExceptionTest extends TestCase
 {
     public function dataBase(): array
     {
@@ -67,38 +71,55 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
         }
     }
 
-    public function dataUnknownDefinition(): array
+    public function dataInvalidReturnType(): array
     {
         return [
-            [42, '42'],
-            [[new stdClass()], '[stdClass]'],
-            [true, 'true'],
-            [false, 'false'],
+            [fn() => 42, 42],
+            [fn() => [new stdClass()], new stdClass()],
+            [fn() => true, true],
+            [fn() => false, false],
             [
+                fn() => ['class' => null, 'setValue()' => [42], 'prepare()' => []],
                 ['class' => null, 'setValue()' => [42], 'prepare()' => []],
-                '["class" => null, "setValue()" => array, ...]',
             ],
         ];
     }
 
     /**
-     * @dataProvider dataUnknownDefinition
+     * @dataProvider dataInvalidReturnType
      */
-    public function testUnknownDefinition(mixed $definition, string $value): void
+    public function testUnknownDefinition(mixed $definition, mixed $result): void
     {
-        $exception = new InvalidMiddlewareDefinitionException($definition);
+        $exception = new InvalidMiddlewareReturnTypeException($definition, $result);
         self::assertSame(
-            'Parameter should be either PSR middleware class name or a callable. Got ' . $value . '.',
+            sprintf(
+                'Middleware an instance of `Closure` must return an instance of `%s` or `%s`, %s returned.',
+                MiddlewareInterface::class,
+                ResponseInterface::class,
+                ResponseHelper::convertToString($result),
+            ),
             $exception->getMessage()
         );
     }
 
-    public function testName(): void
+    public static function dataProviderName()
     {
-        $exception = new InvalidMiddlewareDefinitionException('test');
+        yield 'null' => [null];
+        yield 'string' => ['test'];
+        yield 'array' => [[]];
+        yield 'object' => [new stdClass()];
+        yield 'int' => [42];
+    }
+
+    /**
+     * @dataProvider dataProviderName
+     */
+    public function testName(mixed $result): void
+    {
+        $exception = new InvalidMiddlewareReturnTypeException('test', $result);
 
         self::assertSame(
-            'Invalid middleware definition',
+            sprintf('Invalid middleware result type %s', get_debug_type($result)),
             $exception->getName()
         );
     }
