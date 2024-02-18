@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher\Helper;
 
+use Yiisoft\Definitions\Helpers\DefinitionValidator;
+
 use function array_slice;
 use function count;
 use function gettype;
@@ -16,6 +18,48 @@ use function is_string;
 
 final class DefinitionHelper
 {
+    public static function isValidArrayDefinition(mixed $definition): bool
+    {
+        if (!is_array($definition)) {
+         return false;
+        }
+        try{
+            DefinitionValidator::validateArrayDefinition($definition);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @psalm-assert-if-true string $definition
+     */
+    public static function isStringNotClassName(mixed $definition): bool
+    {
+        return is_string($definition)
+            && !class_exists($definition);
+    }
+
+    /**
+     * @psalm-assert-if-true class-string $definition
+     */
+    public static function isNotMiddlewareClassName(mixed $definition): bool
+    {
+        return is_string($definition)
+            && class_exists($definition);
+    }
+
+    /**
+     * @psalm-assert-if-true array{0:class-string,1:string} $definition
+     */
+    public static function isControllerWithNonExistAction(mixed $definition): bool
+    {
+        return is_array($definition)
+            && array_keys($definition) === [0, 1]
+            && is_string($definition[0])
+            && class_exists($definition[0]);
+    }
+
     public static function convertDefinitionToString(mixed $middlewareDefinition): string
     {
         if (is_object($middlewareDefinition)) {

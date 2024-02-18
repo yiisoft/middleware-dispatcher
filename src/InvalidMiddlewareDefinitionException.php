@@ -109,7 +109,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
 
     private function generateSuggestion(): ?string
     {
-        if ($this->isControllerWithNonExistAction()) {
+        if (DefinitionHelper::isControllerWithNonExistAction($this->definition)) {
             return <<<SOLUTION
             Class `{$this->definition[0]}` exists, but does not contain method `{$this->definition[1]}()`.
 
@@ -124,7 +124,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
             SOLUTION;
         }
 
-        if ($this->isNotMiddlewareClassName()) {
+        if (DefinitionHelper::isNotMiddlewareClassName($this->definition)) {
             return sprintf(
                 'Class `%s` exists, but does not implement `%s`.',
                 $this->definition,
@@ -132,7 +132,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
             );
         }
 
-        if ($this->isStringNotClassName()) {
+        if (DefinitionHelper::isStringNotClassName($this->definition)) {
             return sprintf(
                 'Class `%s` not found. It may be needed to install a package with this middleware.',
                 $this->definition
@@ -161,34 +161,5 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         }
 
         return null;
-    }
-
-    /**
-     * @psalm-assert-if-true string $this->definition
-     */
-    private function isStringNotClassName(): bool
-    {
-        return is_string($this->definition)
-            && !class_exists($this->definition);
-    }
-
-    /**
-     * @psalm-assert-if-true class-string $this->definition
-     */
-    private function isNotMiddlewareClassName(): bool
-    {
-        return is_string($this->definition)
-            && class_exists($this->definition);
-    }
-
-    /**
-     * @psalm-assert-if-true array{0:class-string,1:string} $this->definition
-     */
-    private function isControllerWithNonExistAction(): bool
-    {
-        return is_array($this->definition)
-            && array_keys($this->definition) === [0, 1]
-            && is_string($this->definition[0])
-            && class_exists($this->definition[0]);
     }
 }
