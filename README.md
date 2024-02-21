@@ -17,7 +17,7 @@
 [![psalm-level](https://shepherd.dev/github/yiisoft/middleware-dispatcher/level.svg)](https://shepherd.dev/github/yiisoft/middleware-dispatcher)
 
 The package is a [PSR-15](https://www.php-fig.org/psr/psr-15/) middleware dispatcher. Given a set of middleware and a
-request instance, dispatcher executes it produces a response instance.
+request instance, dispatcher executes it and produces a response instance.
 
 ## Requirements
 
@@ -110,7 +110,7 @@ use \Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
 
 class CoolParametersResolver implements ParametersResolverInterface
 {
-    public function resolve(array $parameters, ServerRequestInterface $request): MiddlewareInterface
+    public function resolve(array $parameters, ServerRequestInterface $request): array
     {
         $resolvedParameters = [];
         foreach ($parameters as $name => $parameter) {
@@ -127,30 +127,38 @@ class CoolParametersResolver implements ParametersResolverInterface
 Then it could be used like the following:
 
 ```php
+use Psr\Container\ContainerInterface;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
+use Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
 
-$dispatcher = new MiddlewareDispatcher(
-    new MiddlewareFactory($diContainer, new CoolParametersResolver()),
-    $eventDispatcher
-);
+/** 
+ * @var ContainerInterface $container
+ * @var ParametersResolverInterface $resolver
+ * @var EventDispatcherInterface $eventDispatcher 
+ */
+$dispatcher = new MiddlewareDispatcher(new MiddlewareFactory($container, $resolver), $eventDispatcher);
 ```
 
 To combine several parameters' resolvers use `CompositeParametersResolver`:
 
 ```php
+use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Yiisoft\Middleware\Dispatcher\CompositeParametersResolver;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
+use Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
 
+/** 
+ * @var ContainerInterface $container
+ * @var ParametersResolverInterface $resolver1
+ * @var ParametersResolverInterface $resolver2
+ * @var EventDispatcherInterface $eventDispatcher 
+ */
 $dispatcher = new MiddlewareDispatcher(
-    new MiddlewareFactory(
-        $diContainer, new CompositeParametersResolver(
-            new CoolParametersResolver(),
-            new YetAnotherParametersResolver(),
-        )
-    ),
-    $eventDispatcher
+    new MiddlewareFactory($container, new CompositeParametersResolver($resolver1, $resolver2)), 
+    $eventDispatcher,
 );
 ```
 
