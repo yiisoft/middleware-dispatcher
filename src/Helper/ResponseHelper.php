@@ -14,7 +14,7 @@ final class ResponseHelper
     public static function convertToString(mixed $response): string
     {
         if (is_object($response)) {
-            return sprintf('"%s" (object)', get_class($response));
+            return sprintf('"%s" (object)', $response::class);
         }
 
         if (is_array($response)) {

@@ -18,11 +18,11 @@ use function is_array;
 
 final class InvalidMiddlewareReturnTypeException extends InvalidArgumentException implements FriendlyExceptionInterface
 {
-    private string $definitionString;
+    private readonly string $definitionString;
 
     public function __construct(
         private mixed $definition,
-        private mixed $result,
+        private readonly mixed $result,
     ) {
         $this->definitionString = DefinitionHelper::convertDefinitionToString($definition);
 
