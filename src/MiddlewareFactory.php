@@ -194,7 +194,7 @@ final class MiddlewareFactory
             $this->eventDispatcher,
             $this->parametersResolver,
         ) implements MiddlewareInterface {
-            /** @var callable():mixed */
+            /** @var callable */
             private $callback;
             /**
              * @var ReflectionParameter[]
@@ -237,6 +237,7 @@ final class MiddlewareFactory
                 if ($this->middlewares !== []) {
                     $middlewares = [...$this->middlewares, fn(): mixed => ($this->callback)()];
                     $middlewareDispatcher = new MiddlewareDispatcher($this->middlewareFactory, $this->eventDispatcher);
+                    /** @psalm-suppress MixedArgumentTypeCoercion */
                     $middlewareDispatcher = $middlewareDispatcher->withMiddlewares($middlewares);
                     $response = $middlewareDispatcher->dispatch($request, $handler);
                 } else {
