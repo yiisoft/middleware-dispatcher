@@ -13,7 +13,7 @@ final class CompositeParametersResolver implements ParametersResolverInterface
     /**
      * @var ParametersResolverInterface[]
      */
-    private array $resolvers;
+    private readonly array $resolvers;
 
     public function __construct(ParametersResolverInterface ...$resolvers)
     {
