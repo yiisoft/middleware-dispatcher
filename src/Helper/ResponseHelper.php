@@ -11,7 +11,7 @@ use function is_object;
 
 final class ResponseHelper
 {
-    public static function convertToString(mixed $response)
+    public static function convertToString(mixed $response): string
     {
         if (is_object($response)) {
             return sprintf('"%s" (object)', get_class($response));
@@ -35,9 +35,7 @@ final class ResponseHelper
                 $count === 1 ? ' element' : ' elements'
             );
         }
-        if (is_array($response)) {
-            return sprintf('"%s" (array)', print_r($response, true));
-        }
+
         if (is_bool($response)) {
             return sprintf('"%s" (bool)', $response ? 'true' : 'false');
         }
@@ -45,7 +43,7 @@ final class ResponseHelper
         if (is_scalar($response)) {
             return sprintf(
                 '"%s" (%s)',
-                $response,
+                (string)$response,
                 match (true) {
                     is_int($response) => 'int',
                     is_float($response) => 'float',
@@ -53,5 +51,7 @@ final class ResponseHelper
                 }
             );
         }
+
+        return sprintf('"%s" (%s)', gettype($response), get_debug_type($response));
     }
 }
