@@ -51,24 +51,43 @@ final class MiddlewareFactoryTest extends TestCase
         self::assertInstanceOf(MiddlewareInterface::class, $middleware);
     }
 
-    public function testCreateFromArray(): void
+    public function testDebugInfoFromArrayCallable(): void
     {
         $container = $this->getContainer([TestController::class => new TestController()]);
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create([TestController::class, 'index']);
+
         $response = $middleware
-                ->process(
-                    $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
-                );
-        self::assertSame(
-            'yii',
-            $response
-                ->getHeaderLine('test')
-        );
+            ->process(
+                $this->createMock(ServerRequestInterface::class),
+                $this->createMock(RequestHandlerInterface::class)
+            );
+
+        self::assertSame('yii', $response->getHeaderLine('test'));
         self::assertSame(
             [TestController::class, 'index'],
+            $middleware->__debugInfo()['callback']
+        );
+    }
+
+    public function testDebugInfoFromClosure(): void
+    {
+        $container = $this->getContainer([TestController::class => new TestController()]);
+        $middlewareDefinition = fn() => new Response(headers: ['test' => 'yii']);
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create($middlewareDefinition);
+
+        $response = $middleware
+            ->process(
+                $this->createMock(ServerRequestInterface::class),
+                $this->createMock(RequestHandlerInterface::class)
+            );
+
+        self::assertSame('yii', $response->getHeaderLine('test'));
+        self::assertSame(
+            $middlewareDefinition,
             $middleware->__debugInfo()['callback']
         );
     }
