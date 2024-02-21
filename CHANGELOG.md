@@ -2,7 +2,7 @@
 
 ## 5.2.1 under development
 
-- no changes in this release.
+- Enh #95: Raise minimum PHP version to `^8.1` and make all possible properties readonly (@xepozz)
 
 ## 5.2.0 September 25, 2023
 

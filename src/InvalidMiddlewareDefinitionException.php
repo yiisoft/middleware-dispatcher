@@ -22,7 +22,7 @@ use function is_string;
 
 final class InvalidMiddlewareDefinitionException extends InvalidArgumentException implements FriendlyExceptionInterface
 {
-    private string $definitionString;
+    private readonly string $definitionString;
 
     public function __construct(
         private mixed $definition
