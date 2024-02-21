@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher\Helper;
 
-use Yiisoft\Definitions\Helpers\DefinitionValidator;
-
 use function array_slice;
 use function count;
 use function gettype;
@@ -18,19 +16,6 @@ use function is_string;
 
 final class DefinitionHelper
 {
-    public static function isValidArrayDefinition(mixed $definition): bool
-    {
-        if (!is_array($definition)) {
-            return false;
-        }
-        try {
-            DefinitionValidator::validateArrayDefinition($definition);
-            return true;
-        } catch (\Exception) {
-            return false;
-        }
-    }
-
     /**
      * @psalm-assert-if-true string $definition
      */
