@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Rector\Php81\Rector\Array_\FirstClassCallableRector;
 use Rector\Set\ValueObject\LevelSetList;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -23,5 +24,8 @@ return static function (RectorConfig $rectorConfig): void {
 
     $rectorConfig->skip([
         ClassPropertyAssignToConstructorPromotionRector::class,
+        FirstClassCallableRector::class => [
+            __DIR__ . '/tests/*',
+        ]
     ]);
 };
