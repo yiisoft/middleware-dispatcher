@@ -99,15 +99,11 @@ final class MiddlewareFactoryTest extends TestCase
             ->getMiddlewareFactory($container, new SimpleParametersResolver())
             ->create([TestController::class, 'indexWithParams']);
         $response = $middleware
-                ->process(
-                    $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
-                );
-        self::assertSame(
-            'yii',
-            $response
-                ->getHeaderLine('test')
-        );
+            ->process(
+                $this->createMock(ServerRequestInterface::class),
+                $this->createMock(RequestHandlerInterface::class)
+            );
+        self::assertSame('yii', $response->getHeaderLine('test'));
     }
 
     public function testCreateFromClosureResponse(): void
@@ -188,15 +184,11 @@ final class MiddlewareFactoryTest extends TestCase
                 static fn(): MiddlewareInterface => new TestMiddleware()
             );
         $response = $middleware
-                ->process(
-                    $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
-                );
-        self::assertSame(
-            '42',
-            $response
-                ->getHeaderLine('test')
-        );
+            ->process(
+                $this->createMock(ServerRequestInterface::class),
+                $this->createMock(RequestHandlerInterface::class)
+            );
+        self::assertSame('42', $response->getHeaderLine('test'));
     }
 
     public function testCreateWithUseParamsMiddleware(): void
@@ -248,15 +240,11 @@ final class MiddlewareFactoryTest extends TestCase
 
         self::assertInstanceOf(TestMiddleware::class, $middleware);
         $response = $middleware
-                ->process(
-                    $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
-                );
-        self::assertSame(
-            '7',
-            $response
-                ->getHeaderLine('test')
-        );
+            ->process(
+                $this->createMock(ServerRequestInterface::class),
+                $this->createMock(RequestHandlerInterface::class)
+            );
+        self::assertSame('7', $response->getHeaderLine('test'));
     }
 
     public function testInvalidMiddlewareWithWrongCallable(): void
