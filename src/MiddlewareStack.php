@@ -31,9 +31,9 @@ final class MiddlewareStack implements RequestHandlerInterface
      * middleware events.
      */
     public function __construct(
-        private array $middlewares,
+        private readonly array $middlewares,
         private RequestHandlerInterface $fallbackHandler,
-        private ?EventDispatcherInterface $eventDispatcher = null
+        private readonly ?EventDispatcherInterface $eventDispatcher = null
     ) {
         if ($middlewares === []) {
             throw new RuntimeException('Stack is empty.');
@@ -69,13 +69,13 @@ final class MiddlewareStack implements RequestHandlerInterface
     private function wrap(Closure $middlewareFactory, RequestHandlerInterface $handler): RequestHandlerInterface
     {
         return new class ($middlewareFactory, $handler, $this->eventDispatcher) implements RequestHandlerInterface {
-            private Closure $middlewareFactory;
+            private readonly Closure $middlewareFactory;
             private ?MiddlewareInterface $middleware = null;
 
             public function __construct(
                 Closure $middlewareFactory,
-                private RequestHandlerInterface $handler,
-                private ?EventDispatcherInterface $eventDispatcher
+                private readonly RequestHandlerInterface $handler,
+                private readonly ?EventDispatcherInterface $eventDispatcher
             ) {
                 $this->middlewareFactory = $middlewareFactory;
             }

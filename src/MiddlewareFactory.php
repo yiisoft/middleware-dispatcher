@@ -34,8 +34,8 @@ final class MiddlewareFactory
      * @param ContainerInterface $container Container to use for resolving definitions.
      */
     public function __construct(
-        private ContainerInterface $container,
-        private ?ParametersResolverInterface $parametersResolver = null
+        private readonly ContainerInterface $container,
+        private readonly ?ParametersResolverInterface $parametersResolver = null
     ) {
     }
 
@@ -184,8 +184,8 @@ final class MiddlewareFactory
 
             public function __construct(
                 callable $callback,
-                private ContainerInterface $container,
-                private ?ParametersResolverInterface $parametersResolver
+                private readonly ContainerInterface $container,
+                private readonly ?ParametersResolverInterface $parametersResolver
             ) {
                 $this->callback = $callback;
                 $callback = Closure::fromCallable($callback);
@@ -241,12 +241,12 @@ final class MiddlewareFactory
             private array $actionParameters = [];
 
             public function __construct(
-                private ContainerInterface $container,
-                private ?ParametersResolverInterface $parametersResolver,
+                private readonly ContainerInterface $container,
+                private readonly ?ParametersResolverInterface $parametersResolver,
                 /** @var class-string */
-                private string $class,
+                private readonly string $class,
                 /** @var non-empty-string */
-                private string $method
+                private readonly string $method
             ) {
                 $actionParameters = (new ReflectionClass($this->class))->getMethod($this->method)->getParameters();
                 foreach ($actionParameters as $parameter) {
