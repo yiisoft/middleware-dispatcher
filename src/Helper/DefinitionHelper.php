@@ -26,7 +26,7 @@ final class DefinitionHelper
         try {
             DefinitionValidator::validateArrayDefinition($definition);
             return true;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }
