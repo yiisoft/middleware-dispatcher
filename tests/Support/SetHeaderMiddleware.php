@@ -12,8 +12,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class SetHeaderMiddleware implements MiddlewareInterface
 {
     public function __construct(
-        private string $header,
-        private string $value,
+        private readonly string $header,
+        private readonly string $value,
     ) {
     }
 

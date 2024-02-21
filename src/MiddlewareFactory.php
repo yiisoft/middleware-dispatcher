@@ -205,10 +205,10 @@ final class MiddlewareFactory
 
             public function __construct(
                 callable $callback,
-                private ContainerInterface $container,
-                private MiddlewareFactory $middlewareFactory,
-                private ?EventDispatcherInterface $eventDispatcher,
-                private ?ParametersResolverInterface $parametersResolver
+                private readonly ContainerInterface $container,
+                private readonly MiddlewareFactory $middlewareFactory,
+                private readonly ?EventDispatcherInterface $eventDispatcher,
+                private readonly ?ParametersResolverInterface $parametersResolver
             ) {
                 $this->callback = $callback;
 
