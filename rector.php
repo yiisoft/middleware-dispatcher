@@ -26,6 +26,6 @@ return static function (RectorConfig $rectorConfig): void {
         ClassPropertyAssignToConstructorPromotionRector::class,
         FirstClassCallableRector::class => [
             __DIR__ . '/tests/*',
-        ]
+        ],
     ]);
 };
