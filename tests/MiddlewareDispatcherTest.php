@@ -101,7 +101,7 @@ final class MiddlewareDispatcherTest extends TestCase
             [],
             null,
             '1.1',
-            implode($request->getAttributes())
+            implode('', $request->getAttributes())
         );
 
         $dispatcher = $this
