@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Exception;
+namespace Yiisoft\Middleware\Dispatcher\Tests\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;

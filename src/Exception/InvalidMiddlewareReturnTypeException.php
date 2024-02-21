@@ -26,7 +26,7 @@ final class InvalidMiddlewareReturnTypeException extends AbstractInvalidMiddlewa
                 $this->definitionString,
                 MiddlewareInterface::class,
                 ResponseInterface::class,
-                ResponseHelper::convertToString($this->result)
+                ResponseHelper::convertToString($this->result),
             ),
             $previous,
         );

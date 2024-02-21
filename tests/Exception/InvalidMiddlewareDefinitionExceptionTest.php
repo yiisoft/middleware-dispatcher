@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher\Tests\Exception;
 
-use Exception\AbstractInvalidMiddlewareExceptionTest;
 use Throwable;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;

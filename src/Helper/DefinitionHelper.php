@@ -82,13 +82,13 @@ final class DefinitionHelper
         }
 
         if ($value === null) {
-            return 'null';
+            return '"null"';
         }
 
         if (is_object($value)) {
-            return $value::class;
+            return sprintf('"%s"', $value::class);
         }
 
-        return gettype($value);
+        return sprintf('"%s"', gettype($value));
     }
 }

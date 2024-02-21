@@ -4,24 +4,74 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher\Tests\Exception;
 
-use Exception\AbstractInvalidMiddlewareExceptionTest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use stdClass;
 use Throwable;
 use Yiisoft\Middleware\Dispatcher\Exception\InvalidMiddlewareReturnTypeException;
-use Yiisoft\Middleware\Dispatcher\Helper\ResponseHelper;
 
 final class InvalidMiddlewareReturnTypeExceptionTest extends AbstractInvalidMiddlewareExceptionTest
 {
     public function dataInvalidReturnType(): array
     {
         return [
-            [fn() => 42, 42],
-            [fn() => [new stdClass()], new stdClass()],
-            [fn() => true, true],
-            [fn() => false, false],
             [
+                'Middleware "null"',
+                null,
+                'null',
+            ],
+            [
+                'Middleware ["key1" => "null"]',
+                ['key1' => null],
+                'null',
+            ],
+            [
+                'Middleware ["key1" => "stdClass"]',
+                ['key1' => new stdClass()],
+                'null',
+            ],
+            [
+                'Middleware ["key1" => true, "key2" => false]',
+                ['key1' => true, 'key2' => false],
+                'null',
+            ],
+            [
+                'Middleware ["key1" => "null", "key2" => "null", ...]',
+                ['key1' => null, 'key2' => null, 'key3' => null],
+                'null',
+            ],
+            [
+                'Middleware ["key" => "null"]',
+                ['key' => null],
+                'null',
+            ],
+            [
+                'Middleware "resource"',
+                fopen('php://memory', 'r'),
+                'null',
+            ],
+            [
+                'Middleware an instance of `Closure`',
+                fn() => 42,
+                42,
+            ],
+            [
+                'Middleware an instance of `Closure`',
+                fn() => [new stdClass()],
+                new stdClass(),
+            ],
+            [
+                'Middleware an instance of `Closure`',
+                fn() => true,
+                true,
+            ],
+            [
+                'Middleware an instance of `Closure`',
+                fn() => false,
+                false,
+            ],
+            [
+                'Middleware an instance of `Closure`',
                 fn() => ['class' => null, 'setValue()' => [42], 'prepare()' => []],
                 ['class' => null, 'setValue()' => [42], 'prepare()' => []],
             ],
@@ -31,15 +81,15 @@ final class InvalidMiddlewareReturnTypeExceptionTest extends AbstractInvalidMidd
     /**
      * @dataProvider dataInvalidReturnType
      */
-    public function testUnknownDefinition(mixed $definition, mixed $result): void
+    public function testUnknownDefinition(string $startMessage, mixed $definition, mixed $result): void
     {
-        $exception = new InvalidMiddlewareReturnTypeException($definition, $result);
-        self::assertSame(
+        $exception = new InvalidMiddlewareReturnTypeException($definition, null);
+        self::assertStringStartsWith(
             sprintf(
-                'Middleware an instance of `Closure` must return an instance of `%s` or `%s`, %s returned.',
+                '%s must return an instance of `%s` or `%s`',
+                $startMessage,
                 MiddlewareInterface::class,
                 ResponseInterface::class,
-                ResponseHelper::convertToString($result),
             ),
             $exception->getMessage()
         );

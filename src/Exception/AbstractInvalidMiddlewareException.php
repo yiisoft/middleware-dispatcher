@@ -28,11 +28,6 @@ abstract class AbstractInvalidMiddlewareException extends InvalidArgumentExcepti
         parent::__construct($message, 0, $previous);
     }
 
-    public function getName(): string
-    {
-        return 'Invalid middleware definition';
-    }
-
     public function getSolution(): ?string
     {
         $solution = [

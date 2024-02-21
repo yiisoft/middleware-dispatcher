@@ -20,7 +20,7 @@ final class InvalidMiddlewareDefinitionException extends AbstractInvalidMiddlewa
             $definition,
             sprintf(
                 'Parameter should be either PSR middleware class name or a callable. Got %s.',
-                $this->definitionString
+                $this->definitionString,
             ),
             $previous,
         );
