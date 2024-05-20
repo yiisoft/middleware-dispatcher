@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
-        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px">
+        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px" alt="Yii">
     </a>
     <h1 align="center">Yii Middleware Dispatcher</h1>
     <br>
@@ -48,7 +48,7 @@ $dispatcher = new MiddlewareDispatcher(
 In the above `$diContainer` is an instance of [PSR-11](https://www.php-fig.org/psr/psr-11/) `\Psr\Container\ContainerInterface`
 and `$eventDispatcher` is an instance of [PSR-14](https://www.php-fig.org/psr/psr-14/) `Psr\EventDispatcher\EventDispatcherInterface`.
 
-After dispatcher instance obtained, it should be fed with some middleware: 
+After dispatcher instance obtained, it should be fed with some middleware:
 
 ```php
 $dispatcher = $dispatcher->withMiddlewares([
@@ -65,17 +65,20 @@ In the above we have used a callback. Overall the following options are availabl
   `index()` method will be executed.
 - A name of PSR-15 middleware class. The middleware instance will be obtained from container.
 - A name of PSR-15 request handler class. The request handler instance will be obtained from container and executed.
-- A name or instance of invokable class. If the name of invokable class is provided, the instance will be 
+- A name or instance of invokable class. If the name of invokable class is provided, the instance will be
   obtained from container and executed.
 - A function returning a middleware such as
+
   ```php
   static function (): MiddlewareInterface {
       return new TestMiddleware();
   }
   ```
+
   The middleware returned will be executed.
 - A callback `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`.
 - An array definition (see [syntax](https://github.com/yiisoft/definitions#arraydefinition)) of middleware:
+
   ```php
   [
       'class' => MyMiddleware::class,
@@ -83,12 +86,12 @@ In the above we have used a callback. Overall the following options are availabl
           'someVar' => 42,
       ],
   ]
-  ``` 
+  ```
 
 For handler action and callable typed parameters are automatically injected using dependency injection container.
 Current request and handler could be obtained by type-hinting for `ServerRequestInterface` and `RequestHandlerInterface`.
 
-After middleware set is defined, you can do the dispatching: 
+After middleware set is defined, you can do the dispatching:
 
 ```php
 $request = new ServerRequest('GET', '/teapot');
