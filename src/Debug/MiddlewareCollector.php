@@ -15,7 +15,14 @@ final class MiddlewareCollector implements SummaryCollectorInterface
 {
     use CollectorTrait;
 
+    /**
+     * @var array[]
+     */
     private array $beforeStack = [];
+
+    /**
+     * @var array[]
+     */
     private array $afterStack = [];
 
     public function __construct(
@@ -34,7 +41,7 @@ final class MiddlewareCollector implements SummaryCollectorInterface
         $afterAction = array_shift($afterStack);
         $actionHandler = [];
 
-        if ($beforeAction !== null && $afterAction !== null) {
+        if (is_array($beforeAction) && is_array($afterAction)) {
             $actionHandler = $this->getActionHandler($beforeAction, $afterAction);
         }
 
@@ -55,9 +62,19 @@ final class MiddlewareCollector implements SummaryCollectorInterface
             method_exists($event->getMiddleware(), '__debugInfo')
             && (new ReflectionClass($event->getMiddleware()))->isAnonymous()
         ) {
+            /**
+             * @var callable $callback
+             * @psalm-suppress MixedArrayAccess
+             */
             $callback = $event->getMiddleware()->__debugInfo()['callback'];
             if (is_array($callback)) {
-                $name = implode('::', $callback);
+                if (is_string($callback[0])) {
+                    $name = implode('::', $callback);
+                } else {
+                    $name = $callback[0]::class . '::' . $callback[1];
+                }
+            } elseif (is_string($callback)) {
+                $name = '{closure:' . $callback . '}';
             } else {
                 $name = 'object(Closure)#' . spl_object_id($callback);
             }
