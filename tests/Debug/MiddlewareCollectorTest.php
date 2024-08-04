@@ -56,13 +56,13 @@ final class MiddlewareCollectorTest extends AbstractCollectorTestCase
         $this->assertEquals(DummyMiddleware::class, $data['actionHandler']['name']);
         $this->assertEquals('GET', $data['actionHandler']['request']->getMethod());
 
-        $this->assertEquals(3, count($data['beforeStack']));
-        $this->assertTrue(str_starts_with($data['beforeStack'][0]['name'], 'object(Closure)#'));
+        $this->assertCount(3, $data['beforeStack']);
+        $this->assertStringStartsWith('object(Closure)#', $data['beforeStack'][0]['name']);
         $this->assertEquals(DummyMiddleware::class . '::process', $data['beforeStack'][1]['name']);
         $this->assertEquals('{closure:time}', $data['beforeStack'][2]['name']);
 
-        $this->assertEquals(3, count($data['afterStack']));
-        $this->assertTrue(str_starts_with($data['afterStack'][0]['name'], 'object(Closure)#'));
+        $this->assertCount(3, $data['afterStack']);
+        $this->assertStringStartsWith('object(Closure)#', $data['afterStack'][0]['name']);
         $this->assertEquals(DummyMiddleware::class . '::process', $data['afterStack'][1]['name']);
         $this->assertEquals('{closure:time}', $data['afterStack'][2]['name']);
     }
