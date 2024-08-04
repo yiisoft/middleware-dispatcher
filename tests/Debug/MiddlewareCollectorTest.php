@@ -25,12 +25,19 @@ final class MiddlewareCollectorTest extends AbstractCollectorTestCase
      */
     protected function collectTestData(CollectorInterface $collector): void
     {
+        // before
         $collector->collect(new BeforeMiddleware($this->createCallableMiddleware(static fn () => 1), new ServerRequest('GET', '/test')));
         $collector->collect(new BeforeMiddleware($this->createCallableMiddleware([DummyMiddleware::class, 'process']), new ServerRequest('GET', '/test')));
+        $collector->collect(new BeforeMiddleware($this->createCallableMiddleware('time'), new ServerRequest('GET', '/test')));
+
+        // action
         $collector->collect(new BeforeMiddleware(new DummyMiddleware(), new ServerRequest('GET', '/test')));
         $collector->collect(new AfterMiddleware(new DummyMiddleware(), new Response(200)));
+
+        // after
         $collector->collect(new AfterMiddleware($this->createCallableMiddleware(static fn () => 1), new Response(200)));
         $collector->collect(new AfterMiddleware($this->createCallableMiddleware([DummyMiddleware::class, 'process']), new Response(200)));
+        $collector->collect(new AfterMiddleware($this->createCallableMiddleware('time'), new Response(200)));
     }
 
     protected function getCollector(): CollectorInterface
@@ -45,8 +52,19 @@ final class MiddlewareCollectorTest extends AbstractCollectorTestCase
         $this->assertNotEmpty($data['beforeStack']);
         $this->assertNotEmpty($data['afterStack']);
         $this->assertNotEmpty($data['actionHandler']);
+
         $this->assertEquals(DummyMiddleware::class, $data['actionHandler']['name']);
         $this->assertEquals('GET', $data['actionHandler']['request']->getMethod());
+
+        $this->assertEquals(3, count($data['beforeStack']));
+        $this->assertTrue(str_starts_with($data['beforeStack'][0]['name'], 'object(Closure)#'));
+        $this->assertEquals(DummyMiddleware::class . '::process', $data['beforeStack'][1]['name']);
+        $this->assertEquals('{closure:time}', $data['beforeStack'][2]['name']);
+
+        $this->assertEquals(3, count($data['afterStack']));
+        $this->assertTrue(str_starts_with($data['afterStack'][0]['name'], 'object(Closure)#'));
+        $this->assertEquals(DummyMiddleware::class . '::process', $data['afterStack'][1]['name']);
+        $this->assertEquals('{closure:time}', $data['afterStack'][2]['name']);
     }
 
     private function createCallableMiddleware(callable|array $callable): MiddlewareInterface
