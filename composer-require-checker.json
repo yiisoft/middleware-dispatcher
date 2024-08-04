@@ -12,9 +12,7 @@
         "Phar",
         "Reflection",
         "SPL",
-        "standard",
-        "fileinfo",
-        "intl"
+        "standard"
     ],
     "scan-files": []
 }

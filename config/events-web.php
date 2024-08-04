@@ -6,6 +6,10 @@ use Yiisoft\Middleware\Dispatcher\Debug\MiddlewareCollector;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 
+if (!(bool) ($params['yiisoft/yii-debug']['enabled'] ?? false)) {
+    return [];
+}
+
 return [
     BeforeMiddleware::class => [
         [MiddlewareCollector::class, 'collect'],
