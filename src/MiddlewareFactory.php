@@ -17,6 +17,7 @@ use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\Injector\Injector;
+use Yiisoft\Middleware\Dispatcher\Exception\InvalidMiddlewareReturnTypeException;
 
 use function in_array;
 use function is_array;
@@ -216,7 +217,7 @@ final class MiddlewareFactory
                     return $response->process($request, $handler);
                 }
 
-                throw new InvalidMiddlewareDefinitionException($this->callback);
+                throw new InvalidMiddlewareReturnTypeException($this->callback, $response);
             }
 
             public function __debugInfo(): array
@@ -273,7 +274,7 @@ final class MiddlewareFactory
                     return $response;
                 }
 
-                throw new InvalidMiddlewareDefinitionException([$this->class, $this->method]);
+                throw new InvalidMiddlewareReturnTypeException([$this->class, $this->method], $response);
             }
 
             public function __debugInfo()
