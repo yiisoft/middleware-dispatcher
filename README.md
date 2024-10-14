@@ -1,15 +1,14 @@
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
-        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px">
+        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px" alt="Yii">
     </a>
     <h1 align="center">Yii Middleware Dispatcher</h1>
     <br>
 </p>
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/middleware-dispatcher/v/stable.png)](https://packagist.org/packages/yiisoft/middleware-dispatcher)
-[![Total Downloads](https://poser.pugx.org/yiisoft/middleware-dispatcher/downloads.png)](https://packagist.org/packages/yiisoft/middleware-dispatcher)
-[![Build status](https://github.com/yiisoft/middleware-dispatcher/workflows/build/badge.svg)](https://github.com/yiisoft/middleware-dispatcher/actions?query=workflow%3Abuild)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/middleware-dispatcher/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/middleware-dispatcher/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/yiisoft/middleware-dispatcher/v)](https://packagist.org/packages/yiisoft/middleware-dispatcher)
+[![Total Downloads](https://poser.pugx.org/yiisoft/middleware-dispatcher/downloads)](https://packagist.org/packages/yiisoft/middleware-dispatcher)
+[![Build status](https://github.com/yiisoft/middleware-dispatcher/actions/workflows/build.yml/badge.svg)](https://github.com/yiisoft/middleware-dispatcher/actions/workflows/build.yml)
 [![Code Coverage](https://codecov.io/gh/yiisoft/middleware-dispatcher/branch/master/graph/badge.svg)](https://codecov.io/gh/yiisoft/middleware-dispatcher)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fmiddleware-dispatcher%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/middleware-dispatcher/master)
 [![static analysis](https://github.com/yiisoft/middleware-dispatcher/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/middleware-dispatcher/actions?query=workflow%3A%22static+analysis%22)
@@ -25,7 +24,7 @@ request instance, dispatcher executes it and produces a response instance.
 
 ## Installation
 
-The package could be installed with composer:
+The package could be installed with [Composer](https://getcomposer.org):
 
 ```shell
 composer require yiisoft/middleware-dispatcher
@@ -48,7 +47,7 @@ $dispatcher = new MiddlewareDispatcher(
 In the above `$diContainer` is an instance of [PSR-11](https://www.php-fig.org/psr/psr-11/) `\Psr\Container\ContainerInterface`
 and `$eventDispatcher` is an instance of [PSR-14](https://www.php-fig.org/psr/psr-14/) `Psr\EventDispatcher\EventDispatcherInterface`.
 
-After dispatcher instance obtained, it should be fed with some middleware: 
+After dispatcher instance obtained, it should be fed with some middleware:
 
 ```php
 $dispatcher = $dispatcher->withMiddlewares([
@@ -65,17 +64,20 @@ In the above we have used a callback. Overall the following options are availabl
   `index()` method will be executed.
 - A name of PSR-15 middleware class. The middleware instance will be obtained from container.
 - A name of PSR-15 request handler class. The request handler instance will be obtained from container and executed.
-- A name or instance of invokable class. If the name of invokable class is provided, the instance will be 
+- A name or instance of invokable class. If the name of invokable class is provided, the instance will be
   obtained from container and executed.
 - A function returning a middleware such as
+
   ```php
   static function (): MiddlewareInterface {
       return new TestMiddleware();
   }
   ```
+
   The middleware returned will be executed.
 - A callback `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`.
 - An array definition (see [syntax](https://github.com/yiisoft/definitions#arraydefinition)) of middleware:
+
   ```php
   [
       'class' => MyMiddleware::class,
@@ -83,12 +85,12 @@ In the above we have used a callback. Overall the following options are availabl
           'someVar' => 42,
       ],
   ]
-  ``` 
+  ```
 
 For handler action and callable typed parameters are automatically injected using dependency injection container.
 Current request and handler could be obtained by type-hinting for `ServerRequestInterface` and `RequestHandlerInterface`.
 
-After middleware set is defined, you can do the dispatching: 
+After middleware set is defined, you can do the dispatching:
 
 ```php
 $request = new ServerRequest('GET', '/teapot');
@@ -162,32 +164,12 @@ $dispatcher = new MiddlewareDispatcher(
 );
 ```
 
-## Testing
+## Documentation
 
-### Unit testing
+- [Internals](docs/internals.md)
 
-The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
-
-```shell
-./vendor/bin/phpunit
-```
-
-### Mutation testing
-
-The package tests are checked with [Infection](https://infection.github.io/) mutation framework with
-[Infection Static Analysis Plugin](https://github.com/Roave/infection-static-analysis-plugin). To run it:
-
-```shell
-./vendor/bin/roave-infection-static-analysis-plugin
-```
-
-### Static analysis
-
-The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
-
-```shell
-./vendor/bin/psalm
-```
+If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
+You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
 
 ## License
 
