@@ -32,7 +32,7 @@ final class MiddlewareStack implements RequestHandlerInterface
      */
     public function __construct(
         private readonly array $middlewares,
-        private RequestHandlerInterface $fallbackHandler,
+        private readonly RequestHandlerInterface $fallbackHandler,
         private readonly ?EventDispatcherInterface $eventDispatcher = null
     ) {
         if ($middlewares === []) {
