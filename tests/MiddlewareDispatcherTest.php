@@ -236,7 +236,7 @@ final class MiddlewareDispatcherTest extends TestCase
     }
 
     private function createDispatcher(
-        ContainerInterface $container = null,
+        ?ContainerInterface $container = null,
         ?EventDispatcherInterface $eventDispatcher = null
     ): MiddlewareDispatcher {
         if ($container === null) {
