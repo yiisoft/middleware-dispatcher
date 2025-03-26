@@ -324,8 +324,8 @@ final class MiddlewareFactoryTest extends TestCase
     }
 
     private function getMiddlewareFactory(
-        ContainerInterface $container = null,
-        ParametersResolverInterface $parametersResolver = null
+        ?ContainerInterface $container = null,
+        ?ParametersResolverInterface $parametersResolver = null
     ): MiddlewareFactory {
         if ($container !== null) {
             return new MiddlewareFactory($container, $parametersResolver);
