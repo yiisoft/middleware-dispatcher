@@ -111,9 +111,7 @@ final class MiddlewareCollector implements SummaryCollectorInterface
             return [];
         }
         return [
-            'middleware' => [
-                'total' => ($total = count($this->beforeStack)) > 0 ? $total - 1 : 0, // Remove action handler
-            ],
+            'total' => ($total = count($this->beforeStack)) > 0 ? $total - 1 : 0, // Remove action handler
         ];
     }
 
