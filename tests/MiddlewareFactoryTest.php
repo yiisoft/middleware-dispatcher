@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Yiisoft\Middleware\Dispatcher\Exception\InvalidMiddlewareReturnTypeException;
 use Yiisoft\Middleware\Dispatcher\InvalidMiddlewareDefinitionException;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\ParametersResolverInterface;
@@ -253,7 +254,12 @@ final class MiddlewareFactoryTest extends TestCase
                 static fn() => 42
             );
 
-        $this->expectException(InvalidMiddlewareDefinitionException::class);
+        $this->expectException(InvalidMiddlewareReturnTypeException::class);
+        $this->expectExceptionMessage(sprintf(
+            'Middleware an instance of `Closure` must return an instance of `%s` or `%s`, "42" (int) returned.',
+            MiddlewareInterface::class,
+            ResponseInterface::class,
+        ));
         $middleware->process(
             $this->createMock(ServerRequestInterface::class),
             $this->createMock(RequestHandlerInterface::class)
@@ -284,7 +290,12 @@ final class MiddlewareFactoryTest extends TestCase
             ->getMiddlewareFactory($container)
             ->create([InvalidController::class, 'index']);
 
-        $this->expectException(InvalidMiddlewareDefinitionException::class);
+        $this->expectException(InvalidMiddlewareReturnTypeException::class);
+        $this->expectExceptionMessage(sprintf(
+            'Middleware ["Yiisoft\Middleware\Dispatcher\Tests\Support\InvalidController", "index"] must return an instance of `%s` or `%s`, "200" (int) returned.',
+            MiddlewareInterface::class,
+            ResponseInterface::class,
+        ));
         $middleware->process(
             $this->createMock(ServerRequestInterface::class),
             $this->createMock(RequestHandlerInterface::class)
