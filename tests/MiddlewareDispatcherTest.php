@@ -6,6 +6,7 @@ namespace Yiisoft\Middleware\Dispatcher\Tests;
 
 use Nyholm\Psr7\Response;
 use Nyholm\Psr7\ServerRequest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -180,7 +181,7 @@ final class MiddlewareDispatcherTest extends TestCase
         }
     }
 
-    public function dataHasMiddlewares(): array
+    public static function dataHasMiddlewares(): array
     {
         return [
             [[], false],
@@ -188,9 +189,7 @@ final class MiddlewareDispatcherTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataHasMiddlewares
-     */
+    #[DataProvider('dataHasMiddlewares')]
     public function testHasMiddlewares(array $definitions, bool $expected): void
     {
         self::assertSame(
