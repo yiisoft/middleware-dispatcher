@@ -185,6 +185,25 @@ final class MiddlewareFactoryTest extends TestCase
         );
     }
 
+    public function testCreateFromClosureRequestHandler(): void
+    {
+        $container = $this->getContainer([TestController::class => new TestController()]);
+        $middleware = $this
+            ->getMiddlewareFactory($container)
+            ->create(
+                static fn(): RequestHandlerInterface => new SimpleRequestHandler()
+            );
+        self::assertSame(
+            200,
+            $middleware
+                ->process(
+                    $this->createMock(ServerRequestInterface::class),
+                    $this->createMock(RequestHandlerInterface::class)
+                )
+                ->getStatusCode()
+        );
+    }
+
     public function testCreateWithUseParamsMiddleware(): void
     {
         $container = $this->getContainer([UseParamsMiddleware::class => new UseParamsMiddleware()]);

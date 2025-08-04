@@ -215,6 +215,9 @@ final class MiddlewareFactory
                 if ($response instanceof MiddlewareInterface) {
                     return $response->process($request, $handler);
                 }
+                if ($response instanceof RequestHandlerInterface) {
+                    return $response->handle($request);
+                }
 
                 throw new InvalidMiddlewareDefinitionException($this->callback);
             }
