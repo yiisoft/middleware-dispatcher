@@ -1,5 +1,9 @@
 # Yii Middleware Dispatcher Change Log
 
+## 5.3.1 under development
+
+- no changes in this release.
+
 ## 5.3.0 August 06, 2025
 
 - New #101: Add `MiddlewareCollector` for Yii Debug package (@xepozz)
