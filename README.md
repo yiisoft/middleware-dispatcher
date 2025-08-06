@@ -75,6 +75,15 @@ In the above we have used a callback. Overall the following options are availabl
   ```
 
   The middleware returned will be executed.
+- A function returning a request handler such as
+
+  ```php
+  static function (): RequestHandlerInterface {
+      return new SimpleRequestHandler();
+  }
+  ```
+
+  The request handler returned will be executed.
 - A callback `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`.
 - An array definition (see [syntax](https://github.com/yiisoft/definitions#arraydefinition)) of middleware:
 

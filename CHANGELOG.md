@@ -6,6 +6,7 @@
 - Enh #95: Raise minimum PHP version to `^8.1` and make all possible properties readonly (@xepozz)
 - Chg #106: Change PHP constraint in `composer.json` to `8.1 - 8.4` (@vjik)
 - Enh #106: Mark `MiddlewareStack::$fallbackHandler` readonly (@vjik)
+- New #108: Support callable that returns `Psr\Http\Server\RequestHandlerInterface` as middleware definition (@rustamwin)
 
 ## 5.2.0 September 25, 2023
 

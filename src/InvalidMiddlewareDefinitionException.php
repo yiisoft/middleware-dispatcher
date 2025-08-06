@@ -91,6 +91,14 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         }
         ```
 
+        Closure that returns `RequestHandlerInterface`:
+
+        ```php
+        static function (): RequestHandlerInterface {
+            return new SimpleRequestHandler();
+        }
+        ```
+
         Action in controller:
 
         ```php
