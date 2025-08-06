@@ -1,12 +1,12 @@
 # Yii Middleware Dispatcher Change Log
 
-## 5.2.1 under development
+## 5.3.0 August 06, 2025
 
 - New #101: Add `MiddlewareCollector` for Yii Debug package (@xepozz)
-- Enh #95: Raise minimum PHP version to `^8.1` and make all possible properties readonly (@xepozz)
+- New #108: Support callable that returns `Psr\Http\Server\RequestHandlerInterface` as middleware definition (@rustamwin)
 - Chg #106: Change PHP constraint in `composer.json` to `8.1 - 8.4` (@vjik)
 - Enh #106: Mark `MiddlewareStack::$fallbackHandler` readonly (@vjik)
-- New #108: Support callable that returns `Psr\Http\Server\RequestHandlerInterface` as middleware definition (@rustamwin)
+- Enh #95: Raise minimum PHP version to `^8.1` and make all possible properties readonly (@xepozz)
 
 ## 5.2.0 September 25, 2023
 
