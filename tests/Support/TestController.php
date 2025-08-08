@@ -6,6 +6,7 @@ namespace Yiisoft\Middleware\Dispatcher\Tests\Support;
 
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
+use Yiisoft\Middleware\Dispatcher\Attribute\Middleware;
 
 final class TestController
 {
@@ -24,5 +25,31 @@ final class TestController
         return new Response(
             reason: $a . '-' . $b . '-' . $c . '-' . $d,
         );
+    }
+
+    #[Middleware([
+        'class' => ResponseMiddleware::class,
+        '__construct()' => [200],
+    ])]
+    public function error(): ResponseInterface
+    {
+        return new Response(404);
+    }
+
+    #[Middleware([
+        'class' => SetHeaderMiddleware::class,
+        '__construct()' => ['x-test1', 'yii1'],
+    ])]
+    #[Middleware([
+        'class' => SetHeaderMiddleware::class,
+        '__construct()' => ['x-test2', 'yii2'],
+    ])]
+    #[Middleware([
+        'class' => SetHeaderMiddleware::class,
+        '__construct()' => ['x-test3', 'yii3'],
+    ])]
+    public function severalMiddlewares(): ResponseInterface
+    {
+        return new Response(404);
     }
 }
