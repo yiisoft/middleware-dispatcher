@@ -102,7 +102,7 @@ final class MiddlewareFactory
         return is_subclass_of($definition, MiddlewareInterface::class)
             || (
                 $this->container->has($definition)
-                && is_subclass_of($this->container->get($definition), MiddlewareInterface::class)
+                && $this->container->get($definition) instanceof MiddlewareInterface
             );
     }
 
