@@ -95,8 +95,15 @@ final class MiddlewareFactory
      */
     private function isMiddlewareClassDefinition(array|callable|string $definition): bool
     {
-        return is_string($definition)
-            && is_subclass_of($definition, MiddlewareInterface::class);
+        if (!is_string($definition)) {
+            return false;
+        }
+
+        return is_subclass_of($definition, MiddlewareInterface::class)
+            || (
+                $this->container->has($definition)
+                && is_subclass_of($this->container->get($definition), MiddlewareInterface::class)
+            );
     }
 
     /**

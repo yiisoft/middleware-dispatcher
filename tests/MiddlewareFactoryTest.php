@@ -35,6 +35,14 @@ final class MiddlewareFactoryTest extends TestCase
         self::assertInstanceOf(TestMiddleware::class, $middleware);
     }
 
+    public function testCreateFromContainerIdentifier(): void
+    {
+        $container = $this->getContainer(['test' => new TestMiddleware()]);
+        $middleware = $this->getMiddlewareFactory($container)->create('test');
+
+        self::assertInstanceOf(TestMiddleware::class, $middleware);
+    }
+
     public function testCreateFromInvokable(): void
     {
         $container = $this->getContainer([InvokeableAction::class => new InvokeableAction()]);
