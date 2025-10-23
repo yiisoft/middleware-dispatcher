@@ -44,6 +44,7 @@ final class MiddlewareFactory
      * - A name of PSR-15 middleware class. The middleware instance will be obtained from container and executed.
      * - A name of PSR-15 request handler class. The request handler instance will be obtained from container and executed.
      * - A name of invokable class. The invokable class instance will be obtained from container and executed.
+     * - An identifier of container definition for PSR-15 middleware. The middleware instance will be obtained from container and executed.
      * - A callable with
      *   `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      *   signature.

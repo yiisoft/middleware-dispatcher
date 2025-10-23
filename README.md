@@ -20,7 +20,7 @@ request instance, dispatcher executes it and produces a response instance.
 
 ## Requirements
 
-- PHP 8.1 or higher.
+- PHP 8.1 - 8.4.
 
 ## Installation
 
@@ -64,6 +64,7 @@ In the above we have used a callback. Overall the following options are availabl
   `index()` method will be executed.
 - A name of PSR-15 middleware class. The middleware instance will be obtained from container.
 - A name of PSR-15 request handler class. The request handler instance will be obtained from container and executed.
+- An identifier of container definition for PSR-15 middleware. The middleware instance will be obtained from container and executed.
 - A name or instance of invokable class. If the name of invokable class is provided, the instance will be
   obtained from container and executed.
 - A function returning a middleware such as
