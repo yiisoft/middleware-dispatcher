@@ -88,6 +88,14 @@ final class MiddlewareFactory
             return ArrayDefinition::fromConfig($middlewareDefinition)->resolve($this->container);
         }
 
+        if ($this->isContainerAlias($middlewareDefinition)) {
+            /** @var mixed $resolvedDefinition */
+            $resolvedDefinition = $this->container->get($middlewareDefinition);
+            if ($resolvedDefinition instanceof MiddlewareInterface) {
+                return $resolvedDefinition;
+            }
+        }
+
         throw new InvalidMiddlewareDefinitionException($middlewareDefinition);
     }
 
@@ -96,15 +104,8 @@ final class MiddlewareFactory
      */
     private function isMiddlewareClassDefinition(array|callable|string $definition): bool
     {
-        if (!is_string($definition)) {
-            return false;
-        }
-
-        return is_subclass_of($definition, MiddlewareInterface::class)
-            || (
-                $this->container->has($definition)
-                && $this->container->get($definition) instanceof MiddlewareInterface
-            );
+        return is_string($definition)
+            && is_subclass_of($definition, MiddlewareInterface::class);
     }
 
     /**
@@ -167,6 +168,14 @@ final class MiddlewareFactory
     }
 
     /**
+     * @psalm-assert-if-true string $definition
+     */
+    private function isContainerAlias(array|callable|string $definition): bool
+    {
+        return is_string($definition) && $this->container->has($definition);
+    }
+
+    /**
      * @param array{0:class-string, 1:non-empty-string}|callable $callable
      */
     private function wrapCallable(array|callable $callable): MiddlewareInterface
@@ -195,7 +204,7 @@ final class MiddlewareFactory
                 private readonly ?ParametersResolverInterface $parametersResolver
             ) {
                 $this->callback = $callback;
-                $callback = Closure::fromCallable($callback);
+                $callback = $callback(...);
 
                 $callableParameters = (new ReflectionFunction($callback))->getParameters();
                 foreach ($callableParameters as $parameter) {

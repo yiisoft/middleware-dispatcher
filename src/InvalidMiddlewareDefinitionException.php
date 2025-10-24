@@ -64,6 +64,19 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         Yiisoft\Session\SessionMiddleware::class
         ```
 
+        PSR request handler class name:
+
+        ```php
+        Yiisoft\Yii\Swagger\Action\SwaggerUi::class
+        ```
+
+        An identifier of container definition for PSR middleware:
+
+        ```php
+        sessionMiddleware
+        ```
+        where `sessionMiddleware` is the identifier of container definition for `Yiisoft\Session\SessionMiddleware`.
+
         PSR middleware array definition:
 
         ```php
