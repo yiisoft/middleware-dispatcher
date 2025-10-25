@@ -2,7 +2,7 @@
 
 ## 5.3.1 under development
 
-- no changes in this release.
+- Enh #110: Add support for using middlewares from container-registered identifier (@rustamwin)
 
 ## 5.3.0 August 06, 2025
 

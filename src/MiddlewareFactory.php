@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
-use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -44,6 +43,7 @@ final class MiddlewareFactory
      * - A name of PSR-15 middleware class. The middleware instance will be obtained from container and executed.
      * - A name of PSR-15 request handler class. The request handler instance will be obtained from container and executed.
      * - A name of invokable class. The invokable class instance will be obtained from container and executed.
+     * - An identifier of container definition for PSR-15 middleware. The middleware instance will be obtained from container and executed.
      * - A callable with
      *   `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
      *   signature.
@@ -85,6 +85,14 @@ final class MiddlewareFactory
              * @psalm-suppress InvalidArgument Need for Psalm version 4.* only.
              */
             return ArrayDefinition::fromConfig($middlewareDefinition)->resolve($this->container);
+        }
+
+        if ($this->isContainerAlias($middlewareDefinition)) {
+            /** @var mixed $resolvedDefinition */
+            $resolvedDefinition = $this->container->get($middlewareDefinition);
+            if ($resolvedDefinition instanceof MiddlewareInterface) {
+                return $resolvedDefinition;
+            }
         }
 
         throw new InvalidMiddlewareDefinitionException($middlewareDefinition);
@@ -159,6 +167,14 @@ final class MiddlewareFactory
     }
 
     /**
+     * @psalm-assert-if-true string $definition
+     */
+    private function isContainerAlias(array|callable|string $definition): bool
+    {
+        return is_string($definition) && $this->container->has($definition);
+    }
+
+    /**
      * @param array{0:class-string, 1:non-empty-string}|callable $callable
      */
     private function wrapCallable(array|callable $callable): MiddlewareInterface
@@ -187,7 +203,7 @@ final class MiddlewareFactory
                 private readonly ?ParametersResolverInterface $parametersResolver
             ) {
                 $this->callback = $callback;
-                $callback = Closure::fromCallable($callback);
+                $callback = $callback(...);
 
                 $callableParameters = (new ReflectionFunction($callback))->getParameters();
                 foreach ($callableParameters as $parameter) {
