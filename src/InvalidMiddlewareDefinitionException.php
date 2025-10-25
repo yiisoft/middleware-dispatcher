@@ -73,7 +73,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
         An identifier of container definition for PSR middleware:
 
         ```php
-        sessionMiddleware
+        'sessionMiddleware'
         ```
         where `sessionMiddleware` is the identifier of container definition for `Yiisoft\Session\SessionMiddleware`.
 
