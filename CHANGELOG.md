@@ -3,6 +3,7 @@
 ## 5.3.1 under development
 
 - Enh #110: Add support for using middlewares from container-registered identifier (@rustamwin)
+- Enh #113: Add PHP 8.5 support (@vjik)
 
 ## 5.3.0 August 06, 2025
 
