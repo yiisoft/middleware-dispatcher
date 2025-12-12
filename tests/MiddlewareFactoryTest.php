@@ -143,7 +143,7 @@ final class MiddlewareFactoryTest extends TestCase
         $controller = new TestController();
         $middleware = $this
             ->getMiddlewareFactory($container)
-            ->create([$controller, 'index']);
+            ->create($controller->index(...));
         self::assertSame(
             'yii',
             $middleware
@@ -154,7 +154,7 @@ final class MiddlewareFactoryTest extends TestCase
                 ->getHeaderLine('test')
         );
         self::assertSame(
-            [$controller, 'index'],
+            $controller->index(...),
             $middleware->__debugInfo()['callback']
         );
     }
