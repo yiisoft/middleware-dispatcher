@@ -1,5 +1,9 @@
 # Yii Middleware Dispatcher Change Log
 
+## 5.4.1 under development
+
+- no changes in this release.
+
 ## 5.4.0 December 13, 2025
 
 - Enh #110: Add support for using middlewares from container-registered identifier (@rustamwin)
