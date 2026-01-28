@@ -2,7 +2,7 @@
 
 ## 5.4.1 under development
 
-- Enh #114: Explicitly import classes, functions, and constants in "use" section (@rustamwin)
+- Enh #114: Explicitly import functions and constants in "use" section (@rustamwin)
 
 ## 5.4.0 December 13, 2025
 
