@@ -33,7 +33,7 @@ final class MiddlewareStack implements RequestHandlerInterface
     public function __construct(
         private readonly array $middlewares,
         private readonly RequestHandlerInterface $fallbackHandler,
-        private readonly ?EventDispatcherInterface $eventDispatcher = null
+        private readonly ?EventDispatcherInterface $eventDispatcher = null,
     ) {
         if ($middlewares === []) {
             throw new RuntimeException('Stack is empty.');
@@ -75,7 +75,7 @@ final class MiddlewareStack implements RequestHandlerInterface
             public function __construct(
                 Closure $middlewareFactory,
                 private readonly RequestHandlerInterface $handler,
-                private readonly ?EventDispatcherInterface $eventDispatcher
+                private readonly ?EventDispatcherInterface $eventDispatcher,
             ) {
                 $this->middlewareFactory = $middlewareFactory;
             }

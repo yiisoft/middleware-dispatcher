@@ -28,7 +28,7 @@ final class CompositeParametersResolverTest extends TestCase
 
         $response = $middleware->process(
             $this->createMock(ServerRequestInterface::class),
-            $this->createMock(RequestHandlerInterface::class)
+            $this->createMock(RequestHandlerInterface::class),
         );
 
         $this->assertSame(

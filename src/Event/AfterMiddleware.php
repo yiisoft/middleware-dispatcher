@@ -18,9 +18,8 @@ final class AfterMiddleware
      */
     public function __construct(
         private readonly MiddlewareInterface $middleware,
-        private readonly ?ResponseInterface $response
-    ) {
-    }
+        private readonly ?ResponseInterface $response,
+    ) {}
 
     /**
      * @return MiddlewareInterface Middleware that was executed.

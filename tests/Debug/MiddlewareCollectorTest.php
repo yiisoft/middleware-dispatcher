@@ -26,7 +26,7 @@ final class MiddlewareCollectorTest extends AbstractCollectorTestCase
     protected function collectTestData(CollectorInterface $collector): void
     {
         // before
-        $collector->collect(new BeforeMiddleware($this->createCallableMiddleware(static fn () => 1), new ServerRequest('GET', '/test')));
+        $collector->collect(new BeforeMiddleware($this->createCallableMiddleware(static fn() => 1), new ServerRequest('GET', '/test')));
         $collector->collect(new BeforeMiddleware($this->createCallableMiddleware([DummyMiddleware::class, 'process']), new ServerRequest('GET', '/test')));
         $collector->collect(new BeforeMiddleware($this->createCallableMiddleware('time'), new ServerRequest('GET', '/test')));
 
@@ -35,7 +35,7 @@ final class MiddlewareCollectorTest extends AbstractCollectorTestCase
         $collector->collect(new AfterMiddleware(new DummyMiddleware(), new Response(200)));
 
         // after
-        $collector->collect(new AfterMiddleware($this->createCallableMiddleware(static fn () => 1), new Response(200)));
+        $collector->collect(new AfterMiddleware($this->createCallableMiddleware(static fn() => 1), new Response(200)));
         $collector->collect(new AfterMiddleware($this->createCallableMiddleware([DummyMiddleware::class, 'process']), new Response(200)));
         $collector->collect(new AfterMiddleware($this->createCallableMiddleware('time'), new Response(200)));
     }

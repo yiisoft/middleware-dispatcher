@@ -72,13 +72,13 @@ final class MiddlewareFactoryTest extends TestCase
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
+                    $this->createMock(RequestHandlerInterface::class),
                 )
-                ->getHeaderLine('test')
+                ->getHeaderLine('test'),
         );
         self::assertSame(
             [TestController::class, 'index'],
-            $middleware->__debugInfo()['callback']
+            $middleware->__debugInfo()['callback'],
         );
     }
 
@@ -93,9 +93,9 @@ final class MiddlewareFactoryTest extends TestCase
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
+                    $this->createMock(RequestHandlerInterface::class),
                 )
-                ->getHeaderLine('test')
+                ->getHeaderLine('test'),
         );
     }
 
@@ -105,16 +105,16 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn(): ResponseInterface => (new Response())->withStatus(418)
+                static fn(): ResponseInterface => (new Response())->withStatus(418),
             );
         self::assertSame(
             418,
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
+                    $this->createMock(RequestHandlerInterface::class),
                 )
-                ->getStatusCode()
+                ->getStatusCode(),
         );
     }
 
@@ -124,16 +124,16 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container, new SimpleParametersResolver())
             ->create(
-                static fn(string $test = ''): ResponseInterface => (new Response())->withStatus(418, $test)
+                static fn(string $test = ''): ResponseInterface => (new Response())->withStatus(418, $test),
             );
         self::assertSame(
             'yii',
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
+                    $this->createMock(RequestHandlerInterface::class),
                 )
-                ->getReasonPhrase()
+                ->getReasonPhrase(),
         );
     }
 
@@ -149,13 +149,13 @@ final class MiddlewareFactoryTest extends TestCase
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
+                    $this->createMock(RequestHandlerInterface::class),
                 )
-                ->getHeaderLine('test')
+                ->getHeaderLine('test'),
         );
         self::assertSame(
             [$controller, 'index'],
-            $middleware->__debugInfo()['callback']
+            $middleware->__debugInfo()['callback'],
         );
     }
 
@@ -170,9 +170,9 @@ final class MiddlewareFactoryTest extends TestCase
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
+                    $this->createMock(RequestHandlerInterface::class),
                 )
-                ->getHeaderLine('test')
+                ->getHeaderLine('test'),
         );
     }
 
@@ -182,16 +182,16 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn(): MiddlewareInterface => new TestMiddleware()
+                static fn(): MiddlewareInterface => new TestMiddleware(),
             );
         self::assertSame(
             '42',
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
+                    $this->createMock(RequestHandlerInterface::class),
                 )
-                ->getHeaderLine('test')
+                ->getHeaderLine('test'),
         );
     }
 
@@ -201,16 +201,16 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn(): RequestHandlerInterface => new SimpleRequestHandler()
+                static fn(): RequestHandlerInterface => new SimpleRequestHandler(),
             );
         self::assertSame(
             200,
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
+                    $this->createMock(RequestHandlerInterface::class),
                 )
-                ->getStatusCode()
+                ->getStatusCode(),
         );
     }
 
@@ -226,9 +226,9 @@ final class MiddlewareFactoryTest extends TestCase
             $middleware
                 ->process(
                     new ServerRequest('GET', '/'),
-                    $this->getRequestHandler()
+                    $this->getRequestHandler(),
                 )
-                ->getHeaderLine('method')
+                ->getHeaderLine('method'),
         );
     }
 
@@ -244,9 +244,9 @@ final class MiddlewareFactoryTest extends TestCase
             $middleware
                 ->process(
                     new ServerRequest('GET', '/'),
-                    $this->getRequestHandler()
+                    $this->getRequestHandler(),
                 )
-                ->getHeaderLine('method')
+                ->getHeaderLine('method'),
         );
     }
 
@@ -267,9 +267,9 @@ final class MiddlewareFactoryTest extends TestCase
             $middleware
                 ->process(
                     $this->createMock(ServerRequestInterface::class),
-                    $this->createMock(RequestHandlerInterface::class)
+                    $this->createMock(RequestHandlerInterface::class),
                 )
-                ->getHeaderLine('test')
+                ->getHeaderLine('test'),
         );
     }
 
@@ -279,13 +279,13 @@ final class MiddlewareFactoryTest extends TestCase
         $middleware = $this
             ->getMiddlewareFactory($container)
             ->create(
-                static fn() => 42
+                static fn() => 42,
             );
 
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $middleware->process(
             $this->createMock(ServerRequestInterface::class),
-            $this->createMock(RequestHandlerInterface::class)
+            $this->createMock(RequestHandlerInterface::class),
         );
     }
 
@@ -316,7 +316,7 @@ final class MiddlewareFactoryTest extends TestCase
         $this->expectException(InvalidMiddlewareDefinitionException::class);
         $middleware->process(
             $this->createMock(ServerRequestInterface::class),
-            $this->createMock(RequestHandlerInterface::class)
+            $this->createMock(RequestHandlerInterface::class),
         );
     }
 
@@ -354,7 +354,7 @@ final class MiddlewareFactoryTest extends TestCase
 
     private function getMiddlewareFactory(
         ?ContainerInterface $container = null,
-        ?ParametersResolverInterface $parametersResolver = null
+        ?ParametersResolverInterface $parametersResolver = null,
     ): MiddlewareFactory {
         if ($container !== null) {
             return new MiddlewareFactory($container, $parametersResolver);
@@ -370,7 +370,7 @@ final class MiddlewareFactoryTest extends TestCase
 
     private function getRequestHandler(): RequestHandlerInterface
     {
-        return new class () implements RequestHandlerInterface {
+        return new class implements RequestHandlerInterface {
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 return new Response(404);
