@@ -11,9 +11,7 @@ use function array_key_exists;
 
 final class NameParametersResolver implements ParametersResolverInterface
 {
-    public function __construct(private array $data)
-    {
-    }
+    public function __construct(private array $data) {}
 
     public function resolve(array $parameters, ServerRequestInterface $request): array
     {

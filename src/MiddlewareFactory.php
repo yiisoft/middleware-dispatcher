@@ -20,6 +20,7 @@ use Yiisoft\Injector\Injector;
 use function in_array;
 use function is_array;
 use function is_string;
+use function is_callable;
 
 /**
  * Creates a PSR-15 middleware based on the definition provided.
@@ -33,9 +34,8 @@ final class MiddlewareFactory
      */
     public function __construct(
         private readonly ContainerInterface $container,
-        private readonly ?ParametersResolverInterface $parametersResolver = null
-    ) {
-    }
+        private readonly ?ParametersResolverInterface $parametersResolver = null,
+    ) {}
 
     /**
      * @param array|callable|string $middlewareDefinition Middleware definition in one of the following formats:
@@ -144,7 +144,7 @@ final class MiddlewareFactory
             && in_array(
                 $definition[1],
                 class_exists($definition[0]) ? get_class_methods($definition[0]) : [],
-                true
+                true,
             );
     }
 
@@ -200,7 +200,7 @@ final class MiddlewareFactory
             public function __construct(
                 callable $callback,
                 private readonly ContainerInterface $container,
-                private readonly ?ParametersResolverInterface $parametersResolver
+                private readonly ?ParametersResolverInterface $parametersResolver,
             ) {
                 $this->callback = $callback;
                 $callback = $callback(...);
@@ -213,13 +213,13 @@ final class MiddlewareFactory
 
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $handler
+                RequestHandlerInterface $handler,
             ): ResponseInterface {
                 $parameters = [$request, $handler];
                 if ($this->parametersResolver !== null) {
                     $parameters = array_merge(
                         $parameters,
-                        $this->parametersResolver->resolve($this->callableParameters, $request)
+                        $this->parametersResolver->resolve($this->callableParameters, $request),
                     );
                 }
 
@@ -264,7 +264,7 @@ final class MiddlewareFactory
                 /** @var class-string */
                 private readonly string $class,
                 /** @var non-empty-string */
-                private readonly string $method
+                private readonly string $method,
             ) {
                 $actionParameters = (new ReflectionClass($this->class))->getMethod($this->method)->getParameters();
                 foreach ($actionParameters as $parameter) {
@@ -274,7 +274,7 @@ final class MiddlewareFactory
 
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $handler
+                RequestHandlerInterface $handler,
             ): ResponseInterface {
                 /** @var mixed $controller */
                 $controller = $this->container->get($this->class);
@@ -282,7 +282,7 @@ final class MiddlewareFactory
                 if ($this->parametersResolver !== null) {
                     $parameters = array_merge(
                         $parameters,
-                        $this->parametersResolver->resolve($this->actionParameters, $request)
+                        $this->parametersResolver->resolve($this->actionParameters, $request),
                     );
                 }
 

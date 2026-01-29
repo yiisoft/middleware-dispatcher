@@ -19,18 +19,19 @@ use function is_float;
 use function is_int;
 use function is_object;
 use function is_string;
+use function sprintf;
 
 final class InvalidMiddlewareDefinitionException extends InvalidArgumentException implements FriendlyExceptionInterface
 {
     private readonly string $definitionString;
 
     public function __construct(
-        private mixed $definition
+        private mixed $definition,
     ) {
         $this->definitionString = $this->convertDefinitionToString($definition);
 
         parent::__construct(
-            'Parameter should be either PSR middleware class name or a callable. Got ' . $this->definitionString . '.'
+            'Parameter should be either PSR middleware class name or a callable. Got ' . $this->definitionString . '.',
         );
     }
 
@@ -46,7 +47,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
             ## Got definition value
 
             `{$this->definitionString}`
-            SOLUTION
+            SOLUTION,
         ];
 
         $suggestion = $this->generateSuggestion();
@@ -148,14 +149,14 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
             return sprintf(
                 'Class `%s` exists, but does not implement `%s`.',
                 $this->definition,
-                MiddlewareInterface::class
+                MiddlewareInterface::class,
             );
         }
 
         if ($this->isStringNotClassName()) {
             return sprintf(
                 'Class `%s` not found. It may be needed to install a package with this middleware.',
-                $this->definition
+                $this->definition,
             );
         }
 
@@ -176,7 +177,7 @@ final class InvalidMiddlewareDefinitionException extends InvalidArgumentExceptio
             return sprintf(
                 'Array definition is valid, class `%s` exists, but does not implement `%s`.',
                 $this->definition['class'],
-                MiddlewareInterface::class
+                MiddlewareInterface::class,
             );
         }
 

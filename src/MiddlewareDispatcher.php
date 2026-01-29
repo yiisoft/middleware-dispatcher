@@ -27,9 +27,8 @@ final class MiddlewareDispatcher
 
     public function __construct(
         private MiddlewareFactory $middlewareFactory,
-        private ?EventDispatcherInterface $eventDispatcher = null
-    ) {
-    }
+        private ?EventDispatcherInterface $eventDispatcher = null,
+    ) {}
 
     /**
      * Dispatch request through middleware to get response.
@@ -39,7 +38,7 @@ final class MiddlewareDispatcher
      */
     public function dispatch(
         ServerRequestInterface $request,
-        RequestHandlerInterface $fallbackHandler
+        RequestHandlerInterface $fallbackHandler,
     ): ResponseInterface {
         if ($this->stack === null) {
             $this->stack = new MiddlewareStack($this->buildMiddlewares(), $fallbackHandler, $this->eventDispatcher);
@@ -96,7 +95,7 @@ final class MiddlewareDispatcher
         $factory = $this->middlewareFactory;
 
         foreach ($this->middlewareDefinitions as $middlewareDefinition) {
-            $middlewares[] = static fn (): MiddlewareInterface => $factory->create($middlewareDefinition);
+            $middlewares[] = static fn(): MiddlewareInterface => $factory->create($middlewareDefinition);
         }
 
         return $middlewares;

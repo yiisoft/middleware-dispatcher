@@ -33,8 +33,8 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             [
                 [TestController::class, 'notExistsAction'],
                 '["Yiisoft\Middleware\Dispatcher\Tests\Support\TestController", "notExistsAction"]',
-                'Try adding `notExistsAction()` action to ' .
-                '`Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` controller:',
+                'Try adding `notExistsAction()` action to '
+                . '`Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` controller:',
             ],
             [
                 ['class' => TestController::class, 'index'],
@@ -49,9 +49,9 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
             [
                 ['class' => TestController::class],
                 '["class" => "Yiisoft\Middleware\Dispatcher\Tests\Support\TestController"]',
-                'Array definition is valid, ' .
-                'class `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` exists, ' .
-                'but does not implement `Psr\Http\Server\MiddlewareInterface`.',
+                'Array definition is valid, '
+                . 'class `Yiisoft\Middleware\Dispatcher\Tests\Support\TestController` exists, '
+                . 'but does not implement `Psr\Http\Server\MiddlewareInterface`.',
             ],
         ];
     }
@@ -86,7 +86,7 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
         $exception = new InvalidMiddlewareDefinitionException($definition);
         self::assertSame(
             'Parameter should be either PSR middleware class name or a callable. Got ' . $value . '.',
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 
@@ -96,7 +96,7 @@ final class InvalidMiddlewareDefinitionExceptionTest extends TestCase
 
         self::assertSame(
             'Invalid middleware definition',
-            $exception->getName()
+            $exception->getName(),
         );
     }
 }

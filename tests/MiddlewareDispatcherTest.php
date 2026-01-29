@@ -24,6 +24,7 @@ use Yiisoft\Middleware\Dispatcher\Tests\Support\TestController;
 use Yiisoft\Middleware\Dispatcher\Tests\Support\TestMiddleware;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
+use RuntimeException;
 
 final class MiddlewareDispatcherTest extends TestCase
 {
@@ -62,7 +63,7 @@ final class MiddlewareDispatcherTest extends TestCase
         $container = $this->createContainer(
             [
                 SimpleRequestHandler::class => new SimpleRequestHandler(),
-            ]
+            ],
         );
 
         $dispatcher = $this
@@ -102,7 +103,7 @@ final class MiddlewareDispatcherTest extends TestCase
             [],
             null,
             '1.1',
-            implode('', $request->getAttributes())
+            implode('', $request->getAttributes()),
         );
 
         $dispatcher = $this
@@ -136,7 +137,7 @@ final class MiddlewareDispatcherTest extends TestCase
         $request = new ServerRequest('GET', '/');
 
         $middleware1 = static fn(ServerRequestInterface $request, RequestHandlerInterface $handler) => $handler->handle(
-            $request
+            $request,
         );
         $middleware2 = static fn() => new Response();
 
@@ -152,13 +153,13 @@ final class MiddlewareDispatcherTest extends TestCase
                 AfterMiddleware::class,
                 AfterMiddleware::class,
             ],
-            $eventDispatcher->getEventClasses()
+            $eventDispatcher->getEventClasses(),
         );
     }
 
     public function testEventsAreDispatchedWhenMiddlewareFailedWithException(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Middleware failed.');
 
         $request = new ServerRequest('GET', '/');
@@ -176,7 +177,7 @@ final class MiddlewareDispatcherTest extends TestCase
                     BeforeMiddleware::class,
                     AfterMiddleware::class,
                 ],
-                $eventDispatcher->getEventClasses()
+                $eventDispatcher->getEventClasses(),
             );
         }
     }
@@ -194,7 +195,7 @@ final class MiddlewareDispatcherTest extends TestCase
     {
         self::assertSame(
             $expected,
-            $this->createDispatcher()->withMiddlewares($definitions)->hasMiddlewares()
+            $this->createDispatcher()->withMiddlewares($definitions)->hasMiddlewares(),
         );
     }
 
@@ -226,7 +227,7 @@ final class MiddlewareDispatcherTest extends TestCase
 
     private function getRequestHandler(): RequestHandlerInterface
     {
-        return new class () implements RequestHandlerInterface {
+        return new class implements RequestHandlerInterface {
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 return new Response(404);
@@ -236,7 +237,7 @@ final class MiddlewareDispatcherTest extends TestCase
 
     private function createDispatcher(
         ?ContainerInterface $container = null,
-        ?EventDispatcherInterface $eventDispatcher = null
+        ?EventDispatcherInterface $eventDispatcher = null,
     ): MiddlewareDispatcher {
         if ($container === null) {
             $container = $this->createContainer();
@@ -244,7 +245,7 @@ final class MiddlewareDispatcherTest extends TestCase
 
         return new MiddlewareDispatcher(
             new MiddlewareFactory($container),
-            $eventDispatcher
+            $eventDispatcher,
         );
     }
 

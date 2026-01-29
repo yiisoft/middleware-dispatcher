@@ -11,6 +11,10 @@ use Yiisoft\Yii\Debug\Collector\CollectorTrait;
 use Yiisoft\Yii\Debug\Collector\SummaryCollectorInterface;
 use Yiisoft\Yii\Debug\Collector\TimelineCollector;
 
+use function count;
+use function is_array;
+use function is_string;
+
 final class MiddlewareCollector implements SummaryCollectorInterface
 {
     use CollectorTrait;
@@ -26,9 +30,8 @@ final class MiddlewareCollector implements SummaryCollectorInterface
     private array $afterStack = [];
 
     public function __construct(
-        private readonly TimelineCollector $timelineCollector
-    ) {
-    }
+        private readonly TimelineCollector $timelineCollector,
+    ) {}
 
     public function getCollected(): array
     {
@@ -99,12 +102,6 @@ final class MiddlewareCollector implements SummaryCollectorInterface
         $this->timelineCollector->collect($this, spl_object_id($event));
     }
 
-    private function reset(): void
-    {
-        $this->beforeStack = [];
-        $this->afterStack = [];
-    }
-
     public function getSummary(): array
     {
         if (!$this->isActive()) {
@@ -113,6 +110,12 @@ final class MiddlewareCollector implements SummaryCollectorInterface
         return [
             'total' => ($total = count($this->beforeStack)) > 0 ? $total - 1 : 0, // Remove action handler
         ];
+    }
+
+    private function reset(): void
+    {
+        $this->beforeStack = [];
+        $this->afterStack = [];
     }
 
     private function getActionHandler(array $beforeAction, array $afterAction): array

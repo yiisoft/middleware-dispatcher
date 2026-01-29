@@ -18,9 +18,8 @@ final class BeforeMiddleware
      */
     public function __construct(
         private readonly MiddlewareInterface $middleware,
-        private readonly ServerRequestInterface $request
-    ) {
-    }
+        private readonly ServerRequestInterface $request,
+    ) {}
 
     /**
      * @return MiddlewareInterface Middleware to be executed.

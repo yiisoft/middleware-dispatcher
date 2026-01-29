@@ -8,6 +8,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 use function in_array;
 
+use const ARRAY_FILTER_USE_KEY;
+
 final class CompositeParametersResolver implements ParametersResolverInterface
 {
     /**
@@ -31,7 +33,7 @@ final class CompositeParametersResolver implements ParametersResolverInterface
             $parameters = array_filter(
                 $parameters,
                 static fn($key) => !in_array($key, $resultKeys, true),
-                ARRAY_FILTER_USE_KEY
+                ARRAY_FILTER_USE_KEY,
             );
         }
 
