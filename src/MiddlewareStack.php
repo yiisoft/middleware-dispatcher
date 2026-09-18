@@ -82,10 +82,8 @@ final class MiddlewareStack implements RequestHandlerInterface
 
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
-                if ($this->middleware === null) {
-                    /** @var MiddlewareInterface */
-                    $this->middleware = ($this->middlewareFactory)();
-                }
+                /** @var MiddlewareInterface */
+                $this->middleware ??= ($this->middlewareFactory)();
 
                 $this->eventDispatcher?->dispatch(new BeforeMiddleware($this->middleware, $request));
 
