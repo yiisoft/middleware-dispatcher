@@ -85,8 +85,7 @@ final class MiddlewareStack implements RequestHandlerInterface
                 private readonly Closure $middlewareFactory,
                 private readonly RequestHandlerInterface $handler,
                 private readonly ?EventDispatcherInterface $eventDispatcher,
-            ) {
-            }
+            ) {}
 
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
