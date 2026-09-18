@@ -225,6 +225,43 @@ final class MiddlewareDispatcherTest extends TestCase
         self::assertSame('42', $response->getHeaderLine('test'));
     }
 
+    public function testMiddlewareDefinitionsInConstructor(): void
+    {
+        $request = new ServerRequest('GET', '/');
+
+        $middleware1 = static function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
+            $request = $request->withAttribute('middleware', 'middleware1');
+            return $handler->handle($request);
+        };
+        $middleware2 = static fn(ServerRequestInterface $request) => new Response(
+            200,
+            [],
+            null,
+            '1.1',
+            implode('', $request->getAttributes()),
+        );
+
+        $dispatcher = new MiddlewareDispatcher(
+            new MiddlewareFactory($this->createContainer()),
+            middlewareDefinitions: [$middleware1, $middleware2],
+        );
+
+        $response = $dispatcher->dispatch($request, $this->getRequestHandler());
+
+        $this->assertTrue($dispatcher->hasMiddlewares());
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('middleware1', $response->getReasonPhrase());
+    }
+
+    public function testWithoutMiddlewareDefinitionsInConstructor(): void
+    {
+        $dispatcher = new MiddlewareDispatcher(
+            new MiddlewareFactory($this->createContainer()),
+        );
+
+        $this->assertFalse($dispatcher->hasMiddlewares());
+    }
+
     private function getRequestHandler(): RequestHandlerInterface
     {
         return new class implements RequestHandlerInterface {

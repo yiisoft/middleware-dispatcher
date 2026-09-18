@@ -1,7 +1,9 @@
 # Yii Middleware Dispatcher Change Log
 
-## 5.4.1 under development
+## 5.5.0 under development
 
+- New #123: Add ability to pass middleware definitions to `MiddlewareDispatcher` constructor (@vjik)
+- Chg #123: Mark `MiddlewareDispatcher::withMiddlewares()` as deprecated (@vjik)
 - Enh #114: Explicitly import functions and constants in "use" section (@rustamwin)
 
 ## 5.4.0 December 13, 2025

@@ -11,6 +11,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+use function array_reverse;
+
 final class MiddlewareDispatcher
 {
     /**
@@ -25,10 +27,30 @@ final class MiddlewareDispatcher
      */
     private array $middlewareDefinitions = [];
 
+    /**
+     * @param array[]|callable[]|string[] $middlewareDefinitions Middleware handlers. Last specified handler will be
+     * executed first. Each array element is:
+     *
+     * - A name of PSR-15 middleware class. The middleware instance will be obtained from container executed.
+     * - A callable with `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
+     *   signature.
+     * - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will
+     *   be created and `index()` method will be executed.
+     * - A function returning a middleware. The middleware returned will be executed.
+     * - An array definition of middleware ({@link https://github.com/yiisoft/definitions#arraydefinition}).
+     *
+     * For handler action and callable
+     * typed parameters are automatically injected using dependency injection container.
+     * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
+     * and {@see RequestHandlerInterface}.
+     */
     public function __construct(
-        private MiddlewareFactory $middlewareFactory,
-        private ?EventDispatcherInterface $eventDispatcher = null,
-    ) {}
+        private readonly MiddlewareFactory $middlewareFactory,
+        private readonly ?EventDispatcherInterface $eventDispatcher = null,
+        array $middlewareDefinitions = [],
+    ) {
+        $this->middlewareDefinitions = array_reverse($middlewareDefinitions);
+    }
 
     /**
      * Dispatch request through middleware to get response.
@@ -49,22 +71,11 @@ final class MiddlewareDispatcher
 
     /**
      * Returns new instance with middleware handlers replaced with the ones provided.
-     * Last specified handler will be executed first.
      *
-     * @param array[]|callable[]|string[] $middlewareDefinitions Each array element is:
+     * @param array[]|callable[]|string[] $middlewareDefinitions Middleware handlers. Last specified handler will be
+     * executed first. See {@see __construct()} for the list of supported definition formats.
      *
-     * - A name of PSR-15 middleware class. The middleware instance will be obtained from container executed.
-     * - A callable with `function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface`
-     *   signature.
-     * - A controller handler action in format `[TestController::class, 'index']`. `TestController` instance will
-     *   be created and `index()` method will be executed.
-     * - A function returning a middleware. The middleware returned will be executed.
-     * - An array definition of middleware ({@link https://github.com/yiisoft/definitions#arraydefinition}).
-     *
-     * For handler action and callable
-     * typed parameters are automatically injected using dependency injection container.
-     * Current request and handler could be obtained by type-hinting for {@see ServerRequestInterface}
-     * and {@see RequestHandlerInterface}.
+     * @deprecated since 5.5.0, pass middleware definitions to the {@see __construct()} instead.
      */
     public function withMiddlewares(array $middlewareDefinitions): self
     {
