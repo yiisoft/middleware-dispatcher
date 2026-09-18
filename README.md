@@ -40,23 +40,18 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 
 $dispatcher = new MiddlewareDispatcher(
     new MiddlewareFactory($diContainer),
-    $eventDispatcher
+    $eventDispatcher,
+    [
+        TeapotAccessChecker::class,
+        static function (): ResponseInterface {
+            return new Response(418);
+        },
+    ]
 );
 ```
 
 In the above `$diContainer` is an instance of [PSR-11](https://www.php-fig.org/psr/psr-11/) `\Psr\Container\ContainerInterface`
 and `$eventDispatcher` is an instance of [PSR-14](https://www.php-fig.org/psr/psr-14/) `Psr\EventDispatcher\EventDispatcherInterface`.
-
-After dispatcher instance obtained, it should be fed with some middleware:
-
-```php
-$dispatcher = $dispatcher->withMiddlewares([
-    TeapotAccessChecker::class,
-    static function (): ResponseInterface {
-        return new Response(418);
-    },
-]);
-```
 
 In the above we have used a callback. Overall the following options are available:
 
