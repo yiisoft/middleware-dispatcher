@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Php81\Rector\Array_\ArrayToFirstClassCallableRector;
+use Yiisoft\CodeStyle\Rector\SetList;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -13,8 +13,8 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
     ])
     ->withPhpSets(php81: true)
-    ->withRules([
-        InlineConstructorDefaultToPropertyRector::class,
+    ->withSets([
+        SetList::YII_CORE,
     ])
     ->withSkip([
         ClassPropertyAssignToConstructorPromotionRector::class,

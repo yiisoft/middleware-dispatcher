@@ -14,6 +14,9 @@ use RuntimeException;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 
+/**
+ * @psalm-type MiddlewareFactoryClosure = Closure():MiddlewareInterface
+ */
 final class MiddlewareStack implements RequestHandlerInterface
 {
     /**
@@ -29,6 +32,8 @@ final class MiddlewareStack implements RequestHandlerInterface
      * @param RequestHandlerInterface $fallbackHandler Fallback handler
      * @param EventDispatcherInterface|null $eventDispatcher Event dispatcher to use for triggering before/after
      * middleware events.
+     *
+     * @psalm-param MiddlewareFactoryClosure[] $middlewares
      */
     public function __construct(
         private readonly array $middlewares,
@@ -65,24 +70,25 @@ final class MiddlewareStack implements RequestHandlerInterface
 
     /**
      * Wrap handler by middlewares.
+     *
+     * @psalm-param MiddlewareFactoryClosure $middlewareFactory
      */
     private function wrap(Closure $middlewareFactory, RequestHandlerInterface $handler): RequestHandlerInterface
     {
         return new class ($middlewareFactory, $handler, $this->eventDispatcher) implements RequestHandlerInterface {
-            private readonly Closure $middlewareFactory;
             private ?MiddlewareInterface $middleware = null;
 
             public function __construct(
-                Closure $middlewareFactory,
+                /**
+                 * @psalm-var MiddlewareFactoryClosure
+                 */
+                private readonly Closure $middlewareFactory,
                 private readonly RequestHandlerInterface $handler,
                 private readonly ?EventDispatcherInterface $eventDispatcher,
-            ) {
-                $this->middlewareFactory = $middlewareFactory;
-            }
+            ) {}
 
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
-                /** @var MiddlewareInterface */
                 $this->middleware ??= ($this->middlewareFactory)();
 
                 $this->eventDispatcher?->dispatch(new BeforeMiddleware($this->middleware, $request));

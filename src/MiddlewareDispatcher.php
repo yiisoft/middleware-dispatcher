@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Middleware\Dispatcher;
 
-use Closure;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -13,6 +12,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 use function array_reverse;
 
+/**
+ * @psalm-import-type MiddlewareFactoryClosure from MiddlewareStack
+ */
 final class MiddlewareDispatcher
 {
     /**
@@ -96,7 +98,7 @@ final class MiddlewareDispatcher
     }
 
     /**
-     * @return Closure[]
+     * @psalm-return MiddlewareFactoryClosure[]
      */
     private function buildMiddlewares(): array
     {
