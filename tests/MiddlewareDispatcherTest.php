@@ -239,9 +239,7 @@ final class MiddlewareDispatcherTest extends TestCase
         ?ContainerInterface $container = null,
         ?EventDispatcherInterface $eventDispatcher = null,
     ): MiddlewareDispatcher {
-        if ($container === null) {
-            $container = $this->createContainer();
-        }
+        $container ??= $this->createContainer();
 
         return new MiddlewareDispatcher(
             new MiddlewareFactory($container),

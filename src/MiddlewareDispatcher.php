@@ -40,9 +40,7 @@ final class MiddlewareDispatcher
         ServerRequestInterface $request,
         RequestHandlerInterface $fallbackHandler,
     ): ResponseInterface {
-        if ($this->stack === null) {
-            $this->stack = new MiddlewareStack($this->buildMiddlewares(), $fallbackHandler, $this->eventDispatcher);
-        }
+        $this->stack ??= new MiddlewareStack($this->buildMiddlewares(), $fallbackHandler, $this->eventDispatcher);
 
         return $this->stack->handle($request);
     }
