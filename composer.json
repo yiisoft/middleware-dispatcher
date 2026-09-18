@@ -41,12 +41,12 @@
         "friendsofphp/php-cs-fixer": "^3.93",
         "nyholm/psr7": "^1.8.2",
         "phpunit/phpunit": "^10.5.48",
-        "rector/rector": "^2.2.14",
+        "rector/rector": "^2.6.7",
         "roave/infection-static-analysis-plugin": "^1.35",
         "shipmonk/composer-dependency-analyser": "^1.8",
         "spatie/phpunit-watcher": "^1.24",
         "vimeo/psalm": "^5.26.1 || ^6.13",
-        "yiisoft/code-style": "^1.0",
+        "yiisoft/code-style": "^1.1",
         "yiisoft/di": "^1.4",
         "yiisoft/test-support": "^3.0.2",
         "yiisoft/yii-debug": "dev-master"
@@ -80,6 +80,7 @@
     "scripts": {
         "cs-fix": "php-cs-fixer fix",
         "dependency-analyser": "composer-dependency-analyser",
+        "rector": "rector",
         "test": "phpunit --testdox --no-interaction",
         "test-watch": "phpunit-watcher watch"
     }
